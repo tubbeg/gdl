@@ -19,5 +19,5 @@ Based on [libGDX](http://libgdx.badlogicgames.com/).
 # Demo
 
 ```
-lein -m engine.repl
+lein run -m engine.repl
 ```
