@@ -27,42 +27,25 @@
 
 ;;
 
-; TODO does not work with refresh ! -> remove ...
-; make lifecycle hashes & collect them manually
-(def ^:private init-fns [])
-
-; TODO add 'destroy' also for disposing (reloaded workflow)
-; on-create
-; with-graphics-context
-(defmacro initialize
-  "Use for initializing objects inside the game loop thread."
-   [& exprs]
-  `(alter-var-root #'engine.core/init-fns conj
-                   (fn [] ~@exprs)))
-
-(defn init-all []
-  (doseq [f init-fns]
-    (f)))
+; TODO warning - state
+; refresh component system does not work -> do refresh-all
 
 ; Pre-load big images so the game does not pause/lag when they are played for the first time
 ; even more important when those images are played only one time for example big monster explosion
-; TODO AssetManager?
-; TODO def-game -> calls .dispose automatically on the object ?!
-(defmacro defpreload [& more]
-  `(initialize (def ~@more)))
 
-; TODO or GameLifeCycleObjects
-; - on-create: (set-var-root sprite-batch (SpriteBatch.))
-; - on-dispose (.dispose sprite-batch)
-; - on-update ?
-; - on-resize (not necessary yet (only for viewport, skip for now)
+; -> load all resources on app start
 
-; (defimage test-image "res/foobar" :scale [1 2])
-; (defspritesheet ...)
+(def ^:private on-create-fns [])
 
-; game :assets -> [test-image test-spritesheet]
+(defmacro on-create
+  "Expressions are called on app creation. Use for resource initialization."
+   [& exprs]
+  `(alter-var-root #'engine.core/on-create-fns conj
+                   (fn [] ~@exprs)))
 
-; assets -> load
+(defn- init-all []
+  (doseq [f on-create-fns]
+    (f)))
 
 ;;
 
@@ -121,7 +104,7 @@
                  (map game-screen->libgdx-screen (vals game-screens)))
         game (proxy [Game] []
                (create []
-                 (g/on-create viewport-width viewport-height assets-folder)
+                 (g/initialize viewport-width viewport-height assets-folder)
                  (init-all)
                  (.setScreen this (first (vals screens))))
                (dispose []

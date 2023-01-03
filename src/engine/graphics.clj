@@ -514,7 +514,7 @@ assert lastindexOf slash is the same for names in a folder?
 (def tile-size 16)
 (def map-unit-scale (/ tile-size))
 
-(defn on-create [width height assets-folder]
+(defn initialize [width height assets-folder]
   (set-var-root #'screen-width width)
   (set-var-root #'screen-height height)
 

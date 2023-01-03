@@ -4,11 +4,9 @@
             [engine.input :refer :all]
             [engine.core :refer :all]))
 
-(defpreload sheet
-  (spritesheet "items.png" 16 16))
-
-(defpreload sprite
-  (get-sprite sheet [5 4]))
+(on-create
+ (def sheet (spritesheet "items.png" 16 16))
+ (def sprite (get-sprite sheet [5 4])))
 
 (defn map-content []
   ;(draw-grid 0 0 24 18 1 1 (darker white 0.5))

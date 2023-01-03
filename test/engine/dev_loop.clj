@@ -4,9 +4,6 @@
 
 ; refresh-all because global state in engine.core/initialize
 
-
-(println "engine.dev-loop")
-
 (defn dev-loop []
   (app)
   (refresh-all :after 'engine.dev-loop/dev-loop))
