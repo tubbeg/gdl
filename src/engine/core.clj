@@ -66,22 +66,34 @@
 
 ;;
 
-(defn screen [& {:keys [init destroy update render]}]
+(defprotocol GameScreen
+  "A game can have different screens like main-menu, player-selection, actual ingame-state, and so on.
+  Graphics context is available in all functions for loading/disposing of resources."
+  (show [this]
+        "Called each time this screen is shown.")
+  (destroy [this]
+           "Called once on closing the game app")
+  (render [this]
+          "Called on every tick before update-screen")
+  (update-screen [this delta]
+                 "Called on every tick with elapsed delta time in ms"))
+
+(defn- game-screen->libgdx-screen [game-screen]
   (reify Screen
     (show [_]
-      (init))
+      (show game-screen))
     (render [_ delta]
       (g/clear-screen)
       ; TODO check if resize happened and resize was not called (maximize, or move window)
       ; compare screen width to viewport set screenwidth size maybe
-      (render)
-      (update (* delta 1000)))
+      (render game-screen)
+      (update-screen game-screen (* delta 1000)))
     (resize [_ w h])
     (pause [_])
     (resume [_])
     (hide [_])
     (dispose [_]
-      (if destroy (destroy)))))
+      (destroy game-screen))))
 
 ; hash of keyword -> screen
 (declare ^:private screens)
@@ -91,7 +103,7 @@
               (k screens)))
 
 (defn start-app
-  [& {:keys [screens
+  [& {:keys [game-screens
              full-screen
              title
              window-width
@@ -104,7 +116,10 @@
            window-height 600
            viewport-width 800
            viewport-height 600}}]
-  (let [game (proxy [Game] []
+  (let [screens (zipmap
+                 (keys game-screens)
+                 (map game-screen->libgdx-screen (vals game-screens)))
+        game (proxy [Game] []
                (create []
                  (g/on-create viewport-width viewport-height assets-folder)
                  (init-all)

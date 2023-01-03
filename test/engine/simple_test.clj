@@ -43,6 +43,21 @@
                           yellow
                           "yellow")))
 
+(def ingame-gamestate
+  (reify GameScreen
+    (show [_]
+      (def tiled-map (tiled/load-map "example.tmx"))) ; TODO init ...
+    (destroy [_]
+      (tiled/dispose tiled-map))
+    (render [_]
+      (render-map tiled-map
+                  (fn [color x y] white)
+                  [11 13]
+                  [:ground :details :entities])
+      (render-map-level map-content)
+      (render-gui-level gui-render))
+    (update-screen [_ delta])))
+
 (defn app []
   (start-app :full-screen false
              :title "engine demo"
@@ -51,17 +66,4 @@
              :viewport-width 360
              :viewport-height 225
              :assets-folder "test/resources/"
-             :screens {:main
-                       (screen
-                        :init (fn []
-                                (def tiled-map (tiled/load-map "example.tmx")))
-                        :destroy (fn []
-                                   (tiled/dispose tiled-map))
-                        :update (fn [delta])
-                        :render (fn []
-                                  (render-map tiled-map
-                                              (fn [color x y] white)
-                                              [11 13]
-                                              [:ground :details :entities])
-                                  (render-map-level map-content)
-                                  (render-gui-level gui-render)))}))
+             :game-screens {:main ingame-gamestate}))
