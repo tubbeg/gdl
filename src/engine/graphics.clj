@@ -14,9 +14,9 @@
    * Rendering tilemap
    * Unproject mouse coordinate to GUI or world coordinates.
    * Tilemap & Image tinting for lights/shadows."
-  (:require [clojure.string :refer [includes? split-lines upper-case] :as str]
+  (:require [clojure.string :refer [includes? split-lines upper-case]]
             [engine.tiled :as tiled]
-            [engine.utils :refer [set-var-root get-jar-entries]])
+            [engine.utils :refer [set-var-root get-jar-entries recursively-search-files]])
   (:import [java.io File]
            [com.badlogic.gdx Gdx]
            [com.badlogic.gdx.assets AssetManager]
@@ -171,31 +171,15 @@
 
 (declare ^:private ^AssetManager asset-manager)
 
-(defn- recursively-search-files [asset-folder extensions]
-  (loop [[file & remaining] (.list (.internal (Gdx/files) asset-folder))
-         result []]
-    (cond (nil? file) result
-          (.isDirectory file)
-          (recur (concat remaining (.list file)) result)
-          (extensions (.extension file))
-          (recur remaining (conj result (str/replace (.path file) asset-folder "")))
-          :else
-          (recur remaining result))))
-
-(defn- create-asset-manager [assets-folder]
-  (set-var-root #'asset-manager (AssetManager.))
-
+(defn- load-assets [assets-folder]
   (.load asset-manager "simple_6x8.png" Texture) ; loaded separately because its the only engine specific resource
 
   (let [images (recursively-search-files assets-folder #{"png" "bmp"})]
-    #_(println "Found" (count images) "images.")
+    (println "Found" (count images) "images.")
     (dorun (map #(.load asset-manager % Texture) images)))
 
-  #_(println "Loading all assets...")
-  (.finishLoading asset-manager))
-
-(defn- dispose-asset-manager []
-  (.dispose asset-manager))
+  (println "Loading all images ...")
+  (time (.finishLoading asset-manager)))
 
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth texture)
@@ -514,13 +498,16 @@ assert lastindexOf slash is the same for names in a folder?
 (def tile-size 16)
 (def map-unit-scale (/ tile-size))
 
-(defn initialize [width height assets-folder]
+(defn initialize [width height asset-manager assets-folder]
   (set-var-root #'screen-width width)
   (set-var-root #'screen-height height)
 
   (set-var-root #'sprite-batch (SpriteBatch.))
   (create-shape-drawer sprite-batch)
-  (create-asset-manager assets-folder)
+
+  (set-var-root #'asset-manager asset-manager)
+  (load-assets assets-folder)
+
   (create-font)
 
   (set-var-root #'gui-camera (OrthographicCamera.))
@@ -538,8 +525,7 @@ assert lastindexOf slash is the same for names in a folder?
 
 (defn on-dispose []
   (.dispose sprite-batch)
-  (dispose-shape-drawer)
-  (dispose-asset-manager))
+  (dispose-shape-drawer))
 
 (defn- render-with [batch unit-scale ^OrthographicCamera camera renderfn]
   (binding [*batch* batch
