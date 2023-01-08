@@ -33,7 +33,6 @@
   (let [sounds (recursively-search-files assets-folder #{"wav"})]
     (println "Found" (count sounds) "sounds.")
     (dorun (map #(.load asset-manager % Sound) sounds)))
-
   (println "Loading all sounds...")
   (time (.finishLoading asset-manager)))
 
@@ -42,16 +41,8 @@
    (fn [spath]
      (.get asset-manager (str "sounds/" spath) Sound))))
 
-(defn create-sound [spath] spath) ; TODO
-
-(defn play-sound [spath]
-  (.play (get-sound spath)))
-
-(defn playonce [sound] ; TODO used only 1x at deniedsound for casting
-  ; libgdx doesnt have that -> add counter and check duration
-  ;(when-not (.playing sound)
-  ;  (.play sound))
-  (play-sound sound))
+(defn play-sound [filestring]
+  (.play (get-sound filestring)))
 
 (defprotocol GameScreen
   "A game can have different screens like main-menu, player-selection, actual ingame-state, and so on.
