@@ -1,9 +1,5 @@
 (ns engine.input
-  "In order to use include engine.input/update-mousebutton-state in your game."
   (:import [com.badlogic.gdx Gdx Input Input$Buttons Input$Keys]))
-
-(defn clear-key-pressed-record   [])
-(defn clear-mouse-pressed-record [])
 
 (defn get-mouse-pos []
   #_[(.getX (Gdx/input))

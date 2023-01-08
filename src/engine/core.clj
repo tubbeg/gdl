@@ -1,6 +1,7 @@
 (ns engine.core
   (:require [engine.utils :refer (set-var-root recursively-search-files)]
-            [engine.graphics :as g])
+            [engine.graphics :as g]
+            [engine.input :refer (update-mousebutton-state)])
   (:import [com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration]
            [com.badlogic.gdx Gdx Screen Game]
            [com.badlogic.gdx.assets AssetManager]
@@ -65,6 +66,7 @@
       ; TODO check if resize happened and resize was not called (maximize, or move window)
       ; compare screen width to viewport set screenwidth size maybe
       (render game-screen)
+      (update-mousebutton-state)
       (update-screen game-screen (* delta 1000)))
     (resize [_ w h])
     (pause [_])

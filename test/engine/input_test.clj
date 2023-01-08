@@ -40,7 +40,6 @@
       (println "try-consume-leftm-pressed returns true!, should return nil when called another time this frame: " (try-consume-leftm-pressed)))
     (try-consume-rightm-pressed)))
 
-
 (def ingame-gamestate
   (reify GameScreen
     (show [_])
@@ -48,7 +47,6 @@
     (render [_]
       (render-gui-level render*))
     (update-screen [_ delta]
-      (update-mousebutton-state)
       (update-test))))
 
 (defn app []
