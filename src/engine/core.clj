@@ -27,28 +27,6 @@
 (defn get-fps []
   (str (.getFramesPerSecond (Gdx/graphics))))
 
-;;
-
-; TODO warning - state
-; refresh component system does not work -> do refresh-all
-
-; Pre-load big images so the game does not pause/lag when they are played for the first time
-; even more important when those images are played only one time for example big monster explosion
-
-; -> load all resources on app start
-
-(def ^:private on-create-fns [])
-
-(defmacro on-create
-  "Expressions are called on app creation. Use for resource initialization."
-   [& exprs]
-  `(alter-var-root #'engine.core/on-create-fns conj
-                   (fn [] ~@exprs)))
-
-(defn- init-all []
-  (doseq [f on-create-fns]
-    (f)))
-
 (declare ^:private ^AssetManager asset-manager)
 
 (defn- load-sounds [assets-folder]
@@ -119,12 +97,14 @@
              window-height
              viewport-width
              viewport-height
-             assets-folder]
+             assets-folder
+             on-create]
       :or {title "Test"
            window-width 800
            window-height 600
            viewport-width 800
-           viewport-height 600}}]
+           viewport-height 600
+           on-create (fn [])}}]
   (let [screens (zipmap
                  (keys game-screens)
                  (map game-screen->libgdx-screen (vals game-screens)))
@@ -133,7 +113,7 @@
                  (set-var-root #'asset-manager (AssetManager.))
                  (load-sounds assets-folder)
                  (g/initialize viewport-width viewport-height asset-manager assets-folder)
-                 (init-all)
+                 (on-create)
                  (.setScreen this (first (vals screens))))
                (dispose []
                  (.dispose asset-manager)

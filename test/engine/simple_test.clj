@@ -4,7 +4,7 @@
             [engine.input :refer :all]
             [engine.core :refer :all]))
 
-(on-create
+(defn- load-resources []
  (def sheet (spritesheet "items.png" 16 16))
  (def sprite (get-sprite sheet [5 4])))
 
@@ -64,4 +64,5 @@
              :viewport-width 360
              :viewport-height 225
              :assets-folder "test/resources/"
-             :game-screens {:main ingame-gamestate}))
+             :game-screens {:main ingame-gamestate}
+             :on-create load-resources))
