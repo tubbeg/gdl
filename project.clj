@@ -11,7 +11,7 @@
                  [com.github.damn/grid2d "1.0"]]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :java-source-paths ["src/"]
-  :jvm-opts ["-XstartOnFirstThread"]
+  ;:jvm-opts ["-XstartOnFirstThread"]
   :profiles {:dev {:resource-paths ["test/resources"]}})
 
 ; TODO:
