@@ -1,11 +1,11 @@
 (ns engine.core
-  (:require [engine.utils :refer (set-var-root recursively-search-files)]
+  (:require [engine.utils :refer (set-var-root)]
+            [engine.asset-manager :as asset-manager]
             [engine.graphics :as g]
             [engine.input :refer (update-mousebutton-state)])
   (:import [com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration]
            [com.badlogic.gdx Gdx Screen Game]
-           [com.badlogic.gdx.assets AssetManager]
-           [com.badlogic.gdx.audio Sound]))
+           [com.badlogic.gdx.audio Sound])) ; TODO Sound reflection for play
 
 (defn ^:private create-lwjgl3-application
   [& {:keys [title game width height full-screen]}]
@@ -28,22 +28,8 @@
 (defn get-fps []
   (str (.getFramesPerSecond (Gdx/graphics))))
 
-(declare ^:private ^AssetManager asset-manager)
-
-(defn- load-sounds [assets-folder]
-  (let [sounds (recursively-search-files assets-folder #{"wav"})]
-    (println "Found" (count sounds) "sounds.")
-    (dorun (map #(.load asset-manager % Sound) sounds)))
-  (println "Loading all sounds...")
-  (time (.finishLoading asset-manager)))
-
-(def ^:private get-sound
-  (memoize
-   (fn [spath]
-     (.get asset-manager (str "sounds/" spath) Sound))))
-
 (defn play-sound [filestring]
-  (.play (get-sound filestring)))
+  (.play (asset-manager/get-sound filestring)))
 
 (defprotocol GameScreen
   "A game can have different screens like main-menu, player-selection, actual ingame-state, and so on.
@@ -103,13 +89,12 @@
                  (map game-screen->libgdx-screen (vals game-screens)))
         game (proxy [Game] []
                (create []
-                 (set-var-root #'asset-manager (AssetManager.))
-                 (load-sounds assets-folder)
-                 (g/initialize viewport-width viewport-height asset-manager assets-folder)
+                 (asset-manager/on-create assets-folder)
+                 (g/on-create viewport-width viewport-height)
                  (on-create)
                  (.setScreen this (first (vals screens))))
                (dispose []
-                 (.dispose asset-manager)
+                 (asset-manager/on-dispose)
                  (g/on-dispose)
                  (dorun (map (memfn dispose) (vals screens))))
                (pause [])

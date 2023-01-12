@@ -16,10 +16,10 @@
    * Tilemap & Image tinting for lights/shadows."
   (:require [clojure.string :refer [includes? split-lines upper-case]]
             [engine.tiled :as tiled]
-            [engine.utils :refer [set-var-root get-jar-entries recursively-search-files]])
+            [engine.utils :refer [set-var-root get-jar-entries]]
+            [engine.asset-manager :as asset-manager])
   (:import [java.io File]
            [com.badlogic.gdx Gdx]
-           [com.badlogic.gdx.assets AssetManager]
            [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
@@ -169,17 +169,7 @@
             :let [liney (+ bottomy (* idx cellh))]]
            (draw-line leftx liney rightx liney color))))
 
-(declare ^:private ^AssetManager asset-manager)
 
-(defn- load-assets [assets-folder]
-  (.load asset-manager "simple_6x8.png" Texture) ; loaded separately because its the only engine specific resource
-
-  (let [images (recursively-search-files assets-folder #{"png" "bmp"})]
-    (println "Found" (count images) "images.")
-    (dorun (map #(.load asset-manager % Texture) images)))
-
-  (println "Loading all images ...")
-  (time (.finishLoading asset-manager)))
 
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth texture)
@@ -230,14 +220,6 @@
 (defn draw-centered-image [image position]
   (draw-rotated-centered-image image 0 position))
 
-(def ^:private file->texture
-  (memoize
-   (fn [file & [x y w h]]
-     (let [^Texture texture (.get asset-manager ^String file ^Class Texture)]
-       (if (and x y w h)
-         (TextureRegion. texture (int x) (int y) (int w) (int h))
-         (TextureRegion. texture))))))
-
 ; IMPROVEMENT
 ; * make defrecord (faster) (maybe also protocol functions -> faster?)
 ; * texture can setFilter at Texture$TextureFilter (check scaling ok?)
@@ -246,14 +228,14 @@
   [file & {:keys [scale]}]
   {:file file
    :scale (or scale 1)
-   :texture (file->texture file)})
+   :texture (asset-manager/file->texture file)})
 
 (defn get-sub-image
   "Coordinates are from original image, not scaled one."
   [{:keys [file] :as image} & sub-image-bounds]
   {:pre [(= 1 (:scale image))]}
   (assoc image
-         :texture (apply file->texture file sub-image-bounds)
+         :texture (apply asset-manager/file->texture file sub-image-bounds)
          :sub-image-bounds sub-image-bounds))
 
 (defn get-scaled-copy
@@ -498,15 +480,12 @@ assert lastindexOf slash is the same for names in a folder?
 (def tile-size 16)
 (def map-unit-scale (/ tile-size))
 
-(defn initialize [width height asset-manager assets-folder]
+(defn on-create [width height]
   (set-var-root #'screen-width width)
   (set-var-root #'screen-height height)
 
   (set-var-root #'sprite-batch (SpriteBatch.))
   (create-shape-drawer sprite-batch)
-
-  (set-var-root #'asset-manager asset-manager)
-  (load-assets assets-folder)
 
   (create-font)
 
