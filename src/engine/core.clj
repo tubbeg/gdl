@@ -15,15 +15,17 @@
     (if full-screen
       (.setFullscreenMode config (Lwjgl3ApplicationConfiguration/getDisplayMode))
       (.setWindowedMode config width height))
-    (println "Starting Lwjgl3Application")
+    (println "Starting Lwjgl3Application"); TODO logging
     (Lwjgl3Application. game config)))
 
 (defn exit-app []
   (.exit (Gdx/app)))
 
-(defmacro with-context [& body]
-   `(.postRunnable (Gdx/app)
-                   (fn [] ~@body)))
+(defmacro with-context
+  "Executes body asynchronously with graphics context"
+  [& body]
+  `(.postRunnable (Gdx/app)
+                  (fn [] ~@body)))
 
 (defn get-fps []
   (str (.getFramesPerSecond (Gdx/graphics))))
@@ -34,14 +36,10 @@
 (defprotocol GameScreen
   "A game can have different screens like main-menu, player-selection, actual ingame-state, and so on.
   Graphics context is available in all functions for loading/disposing of resources."
-  (show [this]
-        "Called each time this screen is shown.")
-  (destroy [this]
-           "Called once on closing the game app")
-  (render [this]
-          "Called on every tick before update-screen")
-  (update-screen [this delta]
-                 "Called on every tick with elapsed delta time in ms"))
+  (show [this] "Called each time this screen is shown.")
+  (destroy [this] "Called once on closing the game app")
+  (render [this] "Called on every tick before update-screen")
+  (update-screen [this delta] "Called on every tick with elapsed delta time in ms"))
 
 (defn- game-screen->libgdx-screen [game-screen]
   (reify Screen

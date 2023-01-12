@@ -1,12 +1,9 @@
 (ns engine.input
+  (:require [engine.graphics :refer (mouse-coords)])
   (:import [com.badlogic.gdx Gdx Input Input$Buttons Input$Keys]))
 
-(defn get-mouse-pos []
-  #_[(.getX (Gdx/input))
-     (.getY (Gdx/input))]
-  ; TODO FIXME
-  (#'engine.graphics/mouse-coords)
-  )
+(defn get-mouse-pos [] ; TODO gui-mouse-position / coords (move to graphics ? )
+  (mouse-coords))
 
 (defn- to-mouse-key [k]
   (case k
@@ -83,6 +80,8 @@
              (not (is-consumed? button)))
     (swap! state assoc-in [button :consumed] true)))
 
+; TODO instead of 'consumed' concept rather something like 'mouse-being-held' ?!
+
 (defn try-consume-leftm-pressed
   "If leftmouse was pressed this frame and not yet consumed, consumes it and returns true else returns nil.
    It is consumed as long as the leftmouse-button is down."
@@ -90,4 +89,6 @@
   (try-consume-pressed :left))
 
 (defn try-consume-rightm-pressed []
+  "If rightmouse was pressed this frame and not yet consumed, consumes it and returns true else returns nil.
+   It is consumed as long as the leftmouse-button is down."
   (try-consume-pressed :right))

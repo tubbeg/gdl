@@ -1,6 +1,10 @@
 (ns engine.dev-loop
   (:require [clojure.tools.namespace.repl :refer [refresh-all]]
-            [engine.simple-test :refer [app]]))
+
+            [engine.input-test :refer [app]]
+            ;[engine.simple-test :refer [app]]
+
+            ))
 
 ; refresh-all because global state in engine.core/initialize
 

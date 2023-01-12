@@ -34,6 +34,7 @@ import com.badlogic.gdx.maps.tiled.renderers.BatchTiledMapRenderer;
 import engine.ColorSetter;
 
 // TODO include in libgdx directly ?
+// TODO document how ColorSetter works and can be used maybe with example
 public class OrthogonalTiledMapRendererWithColorSetter extends BatchTiledMapRenderer {
 
   private ColorSetter colorSetter;
@@ -100,6 +101,7 @@ public class OrthogonalTiledMapRendererWithColorSetter extends BatchTiledMapRend
           // System.out.println("x1 : " + x1 + " , x2:" + x2);
           // System.out.println("y1 : " + y1 + " , y2:" + y2);
 
+          // TODO if colorSetter not null
           float color11 = colorSetter.apply(batchColor, x1, y1).toFloatBits();
           float color12 = colorSetter.apply(batchColor, x1, y2).toFloatBits();
           float color22 = colorSetter.apply(batchColor, x2, y2).toFloatBits();

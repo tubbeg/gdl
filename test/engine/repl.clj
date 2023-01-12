@@ -16,7 +16,7 @@
   (defonce nrepl-server (start-server :port 7888))
   (println "Started nrepl server on port 7888.")
   ; TODO set all dirs ...
-  (set-refresh-dirs (clojure.java.io/file "src/engine/")
+  #_(set-refresh-dirs (clojure.java.io/file "src/engine/")
                     (clojure.java.io/file "src/utils/"))
   (dev-loop))
 

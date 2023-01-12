@@ -320,6 +320,7 @@
   (.setColor *batch* white))
 
 ; screen-width/screen-height are virtual (see FitViewPort)
+; (not the actual window/screen size on the monitor if scaling is applied)
 (declare ^:private screen-width
          ^:private screen-height)
 
@@ -373,7 +374,7 @@
   (get-duration [_])
   (get-frame    [_]))
 
-; AnimationHashMap
+; AnimationHash(Map)
 (defrecord ImmutableAnimation [frames frame-duration looping speed cnt maxcnt]
   Animation
   (is-stopped? [_]
@@ -476,9 +477,10 @@ assert lastindexOf slash is the same for names in a folder?
          ^:private map-viewport
          ^:private sprite-batch)
 
-; TODO get from map.
+; TODO get from map / initialize with set-var-root
 (def tile-size 16)
 (def map-unit-scale (/ tile-size))
+; make private so is not accidentally used before initialization
 
 (defn on-create [width height]
   (set-var-root #'screen-width width)
@@ -559,10 +561,10 @@ assert lastindexOf slash is the same for names in a folder?
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
-(defn mouse-coords []
+(defn mouse-coords [] ; TODO screen-coords (gui-coords)
   (mapv int (unproject-mouse-posi gui-viewport)))
 
-(defn map-coords
+(defn map-coords ; or 'world-mouse-posi'
   "Can be negative coordinates, undefined cells." ; TODO check if true
   []
   (unproject-mouse-posi map-viewport))
