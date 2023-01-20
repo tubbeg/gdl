@@ -91,7 +91,7 @@
         game (proxy [Game] []
                (create []
                  (asset-manager/on-create assets-folder)
-                 (g/on-create viewport-width viewport-height tile-size)
+                 (g/initialize viewport-width viewport-height tile-size)
                  (on-create)
                  (.setScreen this (first (vals screens))))
                (dispose []

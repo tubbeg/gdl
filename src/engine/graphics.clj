@@ -478,7 +478,7 @@ assert lastindexOf slash is the same for names in a folder?
          ^:private map-viewport
          ^:private sprite-batch)
 
-(defn on-create [width height tile-size]
+(defn initialize [width height tile-size]
   (set-var-root #'screen-width width)
   (set-var-root #'screen-height height)
 
