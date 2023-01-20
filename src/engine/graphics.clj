@@ -477,12 +477,7 @@ assert lastindexOf slash is the same for names in a folder?
          ^:private map-viewport
          ^:private sprite-batch)
 
-; TODO get from map / initialize with set-var-root
-(def tile-size 16)
-(def map-unit-scale (/ tile-size))
-; make private so is not accidentally used before initialization
-
-(defn on-create [width height]
+(defn on-create [width height tile-size]
   (set-var-root #'screen-width width)
   (set-var-root #'screen-height height)
 
@@ -495,7 +490,8 @@ assert lastindexOf slash is the same for names in a folder?
   (set-var-root #'gui-viewport (FitViewport. width height gui-camera))
 
   (set-var-root #'map-camera (OrthographicCamera.))
-  (let [width  (* width map-unit-scale)
+  (let [map-unit-scale (/ (or tile-size 1))
+        width  (* width map-unit-scale)
         height (* height map-unit-scale)]
     (.setToOrtho map-camera false width height)
     (set-var-root #'map-viewport (FitViewport. width height map-camera))))

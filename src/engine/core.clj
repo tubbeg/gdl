@@ -67,6 +67,8 @@
               (k screens)))
 
 (defn start-app
+  "tile-size key is required if you want to use render-map / render-map-level / map-coords
+  functions, otherwise not necessary."
   [& {:keys [game-screens
              full-screen
              title
@@ -75,7 +77,8 @@
              viewport-width
              viewport-height
              assets-folder
-             on-create]
+             on-create
+             tile-size]
       :or {title "Test"
            window-width 800
            window-height 600
@@ -88,7 +91,7 @@
         game (proxy [Game] []
                (create []
                  (asset-manager/on-create assets-folder)
-                 (g/on-create viewport-width viewport-height)
+                 (g/on-create viewport-width viewport-height tile-size)
                  (on-create)
                  (.setScreen this (first (vals screens))))
                (dispose []
