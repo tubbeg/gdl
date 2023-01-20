@@ -473,6 +473,7 @@ assert lastindexOf slash is the same for names in a folder?
 
 (declare ^:private gui-camera
          ^:private gui-viewport
+         ^:private map-unit-scale
          ^:private ^OrthographicCamera map-camera
          ^:private map-viewport
          ^:private sprite-batch)
@@ -489,9 +490,9 @@ assert lastindexOf slash is the same for names in a folder?
   (set-var-root #'gui-camera (OrthographicCamera.))
   (set-var-root #'gui-viewport (FitViewport. width height gui-camera))
 
+  (set-var-root #'map-unit-scale (/ (or tile-size 1)))
   (set-var-root #'map-camera (OrthographicCamera.))
-  (let [map-unit-scale (/ (or tile-size 1))
-        width  (* width map-unit-scale)
+  (let [width  (* width map-unit-scale)
         height (* height map-unit-scale)]
     (.setToOrtho map-camera false width height)
     (set-var-root #'map-viewport (FitViewport. width height map-camera))))

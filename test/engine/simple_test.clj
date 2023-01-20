@@ -65,4 +65,5 @@
              :viewport-height 225
              :assets-folder "test/resources/"
              :game-screens {:main ingame-gamestate}
-             :on-create load-resources))
+             :on-create load-resources
+             :tile-size 16))
