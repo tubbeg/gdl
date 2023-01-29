@@ -573,5 +573,5 @@ assert lastindexOf slash is the same for names in a folder?
 (defn viewport-width  [] (.getWorldWidth  gui-viewport))
 (defn viewport-height [] (.getWorldHeight gui-viewport))
 
-(defn world-viewport-width  [] (.getWorldWidth  gui-viewport))
-(defn world-viewport-height [] (.getWorldHeight gui-viewport))
+(defn world-viewport-width  [] (.getWorldWidth  map-viewport))
+(defn world-viewport-height [] (.getWorldHeight map-viewport))
