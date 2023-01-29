@@ -569,3 +569,6 @@ assert lastindexOf slash is the same for names in a folder?
 (defn clear-screen [] ; TODO use clear screen utils
   (.glClearColor (Gdx/gl) 0 0 0 1)
   (.glClear (Gdx/gl) GL20/GL_COLOR_BUFFER_BIT))
+
+(defn viewport-width  [] (.getWorldWidth  gui-viewport))
+(defn viewport-height [] (.getWorldHeight gui-viewport))
