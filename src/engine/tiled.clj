@@ -103,6 +103,25 @@
       (convert-to-spriteposi (- gid (firstgid tileset))
                              (tileset-width tileset)))))
 
+; "Tiles are usually shared by multiple cells."
+; https://libgdx.com/wiki/graphics/2d/tile-maps#cells
+(def ^:private make-tile
+  (memoize
+   (fn [tile-or-texture] ; copy constructor and new tile with texture constructor
+     (StaticTiledMapTile. tile-or-texture))))
+
+(def ^:private copy-tile make-tile)
+
+(defn- set-tile* [layer [x y] tile]
+   (let [new-cell (TiledMapTileLayer$Cell.)]
+     (.setTile new-cell tile)
+     (.setCell layer x y new-cell)))
+
+(defn set-tile [tiled-map layer position texture]
+  (set-tile* (.get (layers tiled-map) (name layer))
+             position
+             (make-tile texture)))
+
 ;; Programmatic creation of tiled-maps from a combination of tiled-maps on a grid
 
 ; No copied-tile for AnimatedTiledMapTile yet (there was no generic copy)
@@ -112,26 +131,14 @@
                                   tilewidth
                                   tileheight)]
     (.setName layer layer-name)
-    (doseq [[x y] (grid/posis grid)
-            :let [{:keys [local-position tiled-map]} (get grid [x y])]
+    (doseq [position (grid/posis grid)
+            :let [{:keys [local-position tiled-map]} (get grid position)]
             :when local-position]
       (if local-position
         (if-let [cell (cell-at local-position tiled-map layer-name)]
-          (let [new-cell (TiledMapTileLayer$Cell.)
-                copied-tile (StaticTiledMapTile. ^StaticTiledMapTile
-                                                 (.getTile cell))]
-            ; TODO could cache tiles with same texture (or same getTile result, which is already cached ?)
-            ; local-tile (.getTile cell)
-            ; copied-tile (memoize (fn [tile]  (StaticTiledMapTile. ^StaticTiledMapTile local-tile)))
-            (.setTile new-cell copied-tile)
-            (.setCell layer x y new-cell)))
-        ; TODO else case
-        ; - only for ground layer -
-        ; no tile at position
-        ; check if is adjacent to any tile
-        ; -> then its a wall
-        ; -> us wall placement function
-        ))
+          (set-tile* layer
+                     position
+                     (copy-tile (.getTile cell))))))
     layer))
 
 (defn make-tiled-map
