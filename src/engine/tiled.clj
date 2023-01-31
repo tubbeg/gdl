@@ -112,7 +112,7 @@
                                   tilewidth
                                   tileheight)]
     (.setName layer layer-name)
-    (doseq [[x y] (posis grid)
+    (doseq [[x y] (grid/posis grid)
             :let [{:keys [local-position tiled-map]} (get grid [x y])]
             :when local-position]
       (if local-position
@@ -141,11 +141,11 @@
         properties (.getProperties tiled-map)
         _ (.put properties "width" (grid/width grid))
         _ (.put properties "height" (grid/height grid))
-        layers (layers tiled-map)
         module-tiled-map (:tiled-map (first (filter :tiled-map (grid/cells grid))))
         tilewidth (get-property module-tiled-map :tilewidth)
         tileheight (get-property module-tiled-map :tileheight)
-        layer-names (map (memfn getName) (layers module-tiled-map))]
+        layer-names (map (memfn getName) (layers module-tiled-map))
+        layers (layers tiled-map)]
     (doseq [layer-name layer-names]
       (.add layers (make-layer grid layer-name tilewidth tileheight)))
     tiled-map))
