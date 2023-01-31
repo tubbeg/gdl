@@ -32,7 +32,10 @@
   (if-let [layer (.get (layers tiled-map) (name layer))]
     (.getCell ^TiledMapTileLayer layer x y)))
 
-(defn property-value [position tiled-map layer property]
+(defn property-value
+  "Returns the property value from layer and position.
+  If there is no cell returns :no-cell and if the property value is undefined returns :undefined."
+  [position tiled-map layer property]
   {:pre [(keyword? property)]}
   (if-let [cell (cell-at position tiled-map layer)]
     (if-let [value (get-property (.getTile cell) property)]
@@ -100,63 +103,49 @@
       (convert-to-spriteposi (- gid (firstgid tileset))
                              (tileset-width tileset)))))
 
-(defn- make-layer [layer-name cell-grid sprite-sheet get-sprite sprite-posi-key]
-  (let [layer (TiledMapTileLayer. (grid/width cell-grid)
-                                  (grid/height cell-grid)
-                                  (:tilew sprite-sheet)
-                                  (:tileh sprite-sheet))
-        texture->tile (memoize (fn [texture] (StaticTiledMapTile. texture)))]
+;; Programmatic creation of tiled-maps from a combination of tiled-maps on a grid
+
+; No copied-tile for AnimatedTiledMapTile yet (there was no generic copy)
+(defn- make-layer [grid layer-name tilewidth tileheight]
+  (let [layer (TiledMapTileLayer. (grid/width grid)
+                                  (grid/height grid)
+                                  tilewidth
+                                  tileheight)]
     (.setName layer layer-name)
-    (doseq [[x y] (grid/posis cell-grid)
-            :let [cell-grid-cell (get cell-grid [x y])]
-            :when cell-grid-cell]
-      (if-let [sprite-idx (sprite-posi-key @cell-grid-cell)]
-        (let [cell (TiledMapTileLayer$Cell.)]
-          (.setTile cell (texture->tile
-                          (:texture
-                           (get-sprite sprite-sheet sprite-idx))))
-          (.setCell layer x y cell))))
+    (doseq [[x y] (posis grid)
+            :let [{:keys [local-position tiled-map]} (get grid [x y])]
+            :when local-position]
+      (if local-position
+        (if-let [cell (cell-at local-position tiled-map layer-name)]
+          (let [new-cell (TiledMapTileLayer$Cell.)
+                copied-tile (StaticTiledMapTile. ^StaticTiledMapTile
+                                                 (.getTile cell))]
+            ; TODO could cache tiles with same texture (or same getTile result, which is already cached ?)
+            ; local-tile (.getTile cell)
+            ; copied-tile (memoize (fn [tile]  (StaticTiledMapTile. ^StaticTiledMapTile local-tile)))
+            (.setTile new-cell copied-tile)
+            (.setCell layer x y new-cell)))
+        ; TODO else case
+        ; - only for ground layer -
+        ; no tile at position
+        ; check if is adjacent to any tile
+        ; -> then its a wall
+        ; -> us wall placement function
+        ))
     layer))
 
-(comment
-
- make-tiled-map
- :width
- :height
- :tile-width
- :tile-height
- :layers [{:name
-           :position->texture-region}]
-
- ; :position->texture-region
- ; should return same texture-region objects if it is the same value
- ; as then the tiles will be re-used
-
- )
-
 (defn make-tiled-map
-  [cell-grid sprite-sheet details-sprite-sheet get-sprite]
+  "Grid cells can have :local-position and :tiled-map keys."
+  [grid]
   (let [tiled-map (TiledMap.)
-        layers (layers tiled-map)]
-    (.add layers (make-layer "ground"
-                             cell-grid
-                             sprite-sheet
-                             get-sprite
-                             :sprite-posi))
-    (if details-sprite-sheet
-      (.add layers (make-layer "details"
-                               cell-grid
-                               details-sprite-sheet
-                               get-sprite
-                               :details-sprite-posi)))
+        properties (.getProperties tiled-map)
+        _ (.put properties "width" (grid/width grid))
+        _ (.put properties "height" (grid/height grid))
+        layers (layers tiled-map)
+        module-tiled-map (:tiled-map (first (filter :tiled-map (grid/cells grid))))
+        tilewidth (get-property module-tiled-map :tilewidth)
+        tileheight (get-property module-tiled-map :tileheight)
+        layer-names (map (memfn getName) (layers module-tiled-map))]
+    (doseq [layer-name layer-names]
+      (.add layers (make-layer grid layer-name tilewidth tileheight)))
     tiled-map))
-
-(comment
-
- (def tm
-   (:tiled-map
-    (:tech-graveyard (deref (var game.maps.data/maps-data)))))
-
- (.getTile (cell-at [26 57] tm "ground"))
-
- )
