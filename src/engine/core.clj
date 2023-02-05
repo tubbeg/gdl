@@ -47,8 +47,7 @@
       (show game-screen))
     (render [_ delta]
       (g/clear-screen)
-      ; TODO check if resize happened and resize was not called (maximize, or move window)
-      ; compare screen width to viewport set screenwidth size maybe
+      (g/on-update)
       (render game-screen)
       (update-mousebutton-state)
       (update-screen game-screen (* delta 1000)))

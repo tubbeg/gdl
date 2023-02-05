@@ -169,8 +169,6 @@
             :let [liney (+ bottomy (* idx cellh))]]
            (draw-line leftx liney rightx liney color))))
 
-
-
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth texture)
    (.getRegionHeight texture)])
@@ -258,10 +256,6 @@
 (defn spritesheet-frames [& args]
   (get-sheet-frames (apply spritesheet args)))
 
-; TODO unit-scale for char-width & char-height
-; for rendering on map
-; also screen-width & screen-height with shift then ... (ignore for now?)
-
 ; alternative font:
 ; "anuvverbubbla_8x8.png"
 ; allowed-characters (range 32 91)
@@ -270,9 +264,15 @@
 
 (def ^:private allowed-characters (set (map char (range 32 126))))
 (def ^:private starting-character \space)
-(def ^:private char-width 6) ; alt: 8
-(def ^:private char-height 8)
+(def ^:private char-width-px 6)
+(def ^:private char-height-px 8)
 (def ^:private horizontal-count 94)
+
+(defn- char-width []
+  (* char-width-px *unit-scale*))
+
+(defn- char-height []
+  (* char-height-px *unit-scale*))
 
 (declare ^:private font-spritesheet)
 
@@ -281,31 +281,61 @@
 
 ; IMPROVEMENT I could memoize the text->spritesheet xpos or even sprites calculation
 ; so the texts would be memoized immediately and fast
-(defn draw-string [x y text]
-  ;{:pre [(every? allowed-characters text)]}
+(defn- draw-string
+  "Draws the string at position x,y.
+  Does not support formatting, centering, shifting, background like
+  render-readable-text."
+  [x y string scale]
+  ;{:pre [(every? allowed-characters string)]}
   ; IMPROVEMENT  too strict, just give a warning and put the not allowed char
-  (let [data-array (.getBytes ^String text "US-ASCII")]
+  (let [data-array (.getBytes ^String string "US-ASCII")]
     (doseq [i (range (alength data-array))
             :let [char-byte (aget data-array i)
                   index (- char-byte (byte starting-character))
-                  x-pos (mod index horizontal-count)]]
+                  x-pos (mod index horizontal-count)
+                  char-sprite (get-sprite font-spritesheet [x-pos 0])
+                  char-sprite (if (not= scale 1)
+                                (get-scaled-copy char-sprite scale)
+                                char-sprite)
+                  char-width (* scale (char-width))]]
       ; TODO so many objects .. for each char....
       ; memoize on the spritesheet ?
-      (draw-image (get-sprite font-spritesheet [x-pos 0])
+      (draw-image char-sprite
                   (+ x (* char-width i))
                   y))))
 
-(defn get-line-height [] char-height)
+; A 'textseq' here is a sequence of Color or strings (and nils are also allowed, will be ignored)
+; where colors will be set for subsequent strings and
+; after each element a newline will be inserted
+; strings can also contain newlines \n where a newline will be inserted
+; and in metadata has to have :scale key (set to 1 default)
 
-(defn get-text-height [text]
-  (* char-height (count (split-lines text))))
+(defn- get-line-height [textseq]
+  (* (char-height)
+     (:scale (meta textseq))))
 
-(defn get-text-width [text]
-  (* char-width (apply max (map count (split-lines text)))))
+(defn- textseq->text-lines [textseq]
+  (->> textseq
+       (remove #(instance? Color %))
+       (interpose "\n")
+       (apply str)
+       split-lines))
 
-(defn- render-colored-text [x y & color-str-seq]
-  (loop [y y
-         [obj & remaining] color-str-seq]
+(defn get-text-height [textseq]
+  (* (get-line-height textseq)
+     (count (textseq->text-lines textseq))))
+
+; should work with nil's and Colors in the textseq
+(defn get-text-width [textseq]
+  (* (char-width)
+     (apply max (map count (textseq->text-lines textseq)))
+     (:scale (meta textseq))))
+
+(defn- render-text* [x y textseq]
+  (loop [y (+ y
+              (get-text-height textseq)
+              (- (get-line-height textseq)))
+         [obj & remaining] textseq]
     (cond
      (instance? Color obj) (do (.setColor *batch* obj)
                                (recur y remaining))
@@ -314,13 +344,14 @@
                      (recur y
                             (concat (split-lines obj) remaining))
                      (do
-                      (draw-string x y obj)
-                      (recur (- y (get-line-height))
+                      (draw-string x y obj (:scale (meta textseq)))
+                      (recur (- y (get-line-height textseq))
                              remaining)))))
   (.setColor *batch* white))
 
 ; screen-width/screen-height are virtual (see FitViewPort)
 ; (not the actual window/screen size on the monitor if scaling is applied)
+; TODO FIXME == viewport-width / height !
 (declare ^:private screen-width
          ^:private screen-height)
 
@@ -330,43 +361,47 @@
         :else x))
 
 (defn- shift-y [y h]
-  (cond (> y screen-height) screen-height
-        (< (- y h) 0) (+ y (- (- y h)))
+  (cond (> (+ y h) screen-height) (- screen-height h)
+        (< y 0) 0
         :else y))
+
+; TODO shift-x/shift-y need to use the current viewport width and height
+; we don't know if its map-viewport or gui-viewport
+; so we can test it by render-on-map on mouse tile coords
+; TODO shifting with render-text on map-coords leads to blocking at map end
+; but what if we render text outside of map bounds ? should still display at edge of map ?!
+; but why should we want to render there ?
+; also what if map-width > screen-width
+; or map-height > screen-height
+; then will not display properly with shift
+; we probably should not shift with render-readable-text on map
+; what is the meaning of shift there ?
 
 (defcolor transparent-black 0 0 0 0.8)
 
-; TODO FIXME :above does not need to shift the firstline, only subsequent
-; TODO kinda confusig that its rendering one line up from x,y and the others down
-; either fully above textseq or below ??
-; see @ render-item-tooltip adding/removing line height
 (defn render-readable-text
-  "Renders the first line of text with bottom left corner at x,y.
-  The other lines are rendered below."
+  "Renders a block of text with bottom left corner at x,y.
+  The other lines are rendered below.
+  color-str-seq are a sequence of colors or strings. A color will set the color
+  for the subsequent strings and each separate string element will be drawn
+  below the last. Strings can also contain \n element for that."
   [x y
-   {:keys [centerx centery above shift background] :as opts
+   {:keys [scale centerx centery shift background] :as opts
     :or {shift true background true}}
    & color-str-seq]
-  (let [color-str-seq (->> color-str-seq
-                           (remove nil?)
-                           (map #(if (instance? Color %) % (str %))))
-        whole-text (->> color-str-seq
-                        (remove #(instance? Color %))
-                        (interpose "\n")
-                        (apply str))
-        w (inc (get-text-width whole-text))
-        h (get-text-height whole-text)
+  (let [textseq (->> color-str-seq
+                     (remove nil?)
+                     (map #(if (instance? Color %) % (str %))))
+        textseq (with-meta textseq {:scale (or scale 1)})
+        w (get-text-width textseq)
+        h (get-text-height textseq)
         x (if centerx (- x (/ w 2)) x)
-        y (+ y char-height)
-        y (if centery (+ y (/ h 2)) y)
-        y (if above (+ y h) y)
+        y (if centery (- y (/ h 2)) y)
         x (if shift (shift-x x w) x)
-        y (if shift (shift-y y h) y)
-        x (int x)
-        y (int y)]
+        y (if shift (shift-y y h) y)]
     (when background
-      (fill-rect x (- y h) w h transparent-black))
-    (apply render-colored-text x (- y char-height) color-str-seq)))
+      (fill-rect x y w h transparent-black))
+    (render-text* x y textseq)))
 
 (defprotocol Animation
   (is-stopped?  [_])
@@ -478,8 +513,8 @@ assert lastindexOf slash is the same for names in a folder?
          ^:private map-viewport
          ^:private sprite-batch)
 
-(defn initialize [width height tile-size]
-  (set-var-root #'screen-width width)
+(defn initialize [width height tile-size] ; TODO rename to viewport-width / viewport-height
+  (set-var-root #'screen-width width) ; TODO also rename then
   (set-var-root #'screen-height height)
 
   (set-var-root #'sprite-batch (SpriteBatch.))
@@ -500,6 +535,18 @@ assert lastindexOf slash is the same for names in a folder?
 (defn on-resize [w h]
   (.update gui-viewport w h true)
   (.update map-viewport w h true))
+
+(defn- fix-viewport-update
+  "Sometimes the viewport update is not triggered."
+  []
+  (let [screen-width (.getWidth (Gdx/graphics))
+        screen-height (.getHeight (Gdx/graphics))]
+    (if (or (not= (.getScreenWidth gui-viewport) screen-width)
+            (not= (.getScreenHeight gui-viewport) screen-height))
+      (on-resize screen-width screen-height))))
+
+(defn on-update []
+  (fix-viewport-update))
 
 (defn on-dispose []
   (.dispose sprite-batch)
