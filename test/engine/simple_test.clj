@@ -13,35 +13,56 @@
   ;(draw-line 10 10 12 12 red)
   ;(draw-centered-image test-image-1 [12 6])
   ;(fill-rect 12 6 1 1 white)
+
+
+  ; draw text at [11 10]
+  ;(render-readable-text 5 10 {:scale 0.5} "draw-string scale 0.5")
+  ;(render-readable-text 5 12 {} "draw-string scale 1")
+  ;(render-readable-text 5 14 {:scale 2.5} "scale 2.5")
+
+  (let [[x y] (map-coords)]
+    (render-readable-text x y
+                          {:centerx true :centery true :shift false :scale 1}
+                          ["Colored Font test"
+                           red
+                           "red"
+                           blue
+                           "blue"
+                           3
+                           yellow
+                           "yellow"]))
+
   )
 
 (defn gui-render []
-  (draw-string 0 0 (get-fps))
+  (render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
   (let [[x y] (map #(format "%.2f" %) (map-coords))
         [gx gy] (mouse-coords)
         [sx sy] (get-mouse-pos)]
     (render-readable-text 0 60
                           {:shift true}
-                          (str "Map x " x)
-                          (str "Map y " y)
-                          (str "GUI x " gx)
-                          (str "GUI y " gy)
-                          (str "Screen X" sx)
-                          (str "Screen Y" sy)))
+                          [(str "Map x " x)
+                           (str "Map y " y)
+                           (str "GUI x " gx)
+                           (str "GUI y " gy)
+                           (str "Screen X" sx)
+                           (str "Screen Y" sy)]))
 
-  (let [[x y] (mouse-coords)]
+  #_(let [[x y] (mouse-coords)]
     (render-readable-text x y
                           {:centerx true :centery true :shift true}
-                          "Colored Font test"
-                          red
-                          "red"
-                          blue
-                          "blue"
-                          yellow
-                          "yellow")))
+                          ^{:scale 1.5}
+                          ["Colored Font test foo"
+                           red
+                           "red"
+                           blue
+                           "blue"
+                           3
+                           yellow
+                           "yellow"])))
 
-(def ingame-gamestate
+(def game-screen
   (reify GameScreen
     (show [_]
       (def tiled-map (tiled/load-map "example.tmx"))) ; TODO init ...
@@ -50,7 +71,7 @@
     (render [_]
       (render-map tiled-map
                   (fn [color x y] white)
-                  [11 13]
+                  [0 0]
                   [:ground :details :entities])
       (render-map-level map-content)
       (render-gui-level gui-render))
@@ -59,11 +80,11 @@
 (defn app []
   (start-app :full-screen false
              :title "engine demo"
-             :window-width 1440
-             :window-height 900
-             :viewport-width 360
-             :viewport-height 225
+             :window-width 1400
+             :window-height 800
+             :viewport-width 600
+             :viewport-height 400
              :assets-folder "test/resources/"
-             :game-screens {:main ingame-gamestate}
+             :game-screens {:main game-screen}
              :on-create load-resources
              :tile-size 16))

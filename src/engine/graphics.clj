@@ -80,7 +80,9 @@
   [^Color color]
   (.setColor shape-drawer color))
 
-(declare ^:private ^:dynamic *unit-scale*)
+; set to 1 so we can query get-text-width on a text
+; outside of rendering function at initialization
+(def ^:private ^:dynamic *unit-scale* 1)
 
 (defn pixels [n]
   (* n *unit-scale*))
@@ -298,21 +300,26 @@
                                 (get-scaled-copy char-sprite scale)
                                 char-sprite)
                   char-width (* scale (char-width))]]
-      ; TODO so many objects .. for each char....
-      ; memoize on the spritesheet ?
       (draw-image char-sprite
                   (+ x (* char-width i))
                   y))))
 
-; A 'textseq' here is a sequence of Color or strings (and nils are also allowed, will be ignored)
-; where colors will be set for subsequent strings and
-; after each element a newline will be inserted
-; strings can also contain newlines \n where a newline will be inserted
-; and in metadata has to have :scale key (set to 1 default)
+;; A 'textseq' here is a sequence of Color or strings (and nils are also allowed, will be ignored)
+;; where colors will be set for subsequent strings and
+;; after each element a newline will be inserted
+;; strings can also contain newlines \n where a newline will be inserted
+;; and in metadata can have :scale key
 
-(defn- get-line-height [textseq]
-  (* (char-height)
-     (:scale (meta textseq))))
+(defn- scale
+  "Text is a textseq or a string."
+  [text]
+  (or (:scale (meta text))
+      1))
+
+(defn- line-height
+  "Text is a textseq or a string."
+  [text]
+  (* (char-height) (scale text)))
 
 (defn- textseq->text-lines [textseq]
   (->> textseq
@@ -321,20 +328,29 @@
        (apply str)
        split-lines))
 
-(defn get-text-height [textseq]
-  (* (get-line-height textseq)
-     (count (textseq->text-lines textseq))))
+(defn- ->textseq
+  "Text is a textseq or a string."
+  [text]
+  (if (string? text) [text] text))
+
+(defn get-text-height
+  "Text is a textseq or a string."
+  [text]
+  (* (line-height text)
+     (count (textseq->text-lines (->textseq text)))))
 
 ; should work with nil's and Colors in the textseq
-(defn get-text-width [textseq]
+(defn get-text-width
+  "Text is a textseq or a string."
+  [text]
   (* (char-width)
-     (apply max (map count (textseq->text-lines textseq)))
-     (:scale (meta textseq))))
+     (apply max (map count (textseq->text-lines (->textseq text))))
+     (scale text)))
 
 (defn- render-text* [x y textseq]
   (loop [y (+ y
               (get-text-height textseq)
-              (- (get-line-height textseq)))
+              (- (line-height textseq)))
          [obj & remaining] textseq]
     (cond
      (instance? Color obj) (do (.setColor *batch* obj)
@@ -345,7 +361,7 @@
                             (concat (split-lines obj) remaining))
                      (do
                       (draw-string x y obj (:scale (meta textseq)))
-                      (recur (- y (get-line-height textseq))
+                      (recur (- y (line-height textseq))
                              remaining)))))
   (.setColor *batch* white))
 
@@ -354,6 +370,11 @@
 ; TODO FIXME == viewport-width / height !
 (declare ^:private screen-width
          ^:private screen-height)
+
+; Shift in world coordinate system:
+; text will be inside the map tiles (not less than 0)
+; problems if world size > screen-width
+; then text would not be rendered at right position
 
 (defn- shift-x [x w]
   (cond (> (+ x w) screen-width) (- screen-width w)
@@ -365,34 +386,26 @@
         (< y 0) 0
         :else y))
 
-; TODO shift-x/shift-y need to use the current viewport width and height
-; we don't know if its map-viewport or gui-viewport
-; so we can test it by render-on-map on mouse tile coords
-; TODO shifting with render-text on map-coords leads to blocking at map end
-; but what if we render text outside of map bounds ? should still display at edge of map ?!
-; but why should we want to render there ?
-; also what if map-width > screen-width
-; or map-height > screen-height
-; then will not display properly with shift
-; we probably should not shift with render-readable-text on map
-; what is the meaning of shift there ?
-
 (defcolor transparent-black 0 0 0 0.8)
 
 (defn render-readable-text
   "Renders a block of text with bottom left corner at x,y.
   The other lines are rendered below.
-  color-str-seq are a sequence of colors or strings. A color will set the color
+  textseq is a sequence of colors or strings. A color will set the color
   for the subsequent strings and each separate string element will be drawn
-  below the last. Strings can also contain \n element for that."
+  below the last. Strings can also contain \n element for that.
+  Textseq can also be just one element.
+  Do not use :shift in world coordinate system."
   [x y
-   {:keys [scale centerx centery shift background] :as opts
+   {:keys [centerx centery shift background] :as opts
     :or {shift true background true}}
-   & color-str-seq]
-  (let [textseq (->> color-str-seq
+   textseq]
+  (let [textseq (if (coll? textseq) textseq [textseq])
+        scl (scale textseq) ; gets lost in the next form
+        textseq (->> textseq
                      (remove nil?)
                      (map #(if (instance? Color %) % (str %))))
-        textseq (with-meta textseq {:scale (or scale 1)})
+        textseq (with-meta textseq {:scale scl})
         w (get-text-width textseq)
         h (get-text-height textseq)
         x (if centerx (- x (/ w 2)) x)
