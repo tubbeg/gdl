@@ -310,11 +310,13 @@
 ;; strings can also contain newlines \n where a newline will be inserted
 ;; and in metadata can have :scale key
 
+(def ^:private default-font-scale 2)
+
 (defn- scale
   "Text is a textseq or a string."
   [text]
   (or (:scale (meta text))
-      1))
+      default-font-scale))
 
 (defn- line-height
   "Text is a textseq or a string."
