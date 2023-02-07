@@ -138,6 +138,11 @@
   (set-color color)
   (.filledCircle shape-drawer (float x) (float y) (float radius)))
 
+(defn arc [[centre-x centre-y] radius start-angle degree color]
+  (set-unit-scale)
+  (set-color color)
+  (.arc shape-drawer centre-x centre-y radius start-angle (* degree (/ (Math/PI) 180))))
+
 (defn draw-line
   ([[x y] [ex ey] color]
    (draw-line x y ex ey color))
