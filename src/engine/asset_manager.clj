@@ -39,7 +39,7 @@
     #_(println "Found" (count sounds) "sounds.") ; TODO logging all println
     (dorun (map #(.load asset-manager % Sound) sounds)))
   #_(println "Loading all sounds...")
-  (time (.finishLoading asset-manager)))
+  (.finishLoading asset-manager))
 
 (defn- load-images [assets-folder]
   (.load asset-manager "simple_6x8.png" Texture) ; loaded separately because its the only engine specific resource
@@ -49,7 +49,7 @@
     (dorun (map #(.load asset-manager % Texture) images)))
 
   #_(println "Loading all images ...")
-  (time (.finishLoading asset-manager)))
+  (.finishLoading asset-manager))
 
 (def get-sound
   (memoize
