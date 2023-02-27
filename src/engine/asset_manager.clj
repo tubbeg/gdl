@@ -51,23 +51,25 @@
   #_(println "Loading all images ...")
   (.finishLoading asset-manager))
 
-(def get-sound
-  (memoize
-   (fn [spath]
-     (.get asset-manager (str "sounds/" spath) Sound))))
-
-; Here alternatively use GradientSprite instead of TextureRegion to apply color all
-; corners of a sprite.
-(def file->texture
-  (memoize
-   (fn [file & [x y w h]]
-     (let [^Texture texture (.get asset-manager ^String file ^Class Texture)]
-       (if (and x y w h)
-         (TextureRegion. texture (int x) (int y) (int w) (int h))
-         (TextureRegion. texture))))))
 
 (defn on-create [assets-folder]
   (set-var-root #'asset-manager (AssetManager.))
+
+  (def get-sound
+    (memoize
+     (fn [spath]
+       (.get asset-manager (str "sounds/" spath) Sound))))
+
+  ; Here alternatively use GradientSprite instead of TextureRegion to apply color all
+  ; corners of a sprite.
+  (def file->texture
+    (memoize
+     (fn [file & [x y w h]]
+       (let [^Texture texture (.get asset-manager ^String file ^Class Texture)]
+         (if (and x y w h)
+           (TextureRegion. texture (int x) (int y) (int w) (int h))
+           (TextureRegion. texture))))))
+
   (load-sounds assets-folder)
   (load-images assets-folder))
 
