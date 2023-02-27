@@ -36,19 +36,19 @@
 
 (defn- load-sounds [assets-folder]
   (let [sounds (recursively-search-files assets-folder #{"wav"})]
-    (println "Found" (count sounds) "sounds.") ; TODO logging all println
+    #_(println "Found" (count sounds) "sounds.") ; TODO logging all println
     (dorun (map #(.load asset-manager % Sound) sounds)))
-  (println "Loading all sounds...")
+  #_(println "Loading all sounds...")
   (time (.finishLoading asset-manager)))
 
 (defn- load-images [assets-folder]
   (.load asset-manager "simple_6x8.png" Texture) ; loaded separately because its the only engine specific resource
 
   (let [images (recursively-search-files assets-folder #{"png" "bmp"})]
-    (println "Found" (count images) "images.")
+    #_(println "Found" (count images) "images.")
     (dorun (map #(.load asset-manager % Texture) images)))
 
-  (println "Loading all images ...")
+  #_(println "Loading all images ...")
   (time (.finishLoading asset-manager)))
 
 (def get-sound
