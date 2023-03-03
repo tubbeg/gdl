@@ -87,35 +87,26 @@
 (defn pixels [n]
   (* n *unit-scale*))
 
+; TODO why is this set before every draw ?! also used with set-color together -> make prepare-draw functions ?
 (defn- set-unit-scale
   "For shape drawer."
   []
   (.setDefaultLineWidth shape-drawer (float *unit-scale*)))
 
-(defn center-rect [^Rectangle rect [x y]]
-  (.setCenter rect (float x) (float y)))
-
-(defmulti ^:private draw-shape* class)
-
-(defmethod draw-shape* Circle [^Circle c]
-  (.circle shape-drawer (.x c) (.y c) (.radius c)))
-
-(defmethod draw-shape* Rectangle [rect]
-  (.rectangle shape-drawer rect))
-
-(defn draw-shape [shape color]
+(defn draw-circle [[x y] radius color]
   (set-unit-scale)
   (set-color color)
-  (draw-shape* shape))
+  (.circle shape-drawer (float x) (float y) (float radius)))
 
-(defn draw-centered
-  ([rectangle posi]
-   (draw-centered rectangle posi white))
-  ([rectangle posi color]
-   (center-rect rectangle posi)
-   (set-unit-scale)
-   (set-color color)
-   (draw-shape rectangle)))
+(defn fill-centered-circle [[x y] radius color]
+  (set-unit-scale)
+  (set-color color)
+  (.filledCircle shape-drawer (float x) (float y) (float radius)))
+
+(defn arc [[centre-x centre-y] radius start-angle degree color]
+  (set-unit-scale)
+  (set-color color)
+  (.arc shape-drawer centre-x centre-y radius start-angle (* degree (/ (Math/PI) 180))))
 
 (defn draw-rect
   ([[x y w h] color]
@@ -132,16 +123,6 @@
    (set-unit-scale)
    (set-color color)
    (.filledRectangle shape-drawer (float x) (float y) (float w) (float h))))
-
-(defn fill-centered-circle [radius [x y] color]
-  (set-unit-scale)
-  (set-color color)
-  (.filledCircle shape-drawer (float x) (float y) (float radius)))
-
-(defn arc [[centre-x centre-y] radius start-angle degree color]
-  (set-unit-scale)
-  (set-color color)
-  (.arc shape-drawer centre-x centre-y radius start-angle (* degree (/ (Math/PI) 180))))
 
 (defn draw-line
   ([[x y] [ex ey] color]
