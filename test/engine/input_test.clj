@@ -13,18 +13,18 @@
 
 (defn render* []
   (render-readable-text 50 10 {}
-    "Input-Test\n\n"
-    (test-them
-      (get-mouse-pos)
-      (is-leftbutton-down?)
-      (is-rightbutton-down?)
-      (is-key-down? :A)
-      (is-key-down? :C)
-      @lastpressed)
-    "\n\n\n\nHold 'C' while left/rightmouse-pressing to consume mouse-presses until you let go."
-    (test-them
-      (is-leftm-consumed?)
-      (is-rightm-consumed?))))
+                        ["Input-Test\n\n"
+                         (test-them
+                          (get-mouse-pos)
+                          (is-leftbutton-down?)
+                          (is-rightbutton-down?)
+                          (is-key-down? :A)
+                          (is-key-down? :C)
+                          @lastpressed)
+                         "\n\n\n\nHold 'C' while left/rightmouse-pressing to consume mouse-presses until you let go."
+                         (test-them
+                          (is-leftm-consumed?)
+                          (is-rightm-consumed?))]))
 
 (defn update-test []
   (when (is-key-down? :A)
