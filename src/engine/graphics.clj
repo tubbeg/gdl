@@ -87,32 +87,46 @@
 (defn pixels [n]
   (* n *unit-scale*))
 
-; TODO why is this set before every draw ?! also used with set-color together -> make prepare-draw functions ?
-(defn- set-unit-scale
-  "For shape drawer."
-  []
-  (.setDefaultLineWidth shape-drawer (float *unit-scale*)))
+(defn set-shape-drawer-default-line-width [scale]
+  (.setDefaultLineWidth shape-drawer (float (* scale *unit-scale*))))
+
+(defmacro with-shape-drawer-line-width [width & body]
+  `(do
+    (set-shape-drawer-default-line-width ~width)
+    ~@body
+    (set-shape-drawer-default-line-width 1)))
+
+(defn draw-ellipse [[x y] radius-x radius-y color]
+  (set-color color)
+  (.ellipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)))
+
+(defn fill-ellipse [[x y] radius-x radius-y color]
+  (set-color color)
+  (.filledEllipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)))
 
 (defn draw-circle [[x y] radius color]
-  (set-unit-scale)
   (set-color color)
   (.circle shape-drawer (float x) (float y) (float radius)))
 
-(defn fill-centered-circle [[x y] radius color]
-  (set-unit-scale)
+(defn fill-circle [[x y] radius color]
   (set-color color)
   (.filledCircle shape-drawer (float x) (float y) (float radius)))
 
-(defn arc [[centre-x centre-y] radius start-angle degree color]
-  (set-unit-scale)
+(defn- degree->radians [degree]
+  (* degree (/ (Math/PI) 180)))
+
+(defn draw-arc [[centre-x centre-y] radius start-angle degree color]
   (set-color color)
-  (.arc shape-drawer centre-x centre-y radius start-angle (* degree (/ (Math/PI) 180))))
+  (.arc shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
+
+(defn draw-sector [[centre-x centre-y] radius start-angle degree color]
+  (set-color color)
+  (.sector shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
 
 (defn draw-rect
   ([[x y w h] color]
    (draw-rect x y w h color))
   ([x y w h color]
-   (set-unit-scale)
    (set-color color)
    (.rectangle shape-drawer x y w h)))
 
@@ -120,7 +134,6 @@
   ([[x y w h] color]
    (fill-rect x y w h color))
   ([x y w h color]
-   (set-unit-scale)
    (set-color color)
    (.filledRectangle shape-drawer (float x) (float y) (float w) (float h))))
 
@@ -128,21 +141,8 @@
   ([[x y] [ex ey] color]
    (draw-line x y ex ey color))
   ([x y ex ey color]
-   (set-unit-scale)
    (set-color color)
    (.line shape-drawer (float x) (float y) (float ex) (float ey))))
-
-(def drawfatline draw-line) ; TODO
-
-; todo bind temporarily unit-scale * 2
-; binding?
-#_(let [old-scale *unit-scale*]
-  (set! *unit-scale* (* 2 old-scale))
-  ; do ...
-  (set! *unit-scale* old-scale)
-  )
-#_(defn- draw-fat-line [[x y] [ex ey] color]
-    (draw-line x y ex ey color 2))
 
 (defn draw-grid
   [leftx bottomy gridw gridh cellw cellh color]
@@ -556,6 +556,7 @@ assert lastindexOf slash is the same for names in a folder?
 (defn- render-with [batch unit-scale ^OrthographicCamera camera renderfn]
   (binding [*batch* batch
             *unit-scale* unit-scale]
+    (set-shape-drawer-default-line-width 1)
     (.setProjectionMatrix *batch* (.combined camera))
     (.begin *batch*)
     (renderfn)
