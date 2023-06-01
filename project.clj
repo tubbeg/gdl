@@ -9,7 +9,7 @@
                  [com.badlogicgames.gdx/gdx-platform              "1.11.0" :classifier "natives-desktop"]
                  [space.earlygrey/shapedrawer "2.5.0"]
                  [com.github.damn/grid2d "1.0"]]
-  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
+  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :java-source-paths ["src/"]
   ;:jvm-opts ["-XstartOnFirstThread"]
   :profiles {:dev {:resource-paths ["test/resources"]}})
