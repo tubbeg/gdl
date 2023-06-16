@@ -20,17 +20,38 @@
   ;(render-readable-text 5 12 {} "draw-string scale 1")
   ;(render-readable-text 5 14 {:scale 2.5} "scale 2.5")
 
-  (let [[x y] (map-coords)]
-    (render-readable-text x y
-                          {:centerx true :centery true :shift false :scale 1}
-                          ["Colored Font test"
-                           red
-                           "red"
-                           blue
-                           "blue"
-                           3
-                           yellow
-                           "yellow"]))
+  (let [[x y] (map-coords)
+        w 4.5
+        h 3.5
+        ]
+    (draw-rect x y w h white)
+    (fill-ellipse
+     [(+ x (/ w 2)) (+ y (/ h 2))]
+     (* 1 (/ w 2))
+     (* 1 (/ h 2))
+     (rgbcolor 1 0 0 0.5))
+
+     (draw-sector
+      [x y]
+      2
+      0
+      45
+      red
+
+      )
+
+
+
+    #_(render-readable-text x y
+                            {:centerx true :centery true :shift false :scale 1}
+                            ["Colored Font test"
+                             red
+                             "red"
+                             blue
+                             "blue"
+                             3
+                             yellow
+                             "yellow"]))
 
   )
 
@@ -65,14 +86,13 @@
 (def game-screen
   (reify GameScreen
     (show [_]
-      (def tiled-map (tiled/load-map "example.tmx"))) ; TODO init ...
+      (def tiled-map (tiled/load-map "example.tmx"))  ; TODO init ...
+      (set-camera-position! [0 0]))
     (destroy [_]
       (tiled/dispose tiled-map))
     (render [_]
       (render-map tiled-map
-                  (fn [color x y] white)
-                  [0 0]
-                  [:ground :details :entities])
+                  (fn [color x y] white))
       (render-map-level map-content)
       (render-gui-level gui-render))
     (update-screen [_ delta])))

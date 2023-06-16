@@ -1,4 +1,4 @@
-(defproject engine "1.0"
+(defproject engine "1.0-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [nrepl "0.9.0"]
@@ -11,7 +11,7 @@
                  [com.github.damn/grid2d "1.0"]]
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :java-source-paths ["src/"]
-  ;:jvm-opts ["-XstartOnFirstThread"]
+  :jvm-opts ["-XstartOnFirstThread"] ; for mac
   :profiles {:dev {:resource-paths ["test/resources"]}})
 
 ; TODO:

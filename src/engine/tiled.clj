@@ -1,9 +1,8 @@
 (ns engine.tiled
   (:require [data.grid2d :as grid])
-  (:import [com.badlogic.gdx.maps MapLayers]
+  (:import [com.badlogic.gdx.maps MapLayer MapLayers]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
-            TiledMapTileLayer TiledMapTileLayer$Cell]
-           [com.badlogic.gdx.maps.tiled.tiles StaticTiledMapTile]))
+            TiledMapTileLayer TiledMapTileLayer$Cell]))
 
 (defn load-map
   "Requires OpenGL context (texture generation)."
@@ -13,7 +12,7 @@
 (defn dispose [tiled-map]
   (.dispose tiled-map))
 
-(defmulti ^:private get-property (fn [obj k] (class obj)))
+(defmulti get-property (fn [obj k] (class obj)))
 
 (defmethod get-property TiledMap [^TiledMap tiled-map k]
   (.get (.getProperties tiled-map) (name k)))
@@ -21,15 +20,28 @@
 (defmethod get-property TiledMapTile [^TiledMapTile tile k]
   (.get (.getProperties tile) (name k)))
 
-(defn- ^MapLayers layers [tiled-map]
+(defn ^MapLayers layers [tiled-map]
   (.getLayers ^TiledMap tiled-map))
 
-(defn layer-index [tiled-map layer]
-  (let [idx (.getIndex (layers tiled-map) (name layer))]
-    (if-not (= -1 idx) idx)))
+(defn layer-name [layer]
+  (if (keyword? layer)
+    (name layer)
+    (.getName ^MapLayer layer)))
 
-(defn- ^TiledMapTileLayer$Cell cell-at [[x y] tiled-map layer]
-  (if-let [layer (.get (layers tiled-map) (name layer))]
+(defn layer-index [tiled-map layer]
+  (let [idx (.getIndex (layers tiled-map) (layer-name layer))]
+    (when-not (= -1 idx)
+      idx)))
+
+(defn- get-layer [tiled-map layer-name]
+  (.get (layers tiled-map) layer-name))
+
+(defn remove-layer! [tiled-map layer]
+  (.remove (layers tiled-map)
+           (layer-index tiled-map layer)))
+
+(defn ^TiledMapTileLayer$Cell cell-at [[x y] tiled-map layer]
+  (when-let [layer (get-layer tiled-map (layer-name layer))]
     (.getCell ^TiledMapTileLayer layer x y)))
 
 (defn property-value
@@ -49,16 +61,20 @@
 (defn height [tiled-map]
   (get-property tiled-map :height))
 
+(defn- map-positions [tiled-map]
+  (for [x (range (width  tiled-map))
+        y (range (height tiled-map))]
+    [x y]))
+
 (defn positions-with-property [tiled-map layer property]
-  (if (layer-index tiled-map layer)
-    (for [x (range (width tiled-map))
-          y (range (height tiled-map))
-          :let [position [x y]
+  (when (layer-index tiled-map layer)
+    (for [position (map-positions tiled-map)
+          :let [[x y] position
                 value (property-value position tiled-map layer property)]
           :when (not (#{:undefined :no-cell} value))]
       [position value])))
 
-(defn- properties [obj]
+(defn properties [obj]
   (let [ps (.getProperties obj)]
     (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
 
@@ -68,6 +84,8 @@
           :size (.size tileset)
           :properties (properties tileset)})
        (.getTileSets tiled-map)))
+
+; TODO all unused down from here
 
 ; Useful for calculating new localids after increasing spritesheets width
 ; increase spritesheet width from 4 to 7 and update localids:
@@ -93,66 +111,12 @@
 
 (defn- tileset-width [tileset]
   (/ (:imagewidth (:properties tileset))
-     (:tilewidth (:properties tileset))))
+     (:tilewidth  (:properties tileset))))
 
-(defn get-spriteidx [position tiled-map layer]
+(defn get-spriteidx [position tiled-map layer] ; TODO unused
   (if-let [cell (cell-at position tiled-map layer)]
     (let [tile (.getTile cell)
           tileset (tile->tileset tiled-map tile)
           gid (.getId tile)]
       (convert-to-spriteposi (- gid (firstgid tileset))
                              (tileset-width tileset)))))
-
-; "Tiles are usually shared by multiple cells."
-; https://libgdx.com/wiki/graphics/2d/tile-maps#cells
-(def ^:private make-tile
-  (memoize
-   (fn [tile-or-texture] ; copy constructor and new tile with texture constructor
-     (StaticTiledMapTile. tile-or-texture))))
-
-(def ^:private copy-tile make-tile)
-
-(defn- set-tile* [layer [x y] tile]
-   (let [new-cell (TiledMapTileLayer$Cell.)]
-     (.setTile new-cell tile)
-     (.setCell layer x y new-cell)))
-
-(defn set-tile [tiled-map layer position texture]
-  (set-tile* (.get (layers tiled-map) (name layer))
-             position
-             (make-tile texture)))
-
-;; Programmatic creation of tiled-maps from a combination of tiled-maps on a grid
-
-; No copied-tile for AnimatedTiledMapTile yet (there was no generic copy)
-(defn- make-layer [grid layer-name tilewidth tileheight]
-  (let [layer (TiledMapTileLayer. (grid/width grid)
-                                  (grid/height grid)
-                                  tilewidth
-                                  tileheight)]
-    (.setName layer layer-name)
-    (doseq [position (grid/posis grid)
-            :let [{:keys [local-position tiled-map]} (get grid position)]
-            :when local-position]
-      (if local-position
-        (if-let [cell (cell-at local-position tiled-map layer-name)]
-          (set-tile* layer
-                     position
-                     (copy-tile (.getTile cell))))))
-    layer))
-
-(defn make-tiled-map
-  "Grid cells can have :local-position and :tiled-map keys."
-  [grid]
-  (let [tiled-map (TiledMap.)
-        properties (.getProperties tiled-map)
-        _ (.put properties "width" (grid/width grid))
-        _ (.put properties "height" (grid/height grid))
-        module-tiled-map (:tiled-map (first (filter :tiled-map (grid/cells grid))))
-        tilewidth (get-property module-tiled-map :tilewidth)
-        tileheight (get-property module-tiled-map :tileheight)
-        layer-names (map (memfn getName) (layers module-tiled-map))
-        layers (layers tiled-map)]
-    (doseq [layer-name layer-names]
-      (.add layers (make-layer grid layer-name tilewidth tileheight)))
-    tiled-map))

@@ -25,7 +25,7 @@
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Circle Rectangle MathUtils]
            [space.earlygrey.shapedrawer ShapeDrawer]
-           [com.badlogic.gdx.maps MapRenderer]
+           [com.badlogic.gdx.maps MapRenderer MapLayer]
            [engine OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
 ;(set! *warn-on-reflection* true)
@@ -80,12 +80,12 @@
   [^Color color]
   (.setColor shape-drawer color))
 
+(def ^:private gui-unit-scale 1)
+(def ^:private map-unit-scale)
+
 ; set to 1 so we can query get-text-width on a text
 ; outside of rendering function at initialization
-(def ^:private ^:dynamic *unit-scale* 1)
-
-(defn pixels [n]
-  (* n *unit-scale*))
+(def ^:private ^:dynamic *unit-scale* gui-unit-scale)
 
 (defn set-shape-drawer-default-line-width [scale]
   (.setDefaultLineWidth shape-drawer (float (* scale *unit-scale*))))
@@ -157,21 +157,7 @@
             :let [liney (+ bottomy (* idx cellh))]]
            (draw-line leftx liney rightx liney color))))
 
-(defn- texture-dimensions [^TextureRegion texture]
-  [(.getRegionWidth texture)
-   (.getRegionHeight texture)])
-
-(defn pixel-dimensions [{:keys [texture scale] :as image}]
-  (if (number? scale)
-    (mapv (partial * scale) (texture-dimensions texture))
-    scale))
-
 (declare ^:dynamic ^:private ^Batch *batch*)
-
-; cant call outside as not bound
-; if required make defn world-dimensions using world-scale
-(defn- unit-dimensions [image]
-  (mapv (partial * *unit-scale*) (pixel-dimensions image)))
 
 (defn- draw-texture [texture [x y] [w h] rotation color]
   (if color (.setColor *batch* color))
@@ -186,6 +172,11 @@
          1
          rotation)
   (if color (.setColor *batch* white)))
+
+(defn unit-dimensions [image]
+  (cond
+   (= *unit-scale* map-unit-scale) (:unit-dimensions  image)
+   (= *unit-scale* gui-unit-scale) (:pixel-dimensions image)))
 
 (defn draw-image
   ([{:keys [texture color] :as image} position]
@@ -206,28 +197,49 @@
 (defn draw-centered-image [image position]
   (draw-rotated-centered-image image 0 position))
 
+
+(defn pixels->world-units [px]
+  (* px map-unit-scale))
+
+(defn- texture-dimensions [^TextureRegion texture]
+  [(.getRegionWidth  texture)
+   (.getRegionHeight texture)])
+
+(def pixel-dimensions :pixel-dimensions)
+
+(defn- assoc-dimensions [{:keys [texture scale] :as image}]
+  (let [pixel-dimensions (if (number? scale)
+                           (mapv (partial * scale) (texture-dimensions texture))
+                           scale)]
+    (assoc image
+           :pixel-dimensions pixel-dimensions
+           :unit-dimensions (mapv (partial * map-unit-scale) pixel-dimensions))))
+
 ; IMPROVEMENT
 ; * make defrecord (faster) (maybe also protocol functions -> faster?)
 ; * texture can setFilter at Texture$TextureFilter (check scaling ok?)
 (defn create-image
   "Scale can be a number or [width height]"
   [file & {:keys [scale]}]
-  {:file file
-   :scale (or scale 1)
-   :texture (asset-manager/file->texture file)})
+  (assoc-dimensions
+   {:file file
+    :scale (or scale 1)
+    :texture (asset-manager/file->texture file)}))
+
+(defn get-scaled-copy
+  "Scaled of original texture-dimensions, not any existing scale."
+  [image scale]
+  (assoc-dimensions
+   (assoc image :scale scale)))
 
 (defn get-sub-image
   "Coordinates are from original image, not scaled one."
-  [{:keys [file] :as image} & sub-image-bounds]
-  {:pre [(= 1 (:scale image))]}
-  (assoc image
-         :texture (apply asset-manager/file->texture file sub-image-bounds)
-         :sub-image-bounds sub-image-bounds))
-
-(defn get-scaled-copy
-  "Overwrites original scale."
-  [image scale]
-  (assoc image :scale scale))
+  [{:keys [file scale] :as image} & sub-image-bounds]
+  {:pre [(= 1 scale)]}
+  (assoc-dimensions
+   (assoc image
+          :texture (apply asset-manager/file->texture file sub-image-bounds)
+          :sub-image-bounds sub-image-bounds)))
 
 (defn spritesheet [file tilew tileh]
   (assoc (create-image file) :tilew tilew :tileh tileh))
@@ -376,6 +388,7 @@
 
 (defcolor transparent-black 0 0 0 0.8)
 
+; TODO move scale to opts!
 (defn render-readable-text
   "Renders a block of text with bottom left corner at x,y.
   The other lines are rendered below.
@@ -394,7 +407,7 @@
                      (remove nil?)
                      (map #(if (instance? Color %) % (str %))))
         textseq (with-meta textseq {:scale scl})
-        w (get-text-width textseq)
+        w (get-text-width  textseq)
         h (get-text-height textseq)
         x (if centerx (- x (/ w 2)) x)
         y (if centery (- y (/ h 2)) y)
@@ -507,31 +520,42 @@ assert lastindexOf slash is the same for names in a folder?
                                         default-frame-duration)
                       :looping looping)))
 
+; TODO use proper naming gui- or world- (set-world-camera-position! ?)
+
 (declare ^:private gui-camera
          ^:private gui-viewport
-         ^:private map-unit-scale
          ^:private ^OrthographicCamera map-camera
          ^:private map-viewport
          ^:private sprite-batch)
 
 (defn initialize [width height tile-size] ; TODO rename to viewport-width / viewport-height
-  (set-var-root #'screen-width width) ; TODO also rename then
+  (set-var-root #'screen-width  width) ; TODO also rename then
   (set-var-root #'screen-height height)
 
   (set-var-root #'sprite-batch (SpriteBatch.))
   (create-shape-drawer sprite-batch)
 
-  (create-font)
-
   (set-var-root #'gui-camera (OrthographicCamera.))
   (set-var-root #'gui-viewport (FitViewport. width height gui-camera))
 
   (set-var-root #'map-unit-scale (/ (or tile-size 1)))
+
+  ; important ! create after map-unit-scale so font images have :unit-dimensions set
+  (create-font)
+
   (set-var-root #'map-camera (OrthographicCamera.))
-  (let [width  (* width map-unit-scale)
+  (let [width  (* width  map-unit-scale)
         height (* height map-unit-scale)]
     (.setToOrtho map-camera false width height)
     (set-var-root #'map-viewport (FitViewport. width height map-camera))))
+
+(def ^:private world-camera-position (atom nil))
+
+(defn camera-position []
+  @world-camera-position)
+
+(defn set-camera-position! [position]
+  (reset! world-camera-position position))
 
 (defn on-resize [w h]
   (.update gui-viewport w h true)
@@ -562,8 +586,9 @@ assert lastindexOf slash is the same for names in a folder?
     (renderfn)
     (.end *batch*)))
 
+; TODO use partial.
 (defn render-gui-level [renderfn]
-  (render-with sprite-batch 1 gui-camera renderfn))
+  (render-with sprite-batch gui-unit-scale gui-camera renderfn))
 
 (defn render-map-level [renderfn]
   (render-with sprite-batch map-unit-scale map-camera renderfn))
@@ -581,13 +606,15 @@ assert lastindexOf slash is the same for names in a folder?
 
 (def ^:private cached-map-renderer (memoize map-renderer-for))
 
-(defn render-map [tiled-map color-setter [x y] layers]
-  (set! (.x (.position map-camera)) x)
-  (set! (.y (.position map-camera)) y)
+(defn render-map [tiled-map color-setter]
+  (set! (.x (.position map-camera)) (@world-camera-position 0))
+  (set! (.y (.position map-camera)) (@world-camera-position 1))
   (.update map-camera)
   (let [^MapRenderer map-renderer (cached-map-renderer tiled-map color-setter)]
     (.setView map-renderer map-camera)
-    (->> layers
+    (->> tiled-map
+         tiled/layers
+         (filter #(.isVisible ^MapLayer %))
          (map (partial tiled/layer-index tiled-map))
          int-array
          (.render map-renderer))))
@@ -607,10 +634,12 @@ assert lastindexOf slash is the same for names in a folder?
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
-(defn mouse-coords [] ; TODO screen-coords (gui-coords)
+; TODO gui-mouse-position!
+(defn mouse-coords []
   (mapv int (unproject-mouse-posi gui-viewport)))
 
-(defn map-coords ; or 'world-mouse-posi'
+; TODO world-mouse-position!
+(defn map-coords
   "Can be negative coordinates, undefined cells." ; TODO check if true
   []
   (unproject-mouse-posi map-viewport))
@@ -624,3 +653,25 @@ assert lastindexOf slash is the same for names in a folder?
 
 (defn world-viewport-width  [] (.getWorldWidth  map-viewport))
 (defn world-viewport-height [] (.getWorldHeight map-viewport))
+
+(defn world-frustum []
+  (let [frustum-points (for [point (take 4 (.planePoints (.frustum map-camera)))
+                             :let [x (.x point)
+                                   y (.y point)]]
+                         [x y])
+        left-x   (apply min (map first  frustum-points))
+        right-x  (apply max (map first  frustum-points))
+        bottom-y (apply min (map second frustum-points))
+        top-y    (apply max (map second frustum-points))]
+    ; rectangle :
+    #_{:left-bottom x
+       :width  viewport-width camera
+       :height viewport-height camera}
+    [left-x right-x bottom-y top-y]
+    ))
+
+(defn visible-tiles []
+  (let [[left-x right-x bottom-y top-y] (world-frustum)]
+    (for  [x (range (int left-x)   (int right-x))
+           y (range (int bottom-y) (+ 2 (int top-y)))]
+      [x y])))

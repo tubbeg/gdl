@@ -15,7 +15,7 @@
     (if full-screen
       (.setFullscreenMode config (Lwjgl3ApplicationConfiguration/getDisplayMode))
       (.setWindowedMode config width height))
-    (println "Starting Lwjgl3Application"); TODO logging
+    ;(println "Starting Lwjgl3Application"); TODO logging
     (Lwjgl3Application. game config)))
 
 (defn exit-app []
