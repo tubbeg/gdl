@@ -173,10 +173,10 @@
          rotation)
   (if color (.setColor *batch* white)))
 
-(defn unit-dimensions [image]
+(defn- unit-dimensions [image]
   (cond
-   (= *unit-scale* map-unit-scale) (:unit-dimensions  image)
-   (= *unit-scale* gui-unit-scale) (:pixel-dimensions image)))
+   (= *unit-scale* map-unit-scale) (:world-unit-dimensions  image)
+   (= *unit-scale* gui-unit-scale) (:pixel-dimensions       image)))
 
 (defn draw-image
   ([{:keys [texture color] :as image} position]
@@ -197,7 +197,6 @@
 (defn draw-centered-image [image position]
   (draw-rotated-centered-image image 0 position))
 
-
 (defn pixels->world-units [px]
   (* px map-unit-scale))
 
@@ -206,6 +205,7 @@
    (.getRegionHeight texture)])
 
 (def pixel-dimensions :pixel-dimensions)
+(def world-unit-dimensions :world-unit-dimensions)
 
 (defn- assoc-dimensions [{:keys [texture scale] :as image}]
   (let [pixel-dimensions (if (number? scale)
@@ -213,7 +213,7 @@
                            scale)]
     (assoc image
            :pixel-dimensions pixel-dimensions
-           :unit-dimensions (mapv (partial * map-unit-scale) pixel-dimensions))))
+           :world-unit-dimensions (mapv (partial * map-unit-scale) pixel-dimensions))))
 
 ; IMPROVEMENT
 ; * make defrecord (faster) (maybe also protocol functions -> faster?)
@@ -540,7 +540,7 @@ assert lastindexOf slash is the same for names in a folder?
 
   (set-var-root #'map-unit-scale (/ (or tile-size 1)))
 
-  ; important ! create after map-unit-scale so font images have :unit-dimensions set
+  ; important ! create after map-unit-scale so font images have :world-unit-dimensions set
   (create-font)
 
   (set-var-root #'map-camera (OrthographicCamera.))
