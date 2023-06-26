@@ -5,11 +5,13 @@
                  [org.clojure/tools.namespace "1.3.0"]
                  [com.badlogicgames.gdx/gdx                       "1.11.0"]
                  [com.badlogicgames.gdx/gdx-backend-lwjgl3        "1.11.0"]
-                 ;[com.badlogicgames.gdx/gdx-lwjgl3-glfw-awt-macos "1.11.0"]
+                 ;[com.badlogicgames.gdx/gdx-lwjgl3-glfw-awt-macos "1.11.0"] ; TODO not working
                  [com.badlogicgames.gdx/gdx-platform              "1.11.0" :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-freetype-platform     "1.11.0" :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-freetype              "1.10.0"]
                  [space.earlygrey/shapedrawer "2.5.0"]
                  [com.github.damn/grid2d "1.0"]]
-  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
+  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"] ; ??? TODO
   :java-source-paths ["src/"]
   :jvm-opts ["-XstartOnFirstThread"] ; for mac
   :profiles {:dev {:resource-paths ["test/resources"]}})
@@ -26,7 +28,6 @@
 ; -> create edn file with resoures folder content and read it -> simple
 
 ; * font only 'simple_6x8.png' at the moment
-; & doesnt work in world coordinates -> add to docstring (only works with render-gui-level)
 
 ; shifting the window with the bar breaks the fitviewport
 

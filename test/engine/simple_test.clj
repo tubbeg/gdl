@@ -4,9 +4,25 @@
             [engine.input :refer :all]
             [engine.core :refer :all]))
 
+(import '[com.badlogic.gdx Gdx])
+(import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator)
+(import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator$FreeTypeFontParameter)
+
 (defn- load-resources []
  (def sheet (spritesheet "items.png" 16 16))
- (def sprite (get-sprite sheet [5 4])))
+ (def sprite (get-sprite sheet [5 4]))
+
+ (let [generator (FreeTypeFontGenerator. (.internal (Gdx/files) "exocet/films.EXH_____.ttf"))
+       parameter (FreeTypeFontGenerator$FreeTypeFontParameter.)]
+   (set! (.size parameter) 32)
+   ;(set! (.borderWidth parameter) 1)
+   ;(set! (.borderColor parameter) red)
+   (def font12 (.generateFont generator parameter))
+   (set! (.markupEnabled (.getData font12)) true)
+   (.dispose generator)
+   ))
+
+
 
 (defn map-content []
   ;(draw-grid 0 0 24 18 1 1 (darker white 0.5))
@@ -58,6 +74,18 @@
 (defn gui-render []
   (render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
+  (.draw font12
+         (deref #'engine.graphics/*batch*)
+         "foo bar BAZ !!! zzz"
+         (float 20)
+         (float 20))
+
+  (.draw font12
+         (deref #'engine.graphics/*batch*)
+         "[GRAY]Sword,[] Action-time: 0.5s, [RED]Damage: 5-10"
+         (float 500)
+         (float 300))
+
   (let [[x y] (map #(format "%.2f" %) (map-coords))
         [gx gy] (mouse-coords)
         [sx sy] (get-mouse-pos)]
@@ -68,20 +96,33 @@
                            (str "GUI x " gx)
                            (str "GUI y " gy)
                            (str "Screen X" sx)
-                           (str "Screen Y" sy)]))
+                           (str "Screen Y" sy)]
+                          )
+    (.draw font12
+           (deref #'engine.graphics/*batch*)
+           (apply str
+                  [(str "Map x " x)
+                   (str "Map y " y)
+                   (str "GUI x " gx)
+                   (str "GUI y " gy)
+                   (str "Screen X" sx)
+                   (str "Screen Y" sy)])
+           (float 100)
+           (float 60))
+    )
 
   #_(let [[x y] (mouse-coords)]
-    (render-readable-text x y
-                          {:centerx true :centery true :shift true}
-                          ^{:scale 1.5}
-                          ["Colored Font test foo"
-                           red
-                           "red"
-                           blue
-                           "blue"
-                           3
-                           yellow
-                           "yellow"])))
+      (render-readable-text x y
+                            {:centerx true :centery true :shift true}
+                            ^{:scale 1.5}
+                            ["Colored Font test foo"
+                             red
+                             "red"
+                             blue
+                             "blue"
+                             3
+                             yellow
+                             "yellow"])))
 
 (def game-screen
   (reify GameScreen
@@ -102,8 +143,8 @@
              :title "engine demo"
              :window-width 1400
              :window-height 800
-             :viewport-width 600
-             :viewport-height 400
+             :viewport-width 1400
+             :viewport-height 800
              :assets-folder "test/resources/"
              :game-screens {:main game-screen}
              :on-create load-resources
