@@ -11,7 +11,7 @@
   [& {:keys [title game width height full-screen]}]
   (let [config (Lwjgl3ApplicationConfiguration.)]
     (.setTitle config title)
-    (.useVsync config true)
+    (.setForegroundFPS config 60)
     (if full-screen
       (.setFullscreenMode config (Lwjgl3ApplicationConfiguration/getDisplayMode))
       (.setWindowedMode config width height))
