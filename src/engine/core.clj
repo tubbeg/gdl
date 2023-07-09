@@ -75,6 +75,18 @@
   (doseq [f on-create-fns]
     (f)))
 
+(def ^:private on-destroy-fns [])
+
+(defmacro on-destroy
+  "Expressions are called on app creation. Use for resource initialization."
+  [& exprs]
+  `(alter-var-root #'engine.core/on-destroy-fns conj
+                   (fn [] ~@exprs)))
+
+(defn- call-on-destroy-fns! []
+  (doseq [f on-destroy-fns]
+    (f)))
+
 (defn start-app
   "tile-size key is required if you want to use render-map / render-map-level / map-coords
   functions, otherwise not necessary."
@@ -104,7 +116,8 @@
                (dispose []
                  (asset-manager/on-dispose)
                  (g/on-dispose)
-                 (dorun (map (memfn dispose) (vals screens))))
+                 (dorun (map (memfn dispose) (vals screens)))
+                 (call-on-destroy-fns!))
                (pause [])
                (resize [w h]
                  (g/on-resize w h))
