@@ -8,7 +8,7 @@
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator)
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator$FreeTypeFontParameter)
 
-(defn- load-resources []
+(on-create
  (def sheet (spritesheet "items.png" 16 16))
  (def sprite (get-sprite sheet [5 4]))
 
@@ -153,5 +153,4 @@
              :viewport-height 800
              :assets-folder "test/resources/"
              :game-screens {:main game-screen}
-             :on-create load-resources
              :tile-size 16))

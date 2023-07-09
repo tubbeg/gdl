@@ -63,6 +63,18 @@
   (.setScreen (.getApplicationListener (Gdx/app))
               (k screens)))
 
+(def ^:private on-create-fns [])
+
+(defmacro on-create
+  "Expressions are called on app creation. Use for resource initialization."
+  [& exprs]
+  `(alter-var-root #'engine.core/on-create-fns conj
+                   (fn [] ~@exprs)))
+
+(defn- call-on-create-fns! []
+  (doseq [f on-create-fns]
+    (f)))
+
 (defn start-app
   "tile-size key is required if you want to use render-map / render-map-level / map-coords
   functions, otherwise not necessary."
@@ -74,14 +86,12 @@
              viewport-width
              viewport-height
              assets-folder
-             on-create
              tile-size]
       :or {title "Test"
            window-width 800
            window-height 600
            viewport-width 800
-           viewport-height 600
-           on-create (fn [])}}]
+           viewport-height 600}}]
   (let [screens (zipmap
                  (keys game-screens)
                  (map game-screen->libgdx-screen (vals game-screens)))
@@ -89,7 +99,7 @@
                (create []
                  (asset-manager/on-create assets-folder)
                  (g/initialize viewport-width viewport-height tile-size)
-                 (on-create)
+                 (call-on-create-fns!)
                  (.setScreen this (first (vals screens))))
                (dispose []
                  (asset-manager/on-dispose)
