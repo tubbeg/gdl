@@ -1,8 +1,7 @@
 (ns engine.core
   (:require [engine.utils :refer (set-var-root)]
             [engine.asset-manager :as asset-manager]
-            [engine.graphics :as g]
-            [engine.input :refer (update-mousebutton-state)])
+            [engine.graphics :as g])
   (:import [com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration]
            [com.badlogic.gdx Gdx Screen Game]
            [com.badlogic.gdx.audio Sound])) ; TODO Sound reflection for play
@@ -49,13 +48,12 @@
       (g/clear-screen)
       (g/on-update)
       (render game-screen)
-      (update-mousebutton-state)
       (update-screen game-screen (* delta 1000)))
     (resize [_ w h])
     (pause [_])
     (resume [_])
     (hide [_])
-    (dispose [_]
+    (dispose [_] ; -> use directly dispose ??
       (destroy game-screen))))
 
 ; hash of keyword -> screen
@@ -107,3 +105,6 @@
                                :width window-width
                                :height window-height
                                :full-screen full-screen)))
+
+(defn set-input-processor! [input-processor]
+  (.setInputProcessor (Gdx/input) input-processor))

@@ -72,15 +72,15 @@
   )
 
 (defn gui-render []
-  (render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
+  #_(render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
-  (.draw font12
+  #_(.draw font12
          (deref #'engine.graphics/*batch*)
          "foo bar BAZ !!! zzz"
          (float 20)
          (float 20))
 
-  (.draw font12
+  #_(.draw font12
          (deref #'engine.graphics/*batch*)
          "[GRAY]Sword,[] Action-time: 0.5s, [RED]Damage: 5-10"
          (float 500)
@@ -98,7 +98,7 @@
                            (str "Screen X" sx)
                            (str "Screen Y" sy)]
                           )
-    (.draw font12
+    #_(.draw font12
            (deref #'engine.graphics/*batch*)
            (apply str
                   [(str "Map x " x)
@@ -127,15 +127,21 @@
 (def game-screen
   (reify GameScreen
     (show [_]
-      (def tiled-map (tiled/load-map "example.tmx"))  ; TODO init ...
-      (set-camera-position! [0 0]))
+      (ui/create-ui)
+     ; (def tiled-map (tiled/load-map "example.tmx"))  ; TODO init ...
+      ;(set-camera-position! [0 0])
+
+      )
     (destroy [_]
-      (tiled/dispose tiled-map))
+      #_(tiled/dispose tiled-map)
+
+      )
     (render [_]
-      (render-map tiled-map
-                  (fn [color x y] white))
-      (render-map-level map-content)
-      (render-gui-level gui-render))
+      ;(render-map tiled-map
+      ;            (fn [color x y] white))
+      ;(render-map-level map-content)
+      (render-gui-level gui-render)
+      )
     (update-screen [_ delta])))
 
 (defn app []

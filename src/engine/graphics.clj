@@ -80,7 +80,7 @@
   [^Color color]
   (.setColor shape-drawer color))
 
-(def ^:private gui-unit-scale 1)
+(def gui-unit-scale 1)
 (def ^:private map-unit-scale)
 
 ; set to 1 so we can query get-text-width on a text
@@ -208,12 +208,25 @@
 (def world-unit-dimensions :world-unit-dimensions)
 
 (defn- assoc-dimensions [{:keys [texture scale] :as image}]
+  {:pre [(or (number? scale)
+             (and (vector? scale)
+                  (number? (scale 0))
+                  (number? (scale 1))))]}
   (let [pixel-dimensions (if (number? scale)
                            (mapv (partial * scale) (texture-dimensions texture))
                            scale)]
     (assoc image
            :pixel-dimensions pixel-dimensions
            :world-unit-dimensions (mapv (partial * map-unit-scale) pixel-dimensions))))
+
+(defrecord Image [file
+                  scale
+                  texture
+                  pixel-dimensions
+                  world-unit-dimensions
+                  sub-image-bounds
+                  tilew
+                  tileh])
 
 ; IMPROVEMENT
 ; * make defrecord (faster) (maybe also protocol functions -> faster?)
@@ -222,9 +235,9 @@
   "Scale can be a number or [width height]"
   [file & {:keys [scale]}]
   (assoc-dimensions
-   {:file file
-    :scale (or scale 1)
-    :texture (asset-manager/file->texture file)}))
+   (map->Image {:file file
+                :scale (or scale 1)
+                :texture (asset-manager/file->texture file)})))
 
 (defn get-scaled-copy
   "Scaled of original texture-dimensions, not any existing scale."
@@ -232,12 +245,12 @@
   (assoc-dimensions
    (assoc image :scale scale)))
 
-(defn get-sub-image
+(defn get-sub-image ; TODO create-sub-image -> possible to use without spritesheet
   "Coordinates are from original image, not scaled one."
-  [{:keys [file scale] :as image} & sub-image-bounds]
-  {:pre [(= 1 scale)]}
+  [{:keys [file] :as image} & sub-image-bounds]
   (assoc-dimensions
    (assoc image
+          :scale 1
           :texture (apply asset-manager/file->texture file sub-image-bounds)
           :sub-image-bounds sub-image-bounds)))
 
@@ -523,10 +536,10 @@ assert lastindexOf slash is the same for names in a folder?
 ; TODO use proper naming gui- or world- (set-world-camera-position! ?)
 
 (declare ^:private gui-camera
-         ^:private gui-viewport
+         gui-viewport
          ^:private ^OrthographicCamera map-camera
          ^:private map-viewport
-         ^:private sprite-batch)
+         sprite-batch)
 
 (defn initialize [width height tile-size] ; TODO rename to viewport-width / viewport-height
   (set-var-root #'screen-width  width) ; TODO also rename then
@@ -564,9 +577,9 @@ assert lastindexOf slash is the same for names in a folder?
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
-  (let [screen-width (.getWidth (Gdx/graphics))
+  (let [screen-width  (.getWidth  (Gdx/graphics))
         screen-height (.getHeight (Gdx/graphics))]
-    (if (or (not= (.getScreenWidth gui-viewport) screen-width)
+    (if (or (not= (.getScreenWidth  gui-viewport) screen-width)
             (not= (.getScreenHeight gui-viewport) screen-height))
       (on-resize screen-width screen-height))))
 
@@ -577,6 +590,13 @@ assert lastindexOf slash is the same for names in a folder?
   (.dispose sprite-batch)
   (dispose-shape-drawer))
 
+; TODO use below.
+(defmacro with-gui-bindings [& exprs]
+  `(binding [*batch* sprite-batch
+             *unit-scale* gui-unit-scale]
+     (set-shape-drawer-default-line-width 1)
+     ~@exprs))
+
 (defn- render-with [batch unit-scale ^OrthographicCamera camera renderfn]
   (binding [*batch* batch
             *unit-scale* unit-scale]
@@ -586,7 +606,7 @@ assert lastindexOf slash is the same for names in a folder?
     (renderfn)
     (.end *batch*)))
 
-; TODO use partial.
+; TODO use partial., no need to pass sprite-batch
 (defn render-gui-level [renderfn]
   (render-with sprite-batch gui-unit-scale gui-camera renderfn))
 

@@ -1,6 +1,6 @@
 (ns engine.tiled
   (:require [data.grid2d :as grid])
-  (:import [com.badlogic.gdx.maps MapLayer MapLayers]
+  (:import [com.badlogic.gdx.maps MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
             TiledMapTileLayer TiledMapTileLayer$Cell]))
 
@@ -12,6 +12,7 @@
 (defn dispose [tiled-map]
   (.dispose tiled-map))
 
+; TODO this is actually get-properties for no reflection
 (defmulti get-property (fn [obj k] (class obj)))
 
 (defmethod get-property TiledMap [^TiledMap tiled-map k]
@@ -19,6 +20,9 @@
 
 (defmethod get-property TiledMapTile [^TiledMapTile tile k]
   (.get (.getProperties tile) (name k)))
+
+(defmethod get-property TiledMapTileLayer [^MapLayer layer k]
+  (.get (.getProperties layer) (name k)))
 
 (defn ^MapLayers layers [tiled-map]
   (.getLayers ^TiledMap tiled-map))
@@ -29,16 +33,16 @@
     (.getName ^MapLayer layer)))
 
 (defn layer-index [tiled-map layer]
-  (let [idx (.getIndex (layers tiled-map) (layer-name layer))]
+  (let [idx (.getIndex (layers tiled-map) ^String (layer-name layer))]
     (when-not (= -1 idx)
       idx)))
 
 (defn- get-layer [tiled-map layer-name]
-  (.get (layers tiled-map) layer-name))
+  (.get (layers tiled-map) ^String layer-name))
 
 (defn remove-layer! [tiled-map layer]
   (.remove (layers tiled-map)
-           (layer-index tiled-map layer)))
+           ^Integer (layer-index tiled-map layer)))
 
 (defn ^TiledMapTileLayer$Cell cell-at [[x y] tiled-map layer]
   (when-let [layer (get-layer tiled-map (layer-name layer))]
@@ -74,8 +78,10 @@
           :when (not (#{:undefined :no-cell} value))]
       [position value])))
 
+; reflection at .getProperties, but obj unknown (MapLayer or TileSet, ..)
+; TODO slow => use directly get-property
 (defn properties [obj]
-  (let [ps (.getProperties obj)]
+  (let [^MapProperties ps (.getProperties obj)]
     (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
 
 (defn- tilesets [tiled-map]

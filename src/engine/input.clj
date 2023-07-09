@@ -1,3 +1,5 @@
+; remove all 'is-...?' -> just add '?' at end of fn name -> grep
+; vimgrep/is-.*-down?\|is-.*-pressed?/g src/**
 (ns engine.input
   (:require [engine.graphics :refer (mouse-coords)])
   (:import [com.badlogic.gdx Gdx Input Input$Buttons Input$Keys]))
@@ -14,7 +16,9 @@
 (defn- is-mouse-pressed?     [k] (.isButtonJustPressed (Gdx/input) (to-mouse-key k)))
 
 (def is-leftbutton-down?  (partial is-mouse-button-down? :left))
+(def is-leftm-pressed?    (partial is-mouse-pressed?     :left))
 (def is-rightbutton-down? (partial is-mouse-button-down? :right))
+(def is-rightm-pressed?   (partial is-mouse-pressed?     :right))
 
 (defn- fix-number-key
   "Keys :0, :1, ... :9 are understood as NUM_0, NUM_1, ..."
@@ -37,58 +41,3 @@
 
 (defn is-key-down? [k]
   (.isKeyPressed (Gdx/input) (to-keyboard-key k)))
-
-; when using is-...-pressed? it is probably useful also to check if is-...-consumed?
-; for example a bug occured:
-; waypoints menu opens with try-consume-..-pressed while is-...-pressed? closed it again in the same frame
-; TODO maybe is-...-pressed? always checks if not consumed yet (so it is really 'consumed')
-
-(def mousebutton {:pressed  false
-                  :consumed false})
-
-(def ^:private state (atom {:left  mousebutton
-                            :right mousebutton}))
-
-(defn- is-pressed? [button] (-> @state button :pressed))
-
-(defn is-leftm-pressed?  [] (is-pressed? :left))
-(defn is-rightm-pressed? [] (is-pressed? :right))
-
-(defn- is-consumed? [button] (-> @state button :consumed))
-
-(defn is-leftm-consumed?  [] (is-consumed? :left))
-(defn is-rightm-consumed? [] (is-consumed? :right))
-
-(defn- check-if-pressed [state button]
-  (assoc-in state [button :pressed] (is-mouse-pressed? button)))
-
-(defn- resolve-consumed [state button]
-  (if (and (-> state button :consumed)
-           (not (is-mouse-button-down? button)))
-    (assoc-in state [button :consumed] false)
-    state))
-
-(defn update-mousebutton-state []
-  (swap! state #(-> %
-                  (check-if-pressed :left)
-                  (resolve-consumed :left)
-                  (check-if-pressed :right)
-                  (resolve-consumed :right))))
-
-(defn- try-consume-pressed [button]
-  (when (and (is-pressed? button)
-             (not (is-consumed? button)))
-    (swap! state assoc-in [button :consumed] true)))
-
-; TODO instead of 'consumed' concept rather something like 'mouse-being-held' ?!
-
-(defn try-consume-leftm-pressed
-  "If leftmouse was pressed this frame and not yet consumed, consumes it and returns true else returns nil.
-   It is consumed as long as the leftmouse-button is down."
-  []
-  (try-consume-pressed :left))
-
-(defn try-consume-rightm-pressed []
-  "If rightmouse was pressed this frame and not yet consumed, consumes it and returns true else returns nil.
-   It is consumed as long as the leftmouse-button is down."
-  (try-consume-pressed :right))
