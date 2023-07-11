@@ -1,5 +1,5 @@
-(ns engine.raycaster
-  (:import engine.RayCaster))
+(ns gdx.raycaster
+  (:import gdx.RayCaster))
 
 ; boolean array used because 10x faster than access to clojure grid data structure
 

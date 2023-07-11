@@ -1,8 +1,8 @@
-(ns engine.input-test
-  (:require [engine.tiled :as tiled]
-            [engine.graphics :refer :all]
-            [engine.input :refer :all]
-            [engine.core :refer :all]))
+(ns gdx.input-test
+  (:require [gdx.tiled :as tiled]
+            [gdx.graphics :refer :all]
+            [gdx.input :refer :all]
+            [gdx.core :refer :all]))
 
 (def lastpressed (atom {}))
 
@@ -51,7 +51,7 @@
 
 (defn app []
   (start-app :full-screen false
-             :title "engine demo"
+             :title "gdx demo"
              :window-width 800
              :window-height 600
              :viewport-width 600

@@ -1,16 +1,19 @@
-(ns engine.simple-test
-  (:require [engine.tiled :as tiled]
-            [engine.graphics :refer :all]
-            [engine.input :refer :all]
-            [engine.core :refer :all]))
+(ns gdx.simple-test
+  (:require [gdx.app :as app]
+            [gdx.game :as game]
+            [gdx.lwjgl :as lwjgl]
+            [gdx.tiled :as tiled]
+            [gdx.graphics :as g]
+            [gdx.input :as input]
+            [gdx.utils :refer (set-var-root)]))
 
 (import '[com.badlogic.gdx Gdx])
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator)
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator$FreeTypeFontParameter)
 
-(on-create
- (def sheet (spritesheet "items.png" 16 16))
- (def sprite (get-sprite sheet [5 4]))
+(app/on-create
+ ;(def sheet (g/spritesheet "items.png" 16 16))
+ ;(def sprite (g/get-sprite sheet [5 4]))
 
  (let [generator (FreeTypeFontGenerator. (.internal (Gdx/files) "exocet/films.EXH_____.ttf"))
        parameter (FreeTypeFontGenerator$FreeTypeFontParameter.)]
@@ -36,29 +39,29 @@
   ;(render-readable-text 5 12 {} "draw-string scale 1")
   ;(render-readable-text 5 14 {:scale 2.5} "scale 2.5")
 
-  (let [[x y] (map-coords)
+  (let [[x y] (g/map-coords)
         w 4.5
         h 3.5
         ]
-    (draw-rect x y w h white)
-    (fill-ellipse
+    (g/draw-rect x y w h g/white)
+    (g/fill-ellipse
      [(+ x (/ w 2)) (+ y (/ h 2))]
      (* 1 (/ w 2))
      (* 1 (/ h 2))
-     (rgbcolor 1 0 0 0.5))
+     (g/rgbcolor 1 0 0 0.5))
 
-     (draw-sector
+     (g/draw-sector
       [x y]
       2
       0
       45
-      red
+      g/red
 
       )
 
 
 
-    #_(render-readable-text x y
+    #_(g/render-readable-text x y
                             {:centerx true :centery true :shift false :scale 1}
                             ["Colored Font test"
                              red
@@ -72,24 +75,24 @@
   )
 
 (defn gui-render []
-  #_(render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
+  #_(g/render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
-  #_(.draw font12
-         (deref #'engine.graphics/*batch*)
+  (.draw font12
+         (deref #'gdx.graphics/*batch*)
          "foo bar BAZ !!! zzz"
          (float 20)
          (float 20))
 
   #_(.draw font12
-         (deref #'engine.graphics/*batch*)
+         (deref #'gdx.graphics/*batch*)
          "[GRAY]Sword,[] Action-time: 0.5s, [RED]Damage: 5-10"
          (float 500)
          (float 300))
 
-  (let [[x y] (map #(format "%.2f" %) (map-coords))
-        [gx gy] (mouse-coords)
-        [sx sy] (get-mouse-pos)]
-    (render-readable-text 0 60
+  (let [[x y] (map #(format "%.2f" %) (g/map-coords))
+        [gx gy] (g/mouse-coords)
+        [sx sy] (input/get-mouse-pos)]
+    (g/render-readable-text 0 60
                           {:shift true}
                           [(str "Map x " x)
                            (str "Map y " y)
@@ -99,7 +102,7 @@
                            (str "Screen Y" sy)]
                           )
     #_(.draw font12
-           (deref #'engine.graphics/*batch*)
+           (deref #'gdx.graphics/*batch*)
            (apply str
                   [(str "Map x " x)
                    (str "Map y " y)
@@ -111,46 +114,40 @@
            (float 60))
     )
 
-  #_(let [[x y] (mouse-coords)]
-      (render-readable-text x y
+  #_(let [[x y] (g/mouse-coords)]
+      (g/render-readable-text x y
                             {:centerx true :centery true :shift true}
                             ^{:scale 1.5}
                             ["Colored Font test foo"
-                             red
+                             g/red
                              "red"
-                             blue
+                             g/blue
                              "blue"
                              3
-                             yellow
+                             g/yellow
                              "yellow"])))
 
-(def game-screen
-  (reify GameScreen
-    (show [_]
-      (ui/create-ui)
-     ; (def tiled-map (tiled/load-map "example.tmx"))  ; TODO init ...
-      ;(set-camera-position! [0 0])
+(game/defscreen screen
+  :show (fn [])
+  :render (fn []
+            ;(render-map tiled-map
+            ;            (fn [color x y] white))
+            ;(render-map-level map-content)
+            (g/render-gui-level gui-render)
+            )
+  :destroy (fn []
+             ;(tiled/dispose tiled-map)
 
-      )
-    (destroy [_]
-      #_(tiled/dispose tiled-map)
+             )
+  :update (fn [delta]))
 
-      )
-    (render [_]
-      ;(render-map tiled-map
-      ;            (fn [color x y] white))
-      ;(render-map-level map-content)
-      (render-gui-level gui-render)
-      )
-    (update-screen [_ delta])))
+; TODO set world unit scale
 
-(defn app []
-  (start-app :full-screen false
-             :title "engine demo"
-             :window-width 1400
-             :window-height 800
-             :viewport-width 1400
-             :viewport-height 800
-             :assets-folder "test/resources/"
-             :game-screens {:main game-screen}
-             :tile-size 16))
+(set-var-root #'g/world-unit-scale 1)
+
+(defn start-app []
+  (lwjgl/create-app :game (game/create {:main screen})
+                    :title "gdx demo"
+                    :width 800
+                    :height 600
+                    :full-screen false))

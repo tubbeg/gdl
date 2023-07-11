@@ -1,4 +1,4 @@
-(ns engine.tiled
+(ns gdx.tiled
   (:require [data.grid2d :as grid])
   (:import [com.badlogic.gdx.maps MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile

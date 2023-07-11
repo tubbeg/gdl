@@ -1,4 +1,4 @@
-package engine;
+package gdx;
 
 import static com.badlogic.gdx.graphics.g2d.Batch.C1;
 import static com.badlogic.gdx.graphics.g2d.Batch.C2;
@@ -31,10 +31,11 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 
 import com.badlogic.gdx.maps.tiled.renderers.BatchTiledMapRenderer;
 
-import engine.ColorSetter;
+import gdx.ColorSetter;
 
 // TODO include in libgdx directly ?
 // TODO document how ColorSetter works and can be used maybe with example
+// TODO just 'OrthogonalTiledMapRenderer'
 public class OrthogonalTiledMapRendererWithColorSetter extends BatchTiledMapRenderer {
 
   private ColorSetter colorSetter;
