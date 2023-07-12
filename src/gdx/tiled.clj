@@ -84,49 +84,6 @@
 ; reflection at .getProperties, but obj unknown (MapLayer or TileSet, ..)
 ; => extend multi getProperties with this.. above. TODO
 ; TODO slow => use directly get-property
-(defn properties [obj]
-  (let [^MapProperties ps (.getProperties obj)]
-    (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
-
-(defn- tilesets [^TiledMap tiled-map]
-  (map (fn [^TiledMapTileSet tileset]
-         {:name (.getName tileset)
-          :size (.size tileset)
-          :properties (properties tileset)})
-       (.getTileSets tiled-map)))
-
-; TODO all unused down from here
-
-; Useful for calculating new localids after increasing spritesheets width
-; increase spritesheet width from 4 to 7 and update localids:
-; (convert-to-localid (convert-to-spriteposi localid 4) 7)
-#_(defn- convert-to-localid [[x y] sheetw]
-    (+ x (* y sheetw)))
-
-(defn convert-to-spriteposi [localid sheetw]
-  {:post [(integer? (% 0))
-          (integer? (% 1))]}
-  (assert (and (integer? localid) (>= localid 0)) (str "localid: " localid))
-  [(mod localid sheetw)
-   (int (/ localid sheetw))])
-
-(defn- firstgid [tileset]
-  (:firstgid (:properties tileset)))
-
-(defn- tile->tileset [tiled-map ^TiledMapTile tile]
-  (let [gid (.getId tile)
-        tilesets (tilesets tiled-map)]
-    (apply max-key firstgid
-           (filter #(>= gid (firstgid %)) tilesets))))
-
-(defn- tileset-width [tileset]
-  (/ (:imagewidth (:properties tileset))
-     (:tilewidth  (:properties tileset))))
-
-(defn get-spriteidx [position tiled-map layer] ; TODO unused
-  (if-let [cell (cell-at position tiled-map layer)]
-    (let [tile (.getTile cell)
-          tileset (tile->tileset tiled-map tile)
-          gid (.getId tile)]
-      (convert-to-spriteposi (- gid (firstgid tileset))
-                             (tileset-width tileset)))))
+#_(defn properties [obj]
+    (let [^MapProperties ps (.getProperties obj)]
+      (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
