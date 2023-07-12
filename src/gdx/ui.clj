@@ -3,17 +3,12 @@
             [gdx.app :as app]
             [gdx.files :as files]
             [gdx.graphics :as g])
-  (:import [com.badlogic.gdx.scenes.scene2d Stage Actor]
+  (:import [com.badlogic.gdx.graphics.g2d TextureRegion]
+           [com.badlogic.gdx.scenes.scene2d Stage Actor]
            [com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable]
-           [com.badlogic.gdx.scenes.scene2d.ui Table Skin
-            TextButton TextButton$TextButtonStyle
-            CheckBox CheckBox$CheckBoxStyle
-            Window Window$WindowStyle
-            ImageButton ImageButton$ImageButtonStyle
-            Button Button$ButtonStyle
-            Label Label$LabelStyle
-            TooltipManager
-            Tooltip TextTooltip TextTooltip$TextTooltipStyle]))
+           [com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window
+            Button Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle
+            Label TooltipManager Tooltip TextTooltip]))
 
 ; separate scene2d (stage,actor ) & ui ?
 
@@ -48,7 +43,7 @@
 ; TODO do I have to pass .get skin class this or can i pass directly skin?? try.
 
 (defn text-button [text on-clicked]
-  (let [button (TextButton. ^String text ^TextButton$TextButtonStyle (.get skin TextButton$TextButtonStyle))]
+  (let [button (TextButton. ^String text skin)]
     (.addListener button
                   (proxy [ChangeListener] []
                     (changed [event actor]
@@ -56,7 +51,7 @@
     button))
 
 (defn check-box [text on-clicked checked?]
-  (let [^Button button (CheckBox. text (.get skin CheckBox$CheckBoxStyle))]
+  (let [^Button button (CheckBox. ^String text skin)]
     (.setChecked button checked?)
     (.addListener button
                   (proxy [ChangeListener] []
@@ -65,10 +60,10 @@
     button))
 
 ; TODO 'toggle' - imagebutton , :toggle true ?
-(defn image-button [{:keys [texture]} on-clicked]
-  (let [style (ImageButton$ImageButtonStyle. (.get skin "toggle" Button$ButtonStyle))
-        _ (set! (.imageUp   style) (TextureRegionDrawable. texture))
-        _ (set! (.imageDown style) (TextureRegionDrawable. texture))
+(defn image-button [{:keys [^TextureRegion texture-region]} on-clicked]
+  (let [style (ImageButton$ImageButtonStyle. ^Button$ButtonStyle (.get skin "toggle" Button$ButtonStyle))
+        _ (set! (.imageUp   style) (TextureRegionDrawable. texture-region))
+        _ (set! (.imageDown style) (TextureRegionDrawable. texture-region))
         ; imageChecked
         ; imageCheckedDown
         ; imageCheckedOver
@@ -86,10 +81,10 @@
 ; https://stackoverflow.com/questions/29771114/how-can-i-add-button-to-top-right-corner-of-a-dialog-in-libgdx
 ; window with close button
 (defn window [title]
-  (Window. title (.get skin Window$WindowStyle)))
+  (Window. ^String title skin))
 
 (defn label [text]
-  (Label. ^CharSequence text (.get skin Label$LabelStyle)))
+  (Label. ^CharSequence text skin))
 
 (defn actor [actfn]
   (proxy [Actor] []
@@ -100,7 +95,7 @@
 ; TODO also the widget where the tooltip is attached is flickering after
 ; the tooltip disappears
 ; => write your own manager without animations/time
-(defn- instant-show-tooltip-manager [textfn]
+(defn- instant-show-tooltip-manager ^TooltipManager [textfn]
   (let [manager (proxy [TooltipManager] []
                   (enter [^Tooltip tooltip]
                     (.setText ^Label (.getActor tooltip) ^String (textfn))
@@ -114,6 +109,4 @@
     manager))
 
 (defn text-tooltip [textfn]
-  (TextTooltip. ""
-                (instant-show-tooltip-manager textfn)
-                (.get skin TextTooltip$TextTooltipStyle)))
+  (TextTooltip. "" (instant-show-tooltip-manager textfn) skin))
