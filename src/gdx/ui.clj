@@ -60,10 +60,10 @@
     button))
 
 ; TODO 'toggle' - imagebutton , :toggle true ?
-(defn image-button [{:keys [^TextureRegion texture-region]} on-clicked]
+(defn image-button [{:keys [^TextureRegion texture] :as image} on-clicked]
   (let [style (ImageButton$ImageButtonStyle. ^Button$ButtonStyle (.get skin "toggle" Button$ButtonStyle))
-        _ (set! (.imageUp   style) (TextureRegionDrawable. texture-region))
-        _ (set! (.imageDown style) (TextureRegionDrawable. texture-region))
+        _ (set! (.imageUp   style) (TextureRegionDrawable. texture))
+        _ (set! (.imageDown style) (TextureRegionDrawable. texture))
         ; imageChecked
         ; imageCheckedDown
         ; imageCheckedOver
