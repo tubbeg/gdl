@@ -1,4 +1,5 @@
 (ns gdx.app
+  (:require [gdx.utils :refer (set-var-root)])
   (:import [com.badlogic.gdx Application Gdx]))
 
 (def ^:private on-create-fns  [])
@@ -10,8 +11,10 @@
 (defn ^:no-doc call-on-create-fns!  [] (doseq [f on-create-fns]  (f)))
 (defn ^:no-doc call-on-destroy-fns! [] (doseq [f on-destroy-fns] (f)))
 
+(declare ^Application app)
+
 (on-create
- (def ^Application app (Gdx/app)))
+ (set-var-root #'app (Gdx/app)))
 
 (defn exit []
   (.exit app))

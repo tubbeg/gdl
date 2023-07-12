@@ -1,5 +1,6 @@
 (declare ^:private ^ShapeDrawer shape-drawer)
 
+; TODO use on-create/on-destroy.
 (let [shape-drawer-texture (atom nil)]
 
   (defn- create-shape-drawer [batch]
@@ -13,7 +14,7 @@
       (set-var-root #'shape-drawer (ShapeDrawer. batch region))))
 
   (defn- dispose-shape-drawer []
-    (.dispose @shape-drawer-texture)))
+    (.dispose ^Texture @shape-drawer-texture)))
 
 (defn- set-color
   "For shape drawer."

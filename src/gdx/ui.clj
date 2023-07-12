@@ -1,5 +1,6 @@
 (ns gdx.ui
-  (:require [gdx.app :as app]
+  (:require [gdx.utils :refer (set-var-root)]
+            [gdx.app :as app]
             [gdx.files :as files]
             [gdx.graphics :as g])
   (:import [com.badlogic.gdx.scenes.scene2d Stage Actor]
@@ -12,8 +13,11 @@
             Button Button$ButtonStyle
             Label Label$LabelStyle
             TooltipManager
-            TextTooltip TextTooltip$TextTooltipStyle]))
+            Tooltip TextTooltip TextTooltip$TextTooltipStyle]))
 
+; separate scene2d (stage,actor ) & ui ?
+
+; TODO stage [viewport batch]
 (defn create-stage []
   (Stage. g/gui-viewport g/sprite-batch))
 
@@ -26,8 +30,11 @@
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
+(declare ^Skin skin)
+
 (app/on-create
- (def skin (Skin. (files/internal "ui/scene2d.ui.skin/uiskin.json"))))
+ ; TODO is this not included in libgdx?
+ (set-var-root #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
 
 (app/on-destroy
  (.dispose skin))
@@ -35,8 +42,13 @@
 (defn table []
   (Table.))
 
+; TODO Button implements disposable??
+; TODO how to check any objects disposable interface and I didnt dispose?
+
+; TODO do I have to pass .get skin class this or can i pass directly skin?? try.
+
 (defn text-button [text on-clicked]
-  (let [button (TextButton. text (.get skin TextButton$TextButtonStyle))]
+  (let [button (TextButton. ^String text ^TextButton$TextButtonStyle (.get skin TextButton$TextButtonStyle))]
     (.addListener button
                   (proxy [ChangeListener] []
                     (changed [event actor]
@@ -44,11 +56,11 @@
     button))
 
 (defn check-box [text on-clicked checked?]
-  (let [button (CheckBox. text (.get skin CheckBox$CheckBoxStyle))]
+  (let [^Button button (CheckBox. text (.get skin CheckBox$CheckBoxStyle))]
     (.setChecked button checked?)
     (.addListener button
                   (proxy [ChangeListener] []
-                    (changed [event actor]
+                    (changed [event ^Button actor]
                       (on-clicked (.isChecked actor)))))
     button))
 
@@ -90,10 +102,11 @@
 ; => write your own manager without animations/time
 (defn- instant-show-tooltip-manager [textfn]
   (let [manager (proxy [TooltipManager] []
-                  (enter [tooltip]
-                    (.setText (.getActor tooltip) (textfn))
+                  (enter [^Tooltip tooltip]
+                    (.setText ^Label (.getActor tooltip) ^String (textfn))
                     (.pack (.getContainer tooltip))
-                    (proxy-super enter tooltip)))]
+                    (let [^TooltipManager this this]
+                      (proxy-super enter tooltip))))]
     (set! (.initialTime manager) 0)
     (set! (.resetTime   manager) 0)
     (set! (.animations  manager) false)

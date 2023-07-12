@@ -10,4 +10,5 @@
 
 (defn dev-loop []
   (start-app)
-  (refresh-all :after 'gdx.dev-loop/dev-loop))
+  (println "refresh-all \n" (refresh-all :after 'gdx.dev-loop/dev-loop)))
+

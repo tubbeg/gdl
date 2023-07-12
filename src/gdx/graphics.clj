@@ -9,16 +9,17 @@
            [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
-           [com.badlogic.gdx.math Vector2 Circle Rectangle MathUtils]
+           [com.badlogic.gdx.math Vector2 Vector3 Circle Rectangle MathUtils]
            [space.earlygrey.shapedrawer ShapeDrawer]
            [com.badlogic.gdx.maps MapRenderer MapLayer]
            [gdx OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
 ;(set! *unchecked-math* :warn-on-boxed) ; breaks (byte \char) at draw-string
 
+(declare ^Graphics graphics)
+
 (app/on-create
- ; private ?
- (def ^Graphics graphics (Gdx/graphics)))
+ (set-var-root #'graphics (Gdx/graphics)))
 
 (defn fps []
   (.getFramesPerSecond graphics))
@@ -31,6 +32,9 @@
 (def ^:private ^:dynamic *unit-scale* gui-unit-scale)
 
 (declare ^:dynamic ^:private ^Batch *batch*) ; TODO no need for thread-binding just set-var-root.
+
+; TODO cannot use vim fireplace in loaded files
+; => put all in this namespace.
 
 (load "graphics/colors")
 (load "graphics/shapes")
@@ -53,11 +57,11 @@
 ; * viewport w/h
 ; * mouse position
 
-(declare ^:private gui-camera
-         gui-viewport
-         ^:private ^OrthographicCamera world-camera
-         ^:private world-viewport
-         sprite-batch)
+(declare ^OrthographicCamera gui-camera
+         ^Viewport gui-viewport
+         ^OrthographicCamera world-camera
+         ^Viewport world-viewport
+         ^SpriteBatch sprite-batch)
 
 (app/on-create
   ; TODO load above w. spriteshee
@@ -207,7 +211,7 @@
 (defn world-viewport-height [] (.getWorldHeight world-viewport))
 
 (defn world-frustum []
-  (let [frustum-points (for [point (take 4 (.planePoints (.frustum world-camera)))
+  (let [frustum-points (for [^Vector3 point (take 4 (.planePoints (.frustum world-camera)))
                              :let [x (.x point)
                                    y (.y point)]]
                          [x y])

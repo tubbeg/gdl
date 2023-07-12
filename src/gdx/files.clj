@@ -1,17 +1,20 @@
 (ns gdx.files
   (:require [clojure.string :as str]
+            [gdx.utils :refer (set-var-root)]
             [gdx.app :as app])
-  (:import [com.badlogic.gdx Gdx]))
+  (:import [com.badlogic.gdx Gdx Files]
+           [com.badlogic.gdx.files FileHandle]))
+
+(declare ^Files files)
 
 (app/on-create
- ; tag
- (def files (Gdx/files)))
+ (set-var-root #'files (Gdx/files)))
 
-(defn internal [file]
+(defn internal ^FileHandle [file]
   (.internal files file))
 
 (defn ^:no-doc recursively-search-files [folder extensions]
-  (loop [[file & remaining] (.list (internal folder))
+  (loop [[^FileHandle file & remaining] (.list (internal folder))
          result []]
     (cond (nil? file) result
           (.isDirectory file)

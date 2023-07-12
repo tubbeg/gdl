@@ -1,7 +1,7 @@
 (ns gdx.tiled
   (:require [data.grid2d :as grid])
   (:import [com.badlogic.gdx.maps MapLayer MapLayers MapProperties]
-           [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
+           [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile TiledMapTileSet
             TiledMapTileLayer TiledMapTileLayer$Cell]))
 
 (defn load-map
@@ -9,7 +9,7 @@
   [file]
   (.load (TmxMapLoader.) file))
 
-(defn dispose [tiled-map]
+(defn dispose [^TiledMap tiled-map]
   (.dispose tiled-map))
 
 ; TODO this is actually get-properties for no reflection
@@ -24,6 +24,9 @@
 (defmethod get-property TiledMapTileLayer [^MapLayer layer k]
   (.get (.getProperties layer) (name k)))
 
+; TODO before var name or arglist put type hint?
+; https://clojure.org/reference/java_interop#typehints
+; "For function return values, the type hint can be placed before the arguments vector:"
 (defn ^MapLayers layers [tiled-map]
   (.getLayers ^TiledMap tiled-map))
 
@@ -79,13 +82,14 @@
       [position value])))
 
 ; reflection at .getProperties, but obj unknown (MapLayer or TileSet, ..)
+; => extend multi getProperties with this.. above. TODO
 ; TODO slow => use directly get-property
 (defn properties [obj]
   (let [^MapProperties ps (.getProperties obj)]
     (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
 
-(defn- tilesets [tiled-map]
-  (map (fn [tileset]
+(defn- tilesets [^TiledMap tiled-map]
+  (map (fn [^TiledMapTileSet tileset]
          {:name (.getName tileset)
           :size (.size tileset)
           :properties (properties tileset)})

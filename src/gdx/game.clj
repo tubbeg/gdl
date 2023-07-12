@@ -7,21 +7,21 @@
 (defmacro defscreen [var-name & screen]
   `(def ~var-name (hash-map ~@screen)))
 
-(defn- screen->libgdx-screen [{:keys [show render dispose update]}]
+(defn- screen->libgdx-screen [{:keys [show render update dispose]}]
   (reify Screen
     (show [_]
-      (show))
+      (when show (show)))
     (render [_ delta]
       (g/clear-screen)
       (g/on-update)
-      (render)
-      (update (* delta 1000)))
+      (when render (render))
+      (when update (update (* delta 1000))))
     (resize [_ w h])
     (pause [_])
     (resume [_])
     (hide [_])
     (dispose [_]
-      (dispose))))
+      (when dispose (dispose)))))
 
 (declare ^:private screens)
 
@@ -32,10 +32,11 @@
         game (proxy [Game] []
                (create []
                  (app/call-on-create-fns!)
-                 (.setScreen this (first (vals screens))))
+                 (.setScreen ^Game this (first (vals screens))))
                (dispose []
                  (app/call-on-destroy-fns!)
-                 (dorun (map (memfn dispose) (vals screens))))
+                 (doseq [^Screen screen (vals screens)]
+                   (.dispose screen)))
                (pause [])
                (resize [w h]
                  (g/on-resize w h))
@@ -44,5 +45,5 @@
     game))
 
 (defn set-screen [k]
-  (.setScreen (.getApplicationListener app/app)
+  (.setScreen ^Game (.getApplicationListener app/app)
               (k screens)))

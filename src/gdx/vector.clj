@@ -1,10 +1,9 @@
 (ns gdx.vector
   (:require [gdx.graphics :refer (viewport-width viewport-height)]
-            [gdx.input :refer (get-mouse-pos)]
-            [utils.core :refer (approx-numbers)])
-  (:import [com.badlogic.gdx.math Vector2]))
+            [gdx.input :refer (get-mouse-pos)])
+  (:import [com.badlogic.gdx.math Vector2 MathUtils]))
 
-(defn- ->v [[x y]]
+(defn- ^Vector2 ->v [[x y]]
   (Vector2. x y))
 
 (defn- ->p [^Vector2 v]
@@ -18,7 +17,8 @@
 (defn distance  [v1 v2]  (.dst ^Vector2 (->v v1) ^Vector2 (->v v2)))
 
 (defn normalised? [v]
-  (approx-numbers 1 (length v) 0.001))
+  ; Returns true if a is nearly equal to b.
+  (MathUtils/isEqual 1 (length v)))
 
 (defn get-normal-vectors [[x y]]
   [[(- y)   x]

@@ -43,7 +43,10 @@
   :codox {:namespaces [gdx.core
                        gdx.graphics
                        gdx.input
-                       gdx.tiled]})
+                       gdx.tiled]}
+
+  :global-vars {*warn-on-reflection* true}
+  )
 
 ; TODO:
 
