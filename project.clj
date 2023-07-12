@@ -24,9 +24,6 @@
                  [com.badlogicgames.gdx/gdx-freetype              "1.10.0"]
 
                  [space.earlygrey/shapedrawer "2.5.0"]
-
-                 [com.github.damn/grid2d "1.0"]
-
                  ]
 
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"] ; ??? TODO
