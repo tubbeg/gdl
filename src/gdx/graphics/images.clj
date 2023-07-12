@@ -12,10 +12,11 @@
          rotation)
   (if color (.setColor *batch* white)))
 
+; hmm do we really have to pre-calculate it ? yes...
 (defn- unit-dimensions [image]
   (cond
    (= *unit-scale* world-unit-scale) (:world-unit-dimensions  image)
-   (= *unit-scale* gui-unit-scale) (:pixel-dimensions       image)))
+   (= *unit-scale* gui-unit-scale)   (:pixel-dimensions       image)))
 
 (defn draw-image
   ([{:keys [texture color] :as image} position]

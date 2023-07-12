@@ -16,11 +16,12 @@
 
 ;(set! *unchecked-math* :warn-on-boxed) ; breaks (byte \char) at draw-string
 
-(defn- ^Graphics graphics []
-  (Gdx/graphics))
+(app/on-create
+ ; private ?
+ (def ^Graphics graphics (Gdx/graphics)))
 
 (defn fps []
-  (.getFramesPerSecond (graphics)))
+  (.getFramesPerSecond graphics))
 
 (def gui-unit-scale 1)
 (declare world-unit-scale)
@@ -46,6 +47,12 @@
 ; or gui inbuilt here and world extra
 ; (later)
 
+; TODO camera/viewport
+; * on-resize ( on-update )
+; * render (set matrix)
+; * viewport w/h
+; * mouse position
+
 (declare ^:private gui-camera
          gui-viewport
          ^:private ^OrthographicCamera world-camera
@@ -53,18 +60,22 @@
          sprite-batch)
 
 (app/on-create
+  ; TODO load above w. spriteshee
   (set-var-root #'sprite-batch (SpriteBatch.))
+
+  ; TODO load w. shape drawer?
   (create-shape-drawer sprite-batch)
 
+  ; TODO ideally we dont use camera/viewport in g/??
   (set-var-root #'gui-camera (OrthographicCamera.))
-  (set-var-root #'gui-viewport (FitViewport. (.getWidth (graphics)) (.getHeight (graphics)) gui-camera))
+  (set-var-root #'gui-viewport (FitViewport. (.getWidth graphics) (.getHeight graphics) gui-camera))
 
   ; important ! create after world-unit-scale so font images have :world-unit-dimensions set
   (create-font)
 
   (set-var-root #'world-camera (OrthographicCamera.))
-  (let [width  (* (.getWidth (graphics))  world-unit-scale)
-        height (* (.getHeight (graphics)) world-unit-scale)]
+  (let [width  (* (.getWidth  graphics) world-unit-scale)
+        height (* (.getHeight graphics) world-unit-scale)]
     (.setToOrtho world-camera false width height)
     (set-var-root #'world-viewport (FitViewport. width height world-camera))))
 
@@ -83,8 +94,8 @@
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
-  (let [screen-width  (.getWidth  (graphics))
-        screen-height (.getHeight (graphics))]
+  (let [screen-width  (.getWidth  graphics)
+        screen-height (.getHeight graphics)]
     (if (or (not= (.getScreenWidth  gui-viewport) screen-width)
             (not= (.getScreenHeight gui-viewport) screen-height))
       (on-resize screen-width screen-height))))
@@ -92,6 +103,7 @@
 (defn on-update []
   (fix-viewport-update))
 
+; TODO move to definition.
 (app/on-destroy
  (.dispose sprite-batch)
  (dispose-shape-drawer))

@@ -1,6 +1,7 @@
 (ns gdx.simple-test
   (:require [gdx.app :as app]
             [gdx.game :as game]
+            [gdx.files :as files]
             [gdx.lwjgl :as lwjgl]
             [gdx.tiled :as tiled]
             [gdx.graphics :as g]
@@ -11,19 +12,27 @@
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator)
 (import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator$FreeTypeFontParameter)
 
+(defn- generate-font [ttf-file]
+  (let [generator (FreeTypeFontGenerator. (files/internal ttf-file))
+        parameter (FreeTypeFontGenerator$FreeTypeFontParameter.)]
+
+    (set! (.size parameter) 64)
+
+    ;(set! (.borderWidth parameter) 1)
+    ;(set! (.borderColor parameter) red)
+
+    (def font12 (.generateFont generator parameter))
+
+    (set! (.markupEnabled (.getData font12)) true)
+
+    (.dispose generator)))
+
 (app/on-create
  ;(def sheet (g/spritesheet "items.png" 16 16))
  ;(def sprite (g/get-sprite sheet [5 4]))
+ (generate-font "exocet/films.EXH_____.ttf")
 
- (let [generator (FreeTypeFontGenerator. (.internal (Gdx/files) "exocet/films.EXH_____.ttf"))
-       parameter (FreeTypeFontGenerator$FreeTypeFontParameter.)]
-   (set! (.size parameter) 32)
-   ;(set! (.borderWidth parameter) 1)
-   ;(set! (.borderColor parameter) red)
-   (def font12 (.generateFont generator parameter))
-   (set! (.markupEnabled (.getData font12)) true)
-   (.dispose generator)
-   ))
+ )
 
 
 

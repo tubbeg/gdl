@@ -1,0 +1,83 @@
+; in project.clj:
+;[io.github.spair/imgui-java-binding       "1.86.10"]
+;[io.github.spair/imgui-java-lwjgl3        "1.86.10"]
+;[io.github.spair/imgui-java-natives-macos "1.86.10"]
+
+(ns game.imgui
+  (:require [gdx.app :as app])
+  (:import org.lwjgl.opengl.GL
+           [org.lwjgl.glfw GLFW GLFWErrorCallback]
+           imgui.ImGui
+           imgui.glfw.ImGuiImplGlfw
+           imgui.gl3.ImGuiImplGl3
+           [com.badlogic.gdx Gdx]
+           com.badlogic.gdx.graphics.glutils.GLVersion
+           [com.badlogic.gdx.backends.lwjgl3 Lwjgl3Graphics]))
+
+; https://libgdx.com/wiki/graphics/2d/imgui
+; https://github.com/SpaiR/imgui-java/blob/main/imgui-app/src/main/java/imgui/app/Window.java
+; https://github.com/ocornut/imgui/blob/master/examples/example_glfw_opengl3/main.cpp
+; https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_opengl3.cpp
+
+; https://github.com/klianc09/imguiexample
+; https://github.com/klianc09/imguiexample/blob/master/core/src/main/java/at/example/Main.java
+
+
+(app/on-create
+
+ (let [glversion (.getGLVersion (Gdx/graphics))]
+   (println "GL Version " (.getDebugVersionString glversion)))
+
+
+ (def imguiglfw (ImGuiImplGlfw.))
+ (def imguigl3 (ImGuiImplGl3.))
+
+ (.set (GLFWErrorCallback/createPrint System/err))
+
+ (when-not (GLFW/glfwInit)
+   (IllegalStateException. "Unable to initialize GLFW"))
+
+ (def window-handle (.getWindowHandle (.getWindow (Gdx/graphics))))
+
+
+ (def glsl-version "#version 130")
+ (println "glsl version: " glsl-version)
+
+ ; 110 => no context !
+ ; 120 => no context
+ ; 150 => not supported
+
+ ; ~ guesswork
+ (GLFW/glfwWindowHint (GLFW/GLFW_CONTEXT_VERSION_MAJOR) 3)
+ (GLFW/glfwWindowHint (GLFW/GLFW_CONTEXT_VERSION_MINOR) 0)
+ (GLFW/glfwWindowHint (GLFW/GLFW_OPENGL_PROFILE) (GLFW/GLFW_OPENGL_CORE_PROFILE))
+ (GLFW/glfwWindowHint (GLFW/GLFW_OPENGL_FORWARD_COMPAT) (GLFW/GLFW_TRUE))
+ ; ~ guesswork
+
+ (GLFW/glfwMakeContextCurrent window-handle)
+ (GL/createCapabilities)
+ (ImGui/createContext)
+
+ (def io (ImGui/getIO))
+ (.setIniFilename io "")
+ (.addFontDefault (.getFonts io))
+ (.build (.getFonts io))
+
+ (.init imguiglfw window-handle true)
+ (.init imguigl3 glsl-version) ; TODO breaks.
+ )
+
+(defn render []
+  (.newFrame imguiglfw)
+  (ImGui/newFrame)
+
+  (ImGui/button "I`m a Button!")
+
+  (ImGui/render)
+  (.renderDrawData imguigl3 (ImGui/getDrawData))
+
+  ;(GLFW/glfwSwapBuffers window-handle)
+  ;(GLFW/glfwPollEvents)
+  )
+
+

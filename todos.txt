@@ -1,0 +1,8 @@
+* asset-manager: searches through 'resources/'
+  ; could search through "." but not always supported (https://libgdx.com/wiki/file-handling)
+  ; so have to specify a folder
+  ; (def folder ".")
+
+* remove simple6_8
+
+* warn-on-reflection

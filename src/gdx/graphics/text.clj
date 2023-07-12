@@ -116,12 +116,12 @@
 
 ; TODO should use viewport-width/height but will delete this text anyway and use bitmapfont
 (defn- shift-x [x w]
-  (cond (> (+ x w) (.getWidth (graphics))) (- (.getWidth (graphics)) w)
+  (cond (> (+ x w) (.getWidth graphics)) (- (.getWidth graphics) w)
         (< x 0) 0
         :else x))
 
 (defn- shift-y [y h]
-  (cond (> (+ y h) (.getHeight (graphics))) (- (.getHeight (graphics)) h)
+  (cond (> (+ y h) (.getHeight graphics)) (- (.getHeight graphics) h)
         (< y 0) 0
         :else y))
 

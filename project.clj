@@ -1,5 +1,12 @@
 
-; TODO java sources to java-src/
+; TODO link libgdx docs (wiki/javadoc) at every
+; ns / etc. ?
+
+
+
+; For function return values, the type hint can be placed before the arguments vector:
+; (defn hinted-single ^String [])
+; I put before var ?
 
 (defproject gdx "1.0-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
