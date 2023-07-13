@@ -31,8 +31,6 @@
          ^:no-doc file->texture)
 
 (app/on-create
- (.load asset-manager "simple_6x8.png" Texture)
-
  (load-assets sound-files-extensions Sound)
  (load-assets image-files-extensions Texture)
  (.finishLoading asset-manager)
