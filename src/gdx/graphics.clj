@@ -1,7 +1,7 @@
 (ns gdx.graphics
-  (:require [clojure.string :refer (includes? split-lines upper-case)]
-            [gdx.app :as app]
+  (:require [clojure.string :refer (upper-case)]
             [gdx.utils :refer (set-var-root)]
+            [gdx.app :as app]
             [gdx.asset-manager :as asset-manager])
   (:import [com.badlogic.gdx Gdx Graphics]
            [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
