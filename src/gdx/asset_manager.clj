@@ -1,6 +1,3 @@
-; TODO
-; loads synchronously on app start all pngs,bmps and wav files in resources/
-; asset-manager disposes automatically on app destroy of all resources
 (ns gdx.asset-manager
   (:require [gdx.utils :refer (set-var-root)]
             [gdx.app :as app]
@@ -23,36 +20,32 @@
 (app/on-destroy
  (.dispose asset-manager))
 
-(defn- load-sounds []
-  (doseq [file (files/recursively-search-files assets-folder sound-files-extensions)]
-    (.load asset-manager file Sound)))
+(defn- load-assets [file-extensions klass]
+  (doseq [file (files/recursively-search-files assets-folder file-extensions)]
+    (.load asset-manager file klass)))
 
-(defn- load-images []
-  (doseq [file (files/recursively-search-files assets-folder image-files-extensions)]
-    (.load asset-manager file Texture)))
+(defn- get-asset [file klass]
+  (.get asset-manager ^String file ^Class klass))
 
- ; TODO type hint here or @ play? <- here !?
- ; TODO type hint inside hashmap possible ? only symbol names ?
-(declare ^Sound file->sound
-         file->texture)
+(declare ^{:no-doc true :tag Sound} file->sound
+         ^:no-doc file->texture)
 
 (app/on-create
- ; TODO remove.
- (.load asset-manager "simple_6x8.png" Texture) ; loaded separately because its the only engine specific resource
+ (.load asset-manager "simple_6x8.png" Texture)
 
- (load-sounds)
- (load-images)
+ (load-assets sound-files-extensions Sound)
+ (load-assets image-files-extensions Texture)
  (.finishLoading asset-manager)
 
  (set-var-root #'file->sound
    (memoize
     (fn [file]
-      (.get asset-manager (str sounds-subfolder file) Sound))))
+      (get-asset (str sounds-subfolder file) Sound))))
 
  (set-var-root #'file->texture
    (memoize
     (fn [file & [x y w h]]
-      (let [^Texture texture (.get asset-manager ^String file ^Class Texture)]
+      (let [^Texture texture (get-asset file Texture)]
         (if (and x y w h)
           (TextureRegion. texture (int x) (int y) (int w) (int h))
           (TextureRegion. texture)))))))
