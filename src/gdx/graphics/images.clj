@@ -1,6 +1,6 @@
 (defn- draw-texture [texture [x y] [w h] rotation color]
-  (if color (.setColor *batch* color))
-  (.draw *batch* texture
+  (if color (.setColor batch color))
+  (.draw batch texture
          x
          y
          (/ w 2) ; rotation origin
@@ -10,9 +10,8 @@
          1 ; scaling factor
          1
          rotation)
-  (if color (.setColor *batch* white)))
+  (if color (.setColor batch white)))
 
-; hmm do we really have to pre-calculate it ? yes...
 (defn- unit-dimensions [image]
   (cond
    (= *unit-scale* world-unit-scale) (:world-unit-dimensions  image)
@@ -36,9 +35,6 @@
 
 (defn draw-centered-image [image position]
   (draw-rotated-centered-image image 0 position))
-
-(defn pixels->world-units [px]
-  (* px world-unit-scale))
 
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth  texture)
@@ -68,9 +64,6 @@
                   tilew
                   tileh])
 
-; IMPROVEMENT
-; * make defrecord (faster) (maybe also protocol functions -> faster?)
-; * texture can setFilter at Texture$TextureFilter (check scaling ok?)
 (defn create-image
   "Scale can be a number or [width height]"
   [file & {:keys [scale]}]
@@ -85,7 +78,7 @@
   (assoc-dimensions
    (assoc image :scale scale)))
 
-(defn get-sub-image ; TODO create-sub-image -> possible to use without spritesheet
+(defn get-sub-image
   "Coordinates are from original image, not scaled one."
   [{:keys [file] :as image} & sub-image-bounds]
   (assoc-dimensions
@@ -101,7 +94,7 @@
   (get-sub-image sheet (* x tilew) (* y tileh) tilew tileh))
 
 (defn get-sheet-frames [sheet]
-  (let [[w h] (pixel-dimensions sheet)]
+  (let [[w h] (:pixel-dimensions sheet)]
     (for [y (range (/ w (:tilew sheet)))
           x (range (/ h (:tileh sheet)))]
       (get-sprite sheet [x y]))))
@@ -110,15 +103,14 @@
   (get-sheet-frames (apply spritesheet args)))
 
 (defprotocol Animation
-  (is-stopped?  [_])
+  (stopped?     [_])
   (restart      [_])
   (get-duration [_])
   (get-frame    [_]))
 
-; AnimationHash(Map)
 (defrecord ImmutableAnimation [frames frame-duration looping speed cnt maxcnt]
   Animation
-  (is-stopped? [_]
+  (stopped? [_]
     (and (not looping) (= cnt maxcnt)))
   (restart [this]
     (assoc this :cnt 0))
@@ -146,6 +138,5 @@
      :cnt 0
      :maxcnt (* (count frames) frame-duration)}))
 
-; TODO needed?
 (defn render-centered-animation [animation position]
   (draw-centered-image (get-frame animation) position))

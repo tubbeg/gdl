@@ -12,7 +12,7 @@
 (def ^:private sound-files-extensions #{"wav"})
 (def ^:private image-files-extensions #{"png" "bmp"})
 
-(declare ^{:private true :tag AssetManager} asset-manager)
+(declare ^:private ^AssetManager asset-manager)
 
 (app/on-create
  (set-var-root #'asset-manager (AssetManager.)))
@@ -27,7 +27,7 @@
 (defn- get-asset [file klass]
   (.get asset-manager ^String file ^Class klass))
 
-(declare ^{:no-doc true :tag Sound} file->sound
+(declare ^:no-doc ^Sound file->sound
          ^:no-doc file->texture)
 
 (app/on-create

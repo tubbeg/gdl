@@ -1,27 +1,33 @@
-; IMPROVEMENT: could tag ^Color
-(defmacro ^:private defcolors [& names]
-  `(do
-     ~@(map #(list 'def % (symbol (str "Color/" (upper-case %)))) names)))
+(doseq [color '[white
+                yellow
+                red
+                blue
+                green
+                black
+                gray
+                cyan
+                pink
+                orange
+                magenta]]
+  (eval
+   `(def ^color ~color ~(symbol (str "Color/" (upper-case color))))))
 
-(defcolors white yellow red blue green black gray cyan pink orange magenta)
-
-(defn rgbcolor
+(defn color
   ([r g b]
-   (rgbcolor r g b 1))
+   (color r g b 1))
   ([r g b a]
    (Color. (float r) (float g) (float b) (float a))))
 
 (defmacro defcolor [namesym & args]
-  `(def ~namesym (rgbcolor ~@args)))
-
-(defn- mul [^Color color value]
-  (let [color (.mul (.cpy color) (float value))]
-    (set! (.a color) 1) ; ??? TODO
-    color))
+  `(def ~namesym (color ~@args)))
 
 (defn multiply-color [^Color color ^Color other]
   (.mul (.cpy color) other))
 
-(defn darker   [color scale] (mul color (- 1 scale)))
-(defn brighter [color scale] (mul color (+ 1 scale)))
+(defn- mul-without-alpha [^Color color value]
+  (let [new-color (.mul (.cpy color) (float value))]
+    (set! (.a new-color) (.a color))
+    new-color))
 
+(defn darker   [color scale] (mul-without-alpha color (- 1 scale)))
+(defn brighter [color scale] (mul-without-alpha color (+ 1 scale)))

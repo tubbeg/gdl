@@ -1,7 +1,9 @@
 (ns gdx.tiled
-  (:import [com.badlogic.gdx.maps MapLayer MapLayers MapProperties]
+  (:require [gdx.graphics :as g])
+  (:import [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
-            TiledMapTileLayer TiledMapTileLayer$Cell]))
+            TiledMapTileLayer TiledMapTileLayer$Cell]
+           [gdx OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
 (defn load-map
   "Requires OpenGL context (texture generation)."
@@ -86,3 +88,27 @@
 #_(defn properties [obj]
     (let [^MapProperties ps (.getProperties obj)]
       (zipmap (map keyword (.getKeys ps)) (.getValues ps))))
+
+; OrthogonalTiledMapRenderer extends BatchTiledMapRenderer
+; and when a batch is passed to the constructor
+; we do not need to dispose the renderer
+(defn- map-renderer-for [tiled-map color-setter]
+  (OrthogonalTiledMapRendererWithColorSetter. tiled-map
+                                              (float g/world-unit-scale)
+                                              g/batch
+                                              (reify ColorSetter
+                                                (apply [_ color x y]
+                                                  (color-setter color x y)))))
+
+(def ^:private cached-map-renderer (memoize map-renderer-for))
+
+(defn render-map [tiled-map color-setter]
+  (let [^MapRenderer map-renderer (cached-map-renderer tiled-map color-setter)]
+    (g/update-world-camera-position)
+    (.setView map-renderer g/world-camera)
+    (->> tiled-map
+         layers
+         (filter #(.isVisible ^MapLayer %))
+         (map (partial layer-index tiled-map))
+         int-array
+         (.render map-renderer))))

@@ -45,7 +45,7 @@
     (show [_])
     (destroy [_])
     (render [_]
-      (render-gui-level render*))
+      (render-gui render*))
     (update-screen [_ delta]
       (update-test))))
 

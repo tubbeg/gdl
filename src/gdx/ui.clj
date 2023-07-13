@@ -4,23 +4,31 @@
             [gdx.files :as files]
             [gdx.graphics :as g])
   (:import [com.badlogic.gdx.graphics.g2d TextureRegion]
-           [com.badlogic.gdx.scenes.scene2d Stage Actor]
+           [com.badlogic.gdx.scenes.scene2d Stage Actor
+            Group]
            [com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable]
            [com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window
             Button Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle
             Label TooltipManager Tooltip TextTooltip]))
 
+; TODO constructor fns type hint for result -> no reflection @ game.*
+; => check @ game.* reflection warnings too... !
+
 ; separate scene2d (stage,actor ) & ui ?
 
-; TODO stage [viewport batch]
+; TODO just stage
 (defn create-stage []
-  (Stage. g/gui-viewport g/sprite-batch))
+  (Stage. g/gui-viewport g/batch))
 
 (defn draw-stage [stage]
-  (g/with-gui-bindings
-    ; https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/scenes/scene2d/Stage.java#L119
-    ; set line width (here outside of render-gui-level)
-    (.draw ^Stage stage)))
+  ; Not using (.draw ^Stage stage) because we are already managing
+  ; .setProjectionMatrix / begin / end of batch and setting unit-scale in g/render-with
+  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Stage.java#L119
+  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Group.java#L56
+  ; => use inside g/render-gui
+  (.draw ^Group (.getRoot ^Stage stage)
+         g/batch
+         (float 1)))
 
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))

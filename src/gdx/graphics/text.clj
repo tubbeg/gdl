@@ -19,7 +19,7 @@
 
 (declare ^:private font-spritesheet)
 
-(defn- create-font []
+(app/on-create
   (set-var-root #'font-spritesheet (spritesheet "simple_6x8.png" 6 8)))
 
 ; IMPROVEMENT I could memoize the text->spritesheet xpos or even sprites calculation
@@ -96,7 +96,7 @@
               (- (line-height textseq)))
          [obj & remaining] textseq]
     (cond
-     (instance? Color obj) (do (.setColor *batch* obj)
+     (instance? Color obj) (do (.setColor batch obj)
                                (recur y remaining))
 
      (string? obj) (if (includes? obj "\n")
@@ -106,7 +106,7 @@
                       (draw-string x y obj (:scale (meta textseq)))
                       (recur (- y (line-height textseq))
                              remaining)))))
-  (.setColor *batch* white))
+  (.setColor batch white))
 
 ; Shift in world coordinate system:
 ; text will be inside the map tiles (not less than 0)
@@ -155,4 +155,3 @@
     (when background
       (fill-rect x y w h transparent-black))
     (render-text* x y textseq)))
-

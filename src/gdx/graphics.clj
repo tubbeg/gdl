@@ -1,88 +1,68 @@
 (ns gdx.graphics
-  (:require [clojure.string :refer [includes? split-lines upper-case]]
+  (:require [clojure.string :refer (includes? split-lines upper-case)]
             [gdx.app :as app]
-            [gdx.tiled :as tiled]
-            [gdx.utils :refer [set-var-root]]
+            [gdx.utils :refer (set-var-root)]
             [gdx.asset-manager :as asset-manager])
-  (:import [java.io File]
-           [com.badlogic.gdx Gdx Graphics]
+  (:import [com.badlogic.gdx Gdx Graphics]
            [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
-           [com.badlogic.gdx.math Vector2 Vector3 Circle Rectangle MathUtils]
-           [space.earlygrey.shapedrawer ShapeDrawer]
-           [com.badlogic.gdx.maps MapRenderer MapLayer]
-           [gdx OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
-
-;(set! *unchecked-math* :warn-on-boxed) ; breaks (byte \char) at draw-string
+           [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
+           [space.earlygrey.shapedrawer ShapeDrawer]))
 
 (declare ^Graphics graphics)
 
 (app/on-create
  (set-var-root #'graphics (Gdx/graphics)))
 
-(defn fps []
-  (.getFramesPerSecond graphics))
+(defn fps [] (.getFramesPerSecond graphics))
 
-(def gui-unit-scale 1)
-(declare world-unit-scale)
+(defn screen-width  [] (.getWidth  graphics))
+(defn screen-height [] (.getHeight graphics))
 
-; set to 1 so we can query get-text-width on a text
-; outside of rendering function at initialization
-(def ^:private ^:dynamic *unit-scale* gui-unit-scale)
+(def gui-unit-scale   1)
+(def world-unit-scale 1)
 
-(declare ^:dynamic ^:private ^Batch *batch*) ; TODO no need for thread-binding just set-var-root.
+(defn pixels->world-units [px]
+  (* px world-unit-scale))
 
-; TODO cannot use vim fireplace in loaded files
-; => put all in this namespace.
+(def ^:private ^:dynamic *unit-scale*)
+
+(declare ^Batch batch)
+
+(app/on-create
+ (set-var-root #'batch (SpriteBatch.)))
+
+(app/on-destroy
+ (.dispose batch))
 
 (load "graphics/colors")
 (load "graphics/shapes")
 (load "graphics/images")
 (load "graphics/text")
 
-; TODO use proper naming gui- or world- (set-world-camera-position! ?)
-
-; TODO somehow move world-camera/world-viewport out of here ?
-; => gdx.world ?
-; world/viewport-width
-; gui/viewport-width
-; or gui-viewport / world-viewport
-; or gui inbuilt here and world extra
-; (later)
-
-; TODO camera/viewport
-; * on-resize ( on-update )
-; * render (set matrix)
-; * viewport w/h
-; * mouse position
-
-(declare ^OrthographicCamera gui-camera
-         ^Viewport gui-viewport
+(declare ^OrthographicCamera   gui-camera
          ^OrthographicCamera world-camera
-         ^Viewport world-viewport
-         ^SpriteBatch sprite-batch)
+         ^Viewport   gui-viewport
+         ^Viewport world-viewport)
 
 (app/on-create
-  ; TODO load above w. spriteshee
-  (set-var-root #'sprite-batch (SpriteBatch.))
-
-  ; TODO load w. shape drawer?
-  (create-shape-drawer sprite-batch)
-
-  ; TODO ideally we dont use camera/viewport in g/??
   (set-var-root #'gui-camera (OrthographicCamera.))
-  (set-var-root #'gui-viewport (FitViewport. (.getWidth graphics) (.getHeight graphics) gui-camera))
-
-  ; important ! create after world-unit-scale so font images have :world-unit-dimensions set
-  (create-font)
+  (set-var-root #'gui-viewport (FitViewport. (screen-width)
+                                             (screen-height)
+                                             gui-camera))
 
   (set-var-root #'world-camera (OrthographicCamera.))
-  (let [width  (* (.getWidth  graphics) world-unit-scale)
-        height (* (.getHeight graphics) world-unit-scale)]
-    (.setToOrtho world-camera false width height)
-    (set-var-root #'world-viewport (FitViewport. width height world-camera))))
+  (let [width  (* (screen-width)  world-unit-scale)
+        height (* (screen-height) world-unit-scale)
+        y-down false]
+    (.setToOrtho world-camera y-down width height)
+    (set-var-root #'world-viewport (FitViewport. width
+                                                 height
+                                                 world-camera))))
 
+; TODO directly change camera, not with repl (render fucks it up?)
+; -> check with-context maybe or sth.
 (def ^:private world-camera-position (atom nil))
 
 (defn camera-position []
@@ -91,87 +71,37 @@
 (defn set-camera-position! [position]
   (reset! world-camera-position position))
 
+(defn update-world-camera-position []
+  (set! (.x (.position world-camera)) (@world-camera-position 0))
+  (set! (.y (.position world-camera)) (@world-camera-position 1))
+  (.update world-camera))
+
 (defn on-resize [w h]
-  (.update gui-viewport w h true)
-  (.update world-viewport w h true))
+  (let [center-camera? true]
+    (.update gui-viewport   w h center-camera?)
+    (.update world-viewport w h center-camera?)))
 
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
-  (let [screen-width  (.getWidth  graphics)
-        screen-height (.getHeight graphics)]
-    (if (or (not= (.getScreenWidth  gui-viewport) screen-width)
-            (not= (.getScreenHeight gui-viewport) screen-height))
-      (on-resize screen-width screen-height))))
+  (when-not (and (= (.getScreenWidth  gui-viewport) (screen-width))
+                 (= (.getScreenHeight gui-viewport) (screen-height)))
+    (on-resize (screen-width) (screen-height))))
 
 (defn on-update []
   (fix-viewport-update))
 
-; TODO move to definition.
-(app/on-destroy
- (.dispose sprite-batch)
- (dispose-shape-drawer))
-
-; TODO use below.
-(defmacro with-gui-bindings [& exprs]
-  `(binding [*batch* sprite-batch
-             *unit-scale* gui-unit-scale]
-     (set-shape-drawer-default-line-width 1)
-     ~@exprs))
-
-(defn- render-with [batch unit-scale ^OrthographicCamera camera renderfn]
-  (binding [*batch* batch
-            *unit-scale* unit-scale]
-    (set-shape-drawer-default-line-width 1)
-    (.setProjectionMatrix *batch* (.combined camera))
-    (.begin *batch*)
+(defn- render-with [unit-scale ^OrthographicCamera camera renderfn]
+  (binding [*unit-scale* unit-scale]
+    (set-shape-drawer-unit-scale)
+    (.setColor batch white) ; fix scene2d.ui.tooltip flickering
+    (.setProjectionMatrix batch (.combined camera))
+    (.begin batch)
     (renderfn)
-    (.end *batch*)))
+    (.end batch)))
 
-; TODO use partial., no need to pass sprite-batch
-(defn render-gui-level [renderfn]
-  (.setColor sprite-batch white)
-  (render-with sprite-batch gui-unit-scale gui-camera renderfn))
-
-(defn render-map-level [renderfn]
-  #_(when-not (= white (.getColor sprite-batch))
-    (println "render map level spritebatch color: "
-             [(.r (.getColor sprite-batch))
-              (.g (.getColor sprite-batch))
-              (.b (.getColor sprite-batch))
-              (.a (.getColor sprite-batch))
-
-              ]
-
-             ))
-  (.setColor sprite-batch white)
-  (render-with sprite-batch world-unit-scale world-camera renderfn))
-
-; OrthogonalTiledMapRenderer extends BatchTiledMapRenderer
-; and when a batch is passed to the constructor
-; we do not need to dispose the renderer
-(defn- map-renderer-for [tiled-map color-setter]
-  (OrthogonalTiledMapRendererWithColorSetter. tiled-map
-                                              (float world-unit-scale)
-                                              sprite-batch
-                                              (reify ColorSetter
-                                                (apply [_ color x y]
-                                                  (color-setter color x y)))))
-
-(def ^:private cached-map-renderer (memoize map-renderer-for))
-
-(defn render-map [tiled-map color-setter]
-  (set! (.x (.position world-camera)) (@world-camera-position 0))
-  (set! (.y (.position world-camera)) (@world-camera-position 1))
-  (.update world-camera)
-  (let [^MapRenderer map-renderer (cached-map-renderer tiled-map color-setter)]
-    (.setView map-renderer world-camera)
-    (->> tiled-map
-         tiled/layers
-         (filter #(.isVisible ^MapLayer %))
-         (map (partial tiled/layer-index tiled-map))
-         int-array
-         (.render map-renderer))))
+(defn render-gui   [renderfn] (render-with   gui-unit-scale   gui-camera renderfn))
+(defn render-world [renderfn] (render-with world-unit-scale world-camera renderfn))
 
 (defn- clamp [value min max]
   (MathUtils/clamp (float value) (float min) (float max)))
@@ -185,6 +115,7 @@
         mouse-y (clamp (.getY (Gdx/input))
                        (.getTopGutterHeight viewport)
                        (.getTopGutterY viewport))
+        ; TODO why clamping ? is not automatically done, is there not an option in viewport?
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
@@ -200,9 +131,9 @@
   []
   (unproject-mouse-posi world-viewport))
 
-(defn ^:no-doc clear-screen [] ; TODO use clear screen utils
+(defn ^:no-doc clear-screen [] ; TODO use clear screen utils, move to craft.game
   (.glClearColor (Gdx/gl) 0 0 0 1)
-  (.glClear (Gdx/gl) GL20/GL_COLOR_BUFFER_BIT))
+  (.glClear      (Gdx/gl) GL20/GL_COLOR_BUFFER_BIT))
 
 (defn viewport-width  [] (.getWorldWidth  gui-viewport))
 (defn viewport-height [] (.getWorldHeight gui-viewport))

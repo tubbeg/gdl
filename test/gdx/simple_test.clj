@@ -57,7 +57,7 @@
      [(+ x (/ w 2)) (+ y (/ h 2))]
      (* 1 (/ w 2))
      (* 1 (/ h 2))
-     (g/rgbcolor 1 0 0 0.5))
+     (g/color 1 0 0 0.5))
 
      (g/draw-sector
       [x y]
@@ -87,13 +87,13 @@
   #_(g/render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
   (.draw font12
-         (deref #'gdx.graphics/*batch*)
+         g/batch
          "foo bar BAZ !!! zzz"
          (float 20)
          (float 20))
 
   #_(.draw font12
-         (deref #'gdx.graphics/*batch*)
+         g/batch
          "[GRAY]Sword,[] Action-time: 0.5s, [RED]Damage: 5-10"
          (float 500)
          (float 300))
@@ -111,7 +111,7 @@
                            (str "Screen Y" sy)]
                           )
     #_(.draw font12
-           (deref #'gdx.graphics/*batch*)
+           g/batch
            (apply str
                   [(str "Map x " x)
                    (str "Map y " y)
@@ -141,8 +141,8 @@
   :render (fn []
             ;(render-map tiled-map
             ;            (fn [color x y] white))
-            ;(render-map-level map-content)
-            (g/render-gui-level gui-render)
+            ;(g/render-world map-content)
+            (g/render-gui gui-render)
             )
   :destroy (fn []
              ;(tiled/dispose tiled-map)
