@@ -5,7 +5,7 @@
             [gdx.asset-manager :as asset-manager])
   (:import [com.badlogic.gdx Gdx Graphics]
            [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
-           [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion]
+           [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion BitmapFont]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
            [space.earlygrey.shapedrawer ShapeDrawer]))
@@ -39,7 +39,17 @@
 (load "graphics/colors")
 (load "graphics/shapes")
 (load "graphics/images")
-(load "graphics/text")
+
+(declare ^BitmapFont default-font)
+
+(app/on-create
+ (set-var-root #'default-font (BitmapFont.)))
+
+(app/on-destroy
+ (.dispose default-font))
+
+(defn draw-text [text x y]
+  (.draw default-font batch text (float x) (float y)))
 
 (declare ^OrthographicCamera   gui-camera
          ^OrthographicCamera world-camera

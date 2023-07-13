@@ -8,34 +8,6 @@
             [gdx.input :as input]
             [gdx.utils :refer (set-var-root)]))
 
-(import '[com.badlogic.gdx Gdx])
-(import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator)
-(import 'com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator$FreeTypeFontParameter)
-
-(defn- generate-font [ttf-file]
-  (let [generator (FreeTypeFontGenerator. (files/internal ttf-file))
-        parameter (FreeTypeFontGenerator$FreeTypeFontParameter.)]
-
-    (set! (.size parameter) 64)
-
-    ;(set! (.borderWidth parameter) 1)
-    ;(set! (.borderColor parameter) red)
-
-    (def font12 (.generateFont generator parameter))
-
-    (set! (.markupEnabled (.getData font12)) true)
-
-    (.dispose generator)))
-
-(app/on-create
- ;(def sheet (g/spritesheet "items.png" 16 16))
- ;(def sprite (g/get-sprite sheet [5 4]))
- (generate-font "exocet/films.EXH_____.ttf")
-
- )
-
-
-
 (defn map-content []
   ;(draw-grid 0 0 24 18 1 1 (darker white 0.5))
   ;(draw-line 10 10 12 12 red)
@@ -86,11 +58,9 @@
 (defn gui-render []
   #_(g/render-readable-text 0 0 {} ^{:scale 0.5} [(str (get-fps) " FPS")])
 
-  (.draw font12
-         g/batch
-         "foo bar BAZ !!! zzz"
-         (float 20)
-         (float 20))
+  ;(g/draw-text "FOO BAR BAZ" 400 400)
+
+  ;(.draw font12 g/batch "foo bar BAZ !!! zzz" (float 60) (float 280))
 
   #_(.draw font12
          g/batch
@@ -100,7 +70,15 @@
 
   (let [[x y] (map #(format "%.2f" %) (g/map-coords))
         [gx gy] (g/mouse-coords)
-        [sx sy] (input/get-mouse-pos)]
+        [sx sy] (input/get-mouse-pos)
+        the-str (str
+                 "Map x " x "\n"
+                 "Map y " y "\n"
+                 "GUI x " gx "\n"
+                 "GUI y " gy "\n"
+                 "Screen X" sx "\n"
+                 "Screen Y" sy )
+        ]
     (g/render-readable-text 0 60
                           {:shift true}
                           [(str "Map x " x)
@@ -110,17 +88,10 @@
                            (str "Screen X" sx)
                            (str "Screen Y" sy)]
                           )
-    #_(.draw font12
-           g/batch
-           (apply str
-                  [(str "Map x " x)
-                   (str "Map y " y)
-                   (str "GUI x " gx)
-                   (str "GUI y " gy)
-                   (str "Screen X" sx)
-                   (str "Screen Y" sy)])
-           (float 100)
-           (float 60))
+    (g/draw-text the-str
+                 (float 200)
+                 (float 155))
+
     )
 
   #_(let [[x y] (g/mouse-coords)]
@@ -150,9 +121,6 @@
              )
   :update (fn [delta]))
 
-; TODO set world unit scale
-
-(set-var-root #'g/world-unit-scale 1)
 
 (defn start-app []
   (lwjgl/create-app :game (game/create {:main screen})
