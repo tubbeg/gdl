@@ -26,7 +26,7 @@
 (defn pixels->world-units [px]
   (* px world-unit-scale))
 
-(def ^:private ^:dynamic *unit-scale*)
+(def ^:dynamic *unit-scale*)
 
 (declare ^Batch batch)
 
@@ -49,7 +49,7 @@
  (.dispose default-font))
 
 (defn draw-text [text x y]
-  (.draw default-font batch text (float x) (float y)))
+  (.draw default-font batch ^String text (float x) (float y)))
 
 (declare ^OrthographicCamera   gui-camera
          ^OrthographicCamera world-camera
