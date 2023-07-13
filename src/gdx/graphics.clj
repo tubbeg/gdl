@@ -4,7 +4,7 @@
             [gdx.app :as app]
             [gdx.asset-manager :as asset-manager])
   (:import [com.badlogic.gdx Gdx Graphics]
-           [com.badlogic.gdx.graphics GL20 OrthographicCamera Color Texture Pixmap Pixmap$Format]
+           [com.badlogic.gdx.graphics OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion BitmapFont]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
@@ -71,8 +71,6 @@
                                                  height
                                                  world-camera))))
 
-; TODO directly change camera, not with repl (render fucks it up?)
-; -> check with-context maybe or sth.
 (def ^:private world-camera-position (atom nil))
 
 (defn camera-position []
@@ -125,11 +123,8 @@
         mouse-y (clamp (.getY (Gdx/input))
                        (.getTopGutterHeight viewport)
                        (.getTopGutterY viewport))
-        ; TODO why clamping ? is not automatically done, is there not an option in viewport?
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
-
-; -> no-doc here and @ input mouse-position / world-mouse-position ?
 
 ; TODO gui-mouse-position!
 (defn mouse-coords []
@@ -140,10 +135,6 @@
   "Can be negative coordinates, undefined cells." ; TODO check if true
   []
   (unproject-mouse-posi world-viewport))
-
-(defn ^:no-doc clear-screen [] ; TODO use clear screen utils, move to craft.game
-  (.glClearColor (Gdx/gl) 0 0 0 1)
-  (.glClear      (Gdx/gl) GL20/GL_COLOR_BUFFER_BIT))
 
 (defn viewport-width  [] (.getWorldWidth  gui-viewport))
 (defn viewport-height [] (.getWorldHeight gui-viewport))
@@ -160,12 +151,7 @@
         right-x  (apply max (map first  frustum-points))
         bottom-y (apply min (map second frustum-points))
         top-y    (apply max (map second frustum-points))]
-    ; rectangle :
-    #_{:left-bottom x
-       :width  viewport-width camera
-       :height viewport-height camera}
-    [left-x right-x bottom-y top-y]
-    ))
+    [left-x right-x bottom-y top-y]))
 
 (defn visible-tiles []
   (let [[left-x right-x bottom-y top-y] (world-frustum)]

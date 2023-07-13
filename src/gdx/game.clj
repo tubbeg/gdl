@@ -2,7 +2,8 @@
   (:require [gdx.utils :refer (set-var-root)]
             [gdx.app :as app]
             [gdx.graphics :as g])
-  (:import [com.badlogic.gdx Screen Game]))
+  (:import [com.badlogic.gdx.utils ScreenUtils]
+           [com.badlogic.gdx Screen Game]))
 
 (defmacro defscreen [var-name & screen]
   `(def ~var-name (hash-map ~@screen)))
@@ -13,7 +14,7 @@
       (when show
         (show)))
     (render [_ delta]
-      (g/clear-screen)
+      (ScreenUtils/clear g/black)
       (g/on-update)
       (when render
         (render))
