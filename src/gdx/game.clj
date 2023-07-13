@@ -10,20 +10,28 @@
 (defn- screen->libgdx-screen [{:keys [show render update dispose]}]
   (reify Screen
     (show [_]
-      (when show (show)))
+      (when show
+        (show)))
     (render [_ delta]
       (g/clear-screen)
       (g/on-update)
-      (when render (render))
-      (when update (update (* delta 1000))))
+      (when render
+        (render))
+      (when update
+        (update (* delta 1000))))
     (resize [_ w h])
     (pause [_])
     (resume [_])
     (hide [_])
     (dispose [_]
-      (when dispose (dispose)))))
+      (when dispose
+        (dispose)))))
 
 (declare ^:private screens)
+
+(defn set-screen [k]
+  (.setScreen ^Game (.getApplicationListener app/app)
+              (k screens)))
 
 (defn create [screens]
   (let [screens (zipmap
@@ -32,18 +40,14 @@
         game (proxy [Game] []
                (create []
                  (app/call-on-create-fns!)
-                 (.setScreen ^Game this (first (vals screens))))
+                 (set-screen (first (keys screens))))
                (dispose []
                  (app/call-on-destroy-fns!)
-                 (doseq [^Screen screen (vals screens)]
-                   (.dispose screen)))
+                 (doseq [screen (vals screens)]
+                   (.dispose ^Screen screen)))
                (pause [])
                (resize [w h]
                  (g/on-resize w h))
                (resume []))]
     (set-var-root #'screens screens)
     game))
-
-(defn set-screen [k]
-  (.setScreen ^Game (.getApplicationListener app/app)
-              (k screens)))

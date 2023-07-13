@@ -19,18 +19,18 @@
   [^Circle circle ^Rectangle rect]
   (Intersector/overlaps circle rect))
 
-(defn- is-rectangle? [{[x y] :left-bottom :keys [width height]}]
+(defn- rectangle? [{[x y] :left-bottom :keys [width height]}]
   (and x y width height))
 
-(defn- is-circle? [{[x y] :position :keys [radius]}]
+(defn- circle? [{[x y] :position :keys [radius]}]
   (and x y radius))
 
 (defn- m->shape [m]
   (cond
-   (is-rectangle? m) (let [{[x y] :left-bottom :keys [width height]} m]
+   (rectangle? m) (let [{[x y] :left-bottom :keys [width height]} m]
                        (Rectangle. x y width height))
 
-   (is-circle? m) (let [{[x y] :position :keys [radius]} m]
+   (circle? m) (let [{[x y] :position :keys [radius]} m]
                     (Circle. x y radius))
 
    :else (throw (Error. (str m)))))
@@ -42,7 +42,7 @@
   (.contains ^Rectangle (m->shape rectangle) x y))
 
 (defn circle->outer-rectangle [{[x y] :position :keys [radius] :as circle}]
-  {:pre [(is-circle? circle)]}
+  {:pre [(circle? circle)]}
   (let [size (* radius 2)]
     {:left-bottom [(- x radius)
                    (- y radius)]
