@@ -1,5 +1,6 @@
 (ns gdx.graphics
   (:require [clojure.string :refer (upper-case)]
+            [wrapper.space.earlygrey.shapedrawer.shapedrawer :as shape-drawer]
             [gdx.utils :refer (set-var-root)]
             [gdx.app :as app]
             [gdx.asset-manager :as asset-manager])
@@ -7,8 +8,7 @@
            [com.badlogic.gdx.graphics OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion BitmapFont]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
-           [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
-           [space.earlygrey.shapedrawer ShapeDrawer]))
+           [com.badlogic.gdx.math Vector2 Vector3 MathUtils]))
 
 (declare ^Graphics graphics)
 
