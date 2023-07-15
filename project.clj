@@ -22,8 +22,7 @@
                  [com.badlogicgames.gdx/gdx-platform              "1.11.0" :classifier "natives-desktop"]
 
                  [space.earlygrey/shapedrawer "2.5.0"]
-
-                 [emlyn/tortilla "0.1.5"]]
+                 ]
 
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"] ; ??? TODO
 
