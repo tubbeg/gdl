@@ -13,7 +13,7 @@
 (declare ^Graphics graphics)
 
 (app/on-create
- (set-var-root #'graphics (Gdx/graphics)))
+ (set-var-root #'graphics Gdx/graphics))
 
 (defn fps [] (.getFramesPerSecond graphics))
 
@@ -114,10 +114,10 @@
 ; touch coordinates are y-down, while screen coordinates are y-up
 ; so the clamping of y is reverse, but as black bars are equal it does not matter
 (defn- unproject-mouse-posi [^Viewport viewport]
-  (let [mouse-x (clamp (.getX (Gdx/input))
+  (let [mouse-x (clamp (.getX Gdx/input)
                        (.getLeftGutterWidth viewport)
                        (.getRightGutterX viewport))
-        mouse-y (clamp (.getY (Gdx/input))
+        mouse-y (clamp (.getY Gdx/input)
                        (.getTopGutterHeight viewport)
                        (.getTopGutterY viewport))
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]

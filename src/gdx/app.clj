@@ -14,7 +14,7 @@
 (declare ^Application app)
 
 (on-create
- (set-var-root #'app (Gdx/app)))
+ (set-var-root #'app Gdx/app))
 
 (defn exit []
   (.exit app))

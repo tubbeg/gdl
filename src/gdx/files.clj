@@ -8,7 +8,7 @@
 (declare ^Files files)
 
 (app/on-create
- (set-var-root #'files (Gdx/files)))
+ (set-var-root #'files Gdx/files))
 
 (defn internal ^FileHandle [file]
   (.internal files file))
