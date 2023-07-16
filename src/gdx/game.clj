@@ -15,7 +15,7 @@
         (show)))
     (render [_ delta]
       (ScreenUtils/clear g/black)
-      (g/on-update)
+      (g/fix-viewport-update)
       (when render
         (render))
       (when update

@@ -89,15 +89,12 @@
     (.update gui-viewport   w h center-camera?)
     (.update world-viewport w h center-camera?)))
 
-(defn- fix-viewport-update
+(defn fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
   (when-not (and (= (.getScreenWidth  gui-viewport) (screen-width))
                  (= (.getScreenHeight gui-viewport) (screen-height)))
     (on-resize (screen-width) (screen-height))))
-
-(defn on-update []
-  (fix-viewport-update))
 
 (defn- render-with [unit-scale ^OrthographicCamera camera renderfn]
   (binding [*unit-scale* unit-scale]
