@@ -1,6 +1,14 @@
+(ns gdx.graphics.shape-drawer
+  (:require [gdx.utils :refer (set-var-root)]
+            [gdx.app :as app]
+            [gdx.graphics.color :as color])
+  (:import [com.badlogic.gdx.graphics Texture Pixmap Pixmap$Format Color]
+           com.badlogic.gdx.graphics.g2d.TextureRegion
+           [space.earlygrey.shapedrawer ShapeDrawer]))
+
 (defn- gen-shape-drawer-texture []
   (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
-                 (.setColor Color/WHITE)
+                 (.setColor color/white)
                  (.drawPixel 0 0))
         texture (Texture. pixmap)]
     (.dispose pixmap)
@@ -9,17 +17,19 @@
 (app/defmanaged ^{:private true :tag Texture :dispose true} shape-drawer-texture
   (gen-shape-drawer-texture))
 
-(app/defmanaged ^{:tag ShapeDrawer} shape-drawer
+(defn- ->ShapeDrawer [batch]
   (ShapeDrawer. batch (TextureRegion. shape-drawer-texture 0 0 1 1)))
+
+(declare ^ShapeDrawer shape-drawer)
+
+(defn ^:no-doc create [batch]
+  (set-var-root #'shape-drawer (->ShapeDrawer batch)))
 
 (defn- set-shapes-color [^Color color]
   (.setColor shape-drawer color))
 
-(defn ^:no-doc set-default-line-width [width]
+(defn set-default-line-width [width]
   (.setDefaultLineWidth shape-drawer (float width)))
-
-(defn ^:no-doc set-shape-drawer-unit-scale []
-  (set-default-line-width *unit-scale*))
 
 (defmacro with-shape-drawer-line-width [width & exprs]
   `(let [old-line-width# (.getDefaultLineWidth shape-drawer)]
@@ -43,7 +53,7 @@
   (set-shapes-color color)
   (.filledCircle shape-drawer (float x) (float y) (float radius)))
 
-(defn- degree->radians [degree]
+(defn- degree->radians [degree] ; TODO not here
   (* degree (/ (Math/PI) 180)))
 
 (defn draw-arc [[centre-x centre-y] radius start-angle degree color]

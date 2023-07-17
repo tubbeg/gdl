@@ -1,5 +1,5 @@
 ; TODO if this is required on windows/linux will break?
-; only require @ mac ?
+; only call require @ mac ?
 (ns ^:no-doc gdx.mac-dock-icon
   (:require [clojure.java.io :as io])
   (:import com.apple.eawt.Application
@@ -42,8 +42,10 @@
   ; do set only once in case of
   ; clojure.tools.namespace.repl/refresh-all
   ; otherwise it gives a console warning every app start
-  (when-not (= (System/getProperty "java.awt.headless") "true")
-    (System/setProperty "java.awt.headless" "true"))
+  (let [property "java.awt.headless",value "true"]
+    (when-not (= (System/getProperty property) value)
+      (System/setProperty property value)))
 
+  ; TODO in jar file resources/ in classpath -> no need to give path here?
   (let [image (ImageIO/read (io/file (str "resources/logo.png")))]
     (.setDockIconImage (Application/getApplication) image)))

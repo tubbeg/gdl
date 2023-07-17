@@ -1,3 +1,10 @@
+(ns gdx.graphics.color
+  (:require [clojure.string :as str])
+  (:import com.badlogic.gdx.graphics.Color))
+
+; TODO how to keep colors in the docs separate
+; some prefix to the name color/white == statics ??
+
 (doseq [color '[white
                 yellow
                 red
@@ -10,16 +17,16 @@
                 orange
                 magenta]]
   (eval
-   `(def ^color ~color ~(symbol (str "Color/" (upper-case color))))))
+   `(def ^Color ^:no-doc ~color ~(symbol (str "Color/" (str/upper-case color))))))
 
-(defn color
-  ([r g b]
-   (color r g b 1))
+(defn rgb
+  ([r g b] (rgb r g b 1))
   ([r g b a]
    (Color. (float r) (float g) (float b) (float a))))
 
+; TODO defrgb ?
 (defmacro defcolor [namesym & args]
-  `(def ~namesym (color ~@args)))
+  `(def ~namesym (rgb ~@args)))
 
 (defn multiply-color [^Color color ^Color other]
   (.mul (.cpy color) other))

@@ -1,22 +1,21 @@
 (ns gdx.graphics
-  (:require [clojure.string :refer (upper-case)]
-            [gdx.app :as app]
-            [gdx.assets :as assets])
+  (:require [gdx.app :as app]
+            [gdx.graphics.color :as color]
+            [gdx.graphics.shape-drawer :as shape-drawer])
   (:import [com.badlogic.gdx Gdx Graphics]
-           [com.badlogic.gdx.graphics OrthographicCamera Color Texture Pixmap Pixmap$Format]
-           [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion BitmapFont]
+           [com.badlogic.gdx.graphics OrthographicCamera]
+           [com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
-           [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
-           [space.earlygrey.shapedrawer ShapeDrawer]))
+           [com.badlogic.gdx.math Vector2 Vector3 MathUtils]))
 
-(app/defmanaged ^Graphics graphics Gdx/graphics)
+(app/defmanaged ^:no-doc ^Graphics graphics Gdx/graphics)
 
 (defn fps [] (.getFramesPerSecond graphics))
 
 (defn screen-width  [] (.getWidth  graphics))
 (defn screen-height [] (.getHeight graphics))
 
-(def gui-unit-scale   1)
+(def   gui-unit-scale 1)
 (def world-unit-scale 1)
 
 (defn pixels->world-units [px]
@@ -24,13 +23,14 @@
 
 (def ^:dynamic *unit-scale*)
 
-(app/defmanaged ^{:tag Batch :dispose true} batch (SpriteBatch.))
+(app/defmanaged ^:dispose ^Batch batch (SpriteBatch.))
 
-(load "graphics/colors")
-(load "graphics/shapes")
-(load "graphics/images")
+(app/on-create
+ (shape-drawer/create batch))
 
-(app/defmanaged ^{:tag BitmapFont :dispose true} default-font (BitmapFont.))
+;;; TODO move this to graphics.font and also truetype initialisation
+
+(app/defmanaged  ^:dispose ^BitmapFont default-font (BitmapFont.))
 
 (defn draw-text [text x y]
   (.draw default-font batch ^String text (float x) (float y)))
@@ -65,12 +65,12 @@
   (set! (.y (.position world-camera)) (@world-camera-position 1))
   (.update world-camera))
 
-(defn on-resize [w h]
+(defn ^:no-doc on-resize [w h]
   (let [center-camera? true]
     (.update gui-viewport   w h center-camera?)
     (.update world-viewport w h center-camera?)))
 
-(defn fix-viewport-update
+(defn ^:no-doc fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
   (when-not (and (= (.getScreenWidth  gui-viewport) (screen-width))
@@ -79,8 +79,8 @@
 
 (defn- render-with [unit-scale ^OrthographicCamera camera renderfn]
   (binding [*unit-scale* unit-scale]
-    (set-shape-drawer-unit-scale)
-    (.setColor batch white) ; fix scene2d.ui.tooltip flickering
+    (shape-drawer/set-default-line-width *unit-scale*)
+    (.setColor batch color/white) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
     (renderfn)

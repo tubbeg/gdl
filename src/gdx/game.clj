@@ -1,7 +1,8 @@
 (ns gdx.game
   (:require [gdx.utils :refer (set-var-root)]
             [gdx.app :as app]
-            [gdx.graphics :as g])
+            [gdx.graphics :as g]
+            [gdx.graphics.color :as color])
   (:import [com.badlogic.gdx.utils ScreenUtils]
            [com.badlogic.gdx Screen Game]))
 
@@ -14,7 +15,7 @@
       (when show
         (show)))
     (render [_ delta]
-      (ScreenUtils/clear g/black)
+      (ScreenUtils/clear color/black)
       (g/fix-viewport-update)
       (when render
         (render))

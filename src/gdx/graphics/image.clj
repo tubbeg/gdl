@@ -1,6 +1,15 @@
+; TODO complicated! use sprite ?
+(ns gdx.graphics.image
+  (:require [gdx.app :as app]
+            [gdx.assets :as assets]
+            [gdx.graphics :as g]
+            [gdx.graphics.color :as color])
+  (:import com.badlogic.gdx.graphics.g2d.TextureRegion))
+; ns gdx.graphics.image
+
 (defn- draw-texture [texture [x y] [w h] rotation color]
-  (if color (.setColor batch color))
-  (.draw batch texture
+  (if color (.setColor g/batch color))
+  (.draw g/batch texture
          x
          y
          (/ w 2) ; rotation origin
@@ -10,12 +19,12 @@
          1 ; scaling factor
          1
          rotation)
-  (if color (.setColor batch white)))
+  (if color (.setColor g/batch color/white)))
 
 (defn- unit-dimensions [image]
   (cond
-   (= *unit-scale* world-unit-scale) (:world-unit-dimensions  image)
-   (= *unit-scale* gui-unit-scale)   (:pixel-dimensions       image)))
+   (= g/*unit-scale* g/world-unit-scale) (:world-unit-dimensions  image)
+   (= g/*unit-scale* g/gui-unit-scale)   (:pixel-dimensions       image)))
 
 (defn draw-image
   ([{:keys [texture color] :as image} position]
@@ -48,13 +57,18 @@
              (and (vector? scale)
                   (number? (scale 0))
                   (number? (scale 1))))]}
+  ; TODO here implicit assumption gui-unit-scale = 1 ...
   (let [pixel-dimensions (if (number? scale)
                            (mapv (partial * scale) (texture-dimensions texture))
                            scale)]
     (assoc image
            :pixel-dimensions pixel-dimensions
-           :world-unit-dimensions (mapv (partial * world-unit-scale) pixel-dimensions))))
+           :world-unit-dimensions (mapv (partial * g/world-unit-scale) pixel-dimensions))))
 
+; TODO use Sprite??
+; * color
+; * scale/size
+; * file is from texturedata
 (defrecord Image [file
                   scale
                   texture
