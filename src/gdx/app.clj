@@ -1,12 +1,21 @@
 (ns gdx.app
   (:require [gdx.utils :refer (set-var-root)])
-  (:import [com.badlogic.gdx Application Gdx]
-           com.badlogic.gdx.utils.Disposable))
+  (:import [com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration]
+           com.badlogic.gdx.utils.Disposable
+           [com.badlogic.gdx Gdx Application]))
 
-; app/create -> lwjgl in here
-; app/destroy instead of exit
-; screen/game also in here (public API)
-; app/defscreen
+(defn- lwjgl-config [{:keys [title width height full-screen fps]}]
+  (let [config (Lwjgl3ApplicationConfiguration.)]
+    (.setTitle config title)
+    (if full-screen
+      (.setFullscreenMode config (Lwjgl3ApplicationConfiguration/getDisplayMode))
+      (.setWindowedMode config width height))
+    (when fps
+      (.setForegroundFPS config fps))
+    config))
+
+(defn create [game config]
+  (Lwjgl3Application. game (lwjgl-config config)))
 
 (def ^:private on-create-fns  [])
 (def ^:private on-destroy-fns [])
@@ -19,13 +28,6 @@
 
 (defn ^:no-doc dispose [^Disposable obj] (.dispose obj))
 
-; def docs:
-;  Creates and interns a global var with the name
-;  of symbol in the current namespace (*ns*) or locates such a var if
-;  it already exists.  If init is supplied, it is evaluated, and the
-;  root binding of the var is set to the resulting value.  If init is
-;  not supplied, the root binding of the var is unaffected.
-
 (defmacro defmanaged [symbol init]
   `(do
     (declare ~symbol)
@@ -35,9 +37,7 @@
 
 (defmanaged ^Application app Gdx/app)
 
-(defn exit [] ; destroy
-  (.exit app))
+(defn destroy [] (.exit app))
 
-(defmacro post-runnable [& exprs]
+(defmacro with-context [& exprs]
   `(.postRunnable app (fn [] ~@exprs)))
-

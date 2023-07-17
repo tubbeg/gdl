@@ -6,6 +6,7 @@
 (disable-reload!)
 
 (defn -main []
-  (defonce nrepl-server (start-server :port 7888))
-  (println "Started nrepl server on port 7888.")
+  (let [port 7889]
+    (defonce nrepl-server (start-server :port port))
+    (println "Started nrepl server on port " port))
   (dev-loop))

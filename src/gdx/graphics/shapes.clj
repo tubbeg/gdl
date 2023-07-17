@@ -6,13 +6,10 @@
     (.dispose pixmap)
     texture))
 
-(app/defmanaged
-  ^{:private true :tag Texture :dispose true}
-  shape-drawer-texture (gen-shape-drawer-texture))
+(app/defmanaged ^{:private true :tag Texture :dispose true} shape-drawer-texture
+  (gen-shape-drawer-texture))
 
-(app/defmanaged
-  ^{:private true :tag ShapeDrawer}
-  shape-drawer
+(app/defmanaged ^{:tag ShapeDrawer} shape-drawer
   (ShapeDrawer. batch (TextureRegion. shape-drawer-texture 0 0 1 1)))
 
 (defn- set-shapes-color [^Color color]

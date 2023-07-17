@@ -1,5 +1,5 @@
 (ns gdx.simple-test
-  (:require [gdx.lwjgl :as lwjgl]
+  (:require [gdx.app :as app]
             [gdx.game :as game]
             [gdx.graphics :as g]
             [gdx.input :as input]))
@@ -56,9 +56,9 @@
   :update (fn [delta]))
 
 
-(defn start-app []
-  (lwjgl/create-app :game (game/create {:main screen})
-                    :title "gdx demo"
-                    :width 800
-                    :height 600
-                    :full-screen false))
+(defn app []
+  (app/create (game/create {:main screen})
+              {:title "gdx demo"
+               :width 800
+               :height 600
+               :full-screen false}))
