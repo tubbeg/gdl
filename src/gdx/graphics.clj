@@ -1,6 +1,5 @@
 (ns gdx.graphics
   (:require [clojure.string :refer (upper-case)]
-            [gdx.utils :refer (set-var-root)]
             [gdx.app :as app]
             [gdx.asset-manager :as asset-manager])
   (:import [com.badlogic.gdx Gdx Graphics]
@@ -10,10 +9,7 @@
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]
            [space.earlygrey.shapedrawer ShapeDrawer]))
 
-(declare ^Graphics graphics)
-
-(app/on-create
- (set-var-root #'graphics Gdx/graphics))
+(app/defmanaged ^Graphics graphics Gdx/graphics)
 
 (defn fps [] (.getFramesPerSecond graphics))
 
@@ -28,48 +24,33 @@
 
 (def ^:dynamic *unit-scale*)
 
-(declare ^Batch batch)
-
-(app/on-create
- (set-var-root #'batch (SpriteBatch.)))
-
-(app/on-destroy
- (.dispose batch))
+(app/defmanaged ^{:tag Batch :dispose true} batch (SpriteBatch.))
 
 (load "graphics/colors")
 (load "graphics/shapes")
 (load "graphics/images")
 
-(declare ^BitmapFont default-font)
-
-(app/on-create
- (set-var-root #'default-font (BitmapFont.)))
-
-(app/on-destroy
- (.dispose default-font))
+(app/defmanaged ^{:tag BitmapFont :dispose true} default-font (BitmapFont.))
 
 (defn draw-text [text x y]
   (.draw default-font batch ^String text (float x) (float y)))
 
-(declare ^OrthographicCamera   gui-camera
-         ^OrthographicCamera world-camera
-         ^Viewport   gui-viewport
-         ^Viewport world-viewport)
+(app/defmanaged ^OrthographicCamera   gui-camera (OrthographicCamera.))
+(app/defmanaged ^OrthographicCamera world-camera (OrthographicCamera.))
 
-(app/on-create
-  (set-var-root #'gui-camera (OrthographicCamera.))
-  (set-var-root #'gui-viewport (FitViewport. (screen-width)
-                                             (screen-height)
-                                             gui-camera))
+(app/defmanaged ^Viewport gui-viewport
+  (FitViewport. (screen-width)
+                (screen-height)
+                gui-camera))
 
-  (set-var-root #'world-camera (OrthographicCamera.))
+(app/defmanaged ^Viewport world-viewport
   (let [width  (* (screen-width)  world-unit-scale)
         height (* (screen-height) world-unit-scale)
         y-down false]
     (.setToOrtho world-camera y-down width height)
-    (set-var-root #'world-viewport (FitViewport. width
-                                                 height
-                                                 world-camera))))
+    (FitViewport. width
+                  height
+                  world-camera)))
 
 (def ^:private world-camera-position (atom nil))
 

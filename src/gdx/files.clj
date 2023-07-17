@@ -1,15 +1,12 @@
 (ns gdx.files
   (:require [clojure.string :as str]
-            [gdx.utils :refer (set-var-root)]
             [gdx.app :as app])
   (:import [com.badlogic.gdx Gdx Files]
            [com.badlogic.gdx.files FileHandle]))
 
-(declare ^Files files)
+(app/defmanaged ^Files files Gdx/files)
 
-(app/on-create
- (set-var-root #'files Gdx/files))
-
+; TODO files/get ?
 (defn internal ^FileHandle [file]
   (.internal files file))
 

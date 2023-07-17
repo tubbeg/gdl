@@ -1,19 +1,19 @@
-(declare ^:no-doc ^ShapeDrawer shape-drawer)
+(defn- gen-shape-drawer-texture []
+  (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
+                 (.setColor Color/WHITE)
+                 (.drawPixel 0 0))
+        texture (Texture. pixmap)]
+    (.dispose pixmap)
+    texture))
 
-(let [shape-drawer-texture (atom nil)]
+(app/defmanaged
+  ^{:private true :tag Texture :dispose true}
+  shape-drawer-texture (gen-shape-drawer-texture))
 
-  (app/on-create
-   (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
-                  (.setColor Color/WHITE)
-                  (.drawPixel 0 0))
-         texture (Texture. pixmap)
-         _ (.dispose pixmap)
-         region (TextureRegion. texture 0 0 1 1)]
-     (reset! shape-drawer-texture texture)
-     (set-var-root #'shape-drawer (ShapeDrawer. batch region))))
-
-  (app/on-destroy
-   (.dispose ^Texture @shape-drawer-texture)))
+(app/defmanaged
+  ^{:private true :tag ShapeDrawer}
+  shape-drawer
+  (ShapeDrawer. batch (TextureRegion. shape-drawer-texture 0 0 1 1)))
 
 (defn- set-shapes-color [^Color color]
   (.setColor shape-drawer color))

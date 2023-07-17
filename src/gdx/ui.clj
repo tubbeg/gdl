@@ -1,6 +1,5 @@
 (ns gdx.ui
-  (:require [gdx.utils :refer (set-var-root)]
-            [gdx.app :as app]
+  (:require [gdx.app :as app]
             [gdx.files :as files]
             [gdx.graphics :as g])
   (:import [com.badlogic.gdx.graphics.g2d TextureRegion]
@@ -33,14 +32,11 @@
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
-(declare ^Skin skin)
-
-(app/on-create
  ; TODO is this not included in libgdx?
- (set-var-root #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
-
-(app/on-destroy
- (.dispose skin))
+(app/defmanaged
+  ^{:tag Skin :dispose true}
+  skin
+  (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
 
 (defn table []
   (Table.))
