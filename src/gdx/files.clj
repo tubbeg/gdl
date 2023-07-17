@@ -5,7 +5,7 @@
   (:import [com.badlogic.gdx Gdx Files]
            [com.badlogic.gdx.files FileHandle]))
 
-(app/defmanaged ^Files files Gdx/files)
+(app/defmanaged ^:private ^Files files Gdx/files)
 
 (defn get ^FileHandle [file]
   (.internal files file))

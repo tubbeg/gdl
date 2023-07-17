@@ -38,7 +38,7 @@
       (on-create (set-var-root var# ~init))
       (on-destroy (when (:dispose (meta var#)) (dispose ~symbol))))))
 
-(defmanaged ^Application app Gdx/app)
+(defmanaged ^:no-doc ^Application app Gdx/app)
 
 (defn destroy [] (.exit app))
 

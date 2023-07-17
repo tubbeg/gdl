@@ -34,6 +34,9 @@
   (.setScreen ^Game (.getApplicationListener app/app)
               (k screens)))
 
+; screens are map of keyword to screen
+; for handling cyclic dependencies
+; (options screen can set main screen and vice versa)
 (defn create [screens]
   (let [screens (zipmap
                  (keys screens)

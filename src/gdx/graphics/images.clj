@@ -64,13 +64,21 @@
                   tilew
                   tileh])
 
+(app/defmanaged ^:private get-texture-region
+  (memoize
+   (fn [file & [x y w h]]
+     (let [texture (assets/get-texture file)]
+       (if (and x y w h)
+         (TextureRegion. texture (int x) (int y) (int w) (int h))
+         (TextureRegion. texture))))))
+
 (defn create-image
   "Scale can be a number or [width height]"
   [file & {:keys [scale]}]
   (assoc-dimensions
    (map->Image {:file file
                 :scale (or scale 1)
-                :texture (assets/get-texture file)})))
+                :texture (get-texture-region file)})))
 
 (defn get-scaled-copy
   "Scaled of original texture-dimensions, not any existing scale."
@@ -84,7 +92,7 @@
   (assoc-dimensions
    (assoc image
           :scale 1
-          :texture (apply assets/get-texture file sub-image-bounds)
+          :texture (apply get-texture-region file sub-image-bounds)
           :sub-image-bounds sub-image-bounds)))
 
 (defn spritesheet [file tilew tileh]
