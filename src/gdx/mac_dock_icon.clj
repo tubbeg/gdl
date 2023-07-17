@@ -1,6 +1,6 @@
 ; TODO if this is required on windows/linux will break?
 ; only require @ mac ?
-(ns gdx.mac-dock-icon
+(ns ^:no-doc gdx.mac-dock-icon
   (:require [clojure.java.io :as io])
   (:import com.apple.eawt.Application
            javax.imageio.ImageIO))

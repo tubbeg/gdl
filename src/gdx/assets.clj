@@ -1,4 +1,4 @@
-(ns gdx.assets
+(ns ^:no-doc gdx.assets
   (:require [gdx.app :as app]
             [gdx.files :as files])
   (:import com.badlogic.gdx.assets.AssetManager
