@@ -38,7 +38,12 @@
   ; https://github.com/LWJGL/lwjgl3/issues/68
   ; This is because using those objects will cause the AWT to run it's event loop, and on OSX, the main thread is already used by GLFW. The solution is to set the headless property of the AWT to true.
   ; Set that property before creating the window, then create the window. Also note that you have to create the fonts or the resources only after the window is created.
-  (System/setProperty "java.awt.headless" "true")
+
+  ; do set only once in case of
+  ; clojure.tools.namespace.repl/refresh-all
+  ; otherwise it gives a console warning every app start
+  (when-not (= (System/getProperty "java.awt.headless") "true")
+    (System/setProperty "java.awt.headless" "true"))
 
   (let [image (ImageIO/read (io/file (str "resources/logo.png")))]
     (.setDockIconImage (Application/getApplication) image)))
