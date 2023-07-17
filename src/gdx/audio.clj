@@ -1,5 +1,5 @@
 (ns gdx.audio
-  (:require [gdx.asset-manager :as asset-manager]))
+  (:require [gdx.assets :as assets]))
 
-(defn play [filestring]
-  (.play (asset-manager/file->sound filestring)))
+(defn play [file]
+  (.play (assets/get-sound file)))

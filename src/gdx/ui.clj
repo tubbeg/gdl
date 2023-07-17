@@ -36,7 +36,7 @@
 (app/defmanaged
   ^{:tag Skin :dispose true}
   skin
-  (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
+  (Skin. (files/get "scene2d.ui.skin/uiskin.json")))
 
 (defn table []
   (Table.))

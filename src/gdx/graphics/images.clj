@@ -70,7 +70,7 @@
   (assoc-dimensions
    (map->Image {:file file
                 :scale (or scale 1)
-                :texture (asset-manager/file->texture file)})))
+                :texture (assets/get-texture file)})))
 
 (defn get-scaled-copy
   "Scaled of original texture-dimensions, not any existing scale."
@@ -84,7 +84,7 @@
   (assoc-dimensions
    (assoc image
           :scale 1
-          :texture (apply asset-manager/file->texture file sub-image-bounds)
+          :texture (apply assets/get-texture file sub-image-bounds)
           :sub-image-bounds sub-image-bounds)))
 
 (defn spritesheet [file tilew tileh]

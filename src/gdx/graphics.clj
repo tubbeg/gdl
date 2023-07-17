@@ -1,7 +1,7 @@
 (ns gdx.graphics
   (:require [clojure.string :refer (upper-case)]
             [gdx.app :as app]
-            [gdx.asset-manager :as asset-manager])
+            [gdx.assets :as assets])
   (:import [com.badlogic.gdx Gdx Graphics]
            [com.badlogic.gdx.graphics OrthographicCamera Color Texture Pixmap Pixmap$Format]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion BitmapFont]
