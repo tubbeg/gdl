@@ -27,7 +27,7 @@ Add the following to your project.clj file:
 
 # Documentation
 
-* API docs
+* [API docs](https://damn.github.io/gdx/)
 
 # Hello world window
 
@@ -36,11 +36,11 @@ Add the following to your project.clj file:
   (:require [gdx.app :as app]
             [gdx.game :as game]))
 
-(game/defscreen main-screen
-  :show (fn [])
-  :render (fn [])
-  :update (fn [delta])
-  :destroy (fn []))
+(def main-screen
+  {:show (fn [])
+   :render (fn [])
+   :destroy (fn [])
+   :update (fn [delta])})
 
 (defn app []
   (app/create (game/create {:main main-screen})
