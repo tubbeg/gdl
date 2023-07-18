@@ -9,7 +9,7 @@
                  [space.earlygrey/shapedrawer "2.5.0"]]
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
   :java-source-paths ["src-java"]
-  :jvm-opts ["-XstartOnFirstThread"] ; for mac
+  ;:jvm-opts ["-XstartOnFirstThread"] ; for mac
   :profiles {:dev {:resource-paths ["test/resources"]}}
   :plugins [[lein-codox "0.10.8"]]
   :codox {:source-uri "https://github.com/damn/gdx/blob/main/{filepath}#L{line}"}

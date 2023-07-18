@@ -19,7 +19,7 @@
 (defn- ->ShapeDrawer [batch]
   (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1)))
 
-(declare ^:private ^ShapeDrawer drawer)
+(declare ^:no-doc ^ShapeDrawer drawer)
 
 (defn ^:no-doc create [batch]
   (set-var-root #'drawer (->ShapeDrawer batch)))
