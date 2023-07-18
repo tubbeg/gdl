@@ -1,28 +1,51 @@
+<img src="https://github.com/damn/gdx/blob/main/resources/logo.png"
+ alt="GDX logo" title="GDX" align="center" />
+
 [![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
 
-# gdx
+# gdx - game development extension
 
-[libGDX](https://libgdx.com/)
+Based on [libGDX](https://libgdx.com/).
 
-* Desktop [lwjgl](lwjgl.org) backend only at the moment.
+Supporting desktop backend and 2D graphics API only at the moment.
 
-# How to import w. leiningen
+Feedback appreciated.
 
-... TODO
+This library is the backend for a roguelike action RPG game I am developing.
+I thought it may be useful to someone else too.
 
-# Javadoc
+# How to use
 
-# Wiki
-
-* Live Reloading
-
-# Example Games
-
-* Pong (external repo )
-* Cyber Dungeon Quest
-
-# Demo
+Leiningen: Add to project.clj:
+```
+:repositories [["jitpack" "https://jitpack.io"]]
+```
 
 ```
-lein run -m engine.repl
+dependencies [[com.github.damn/gdx "1.0"]]
+```
+
+# Hello world window
+
+```
+(ns hello-world.core
+  (:require [gdx.app :as app]
+            [gdx.game :as game]))
+
+(game/defscreen main-screen
+  :show (fn [])
+  :render (fn [])
+  :update (fn [delta])
+  :destroy (fn []))
+
+(defn app []
+  (app/create (game/create {:main main-screen})
+              {:title "Hello World!"
+               :width 800
+               :height 600
+               :full-screen false}))
+
+(defn -main []
+  (app))
+
 ```
