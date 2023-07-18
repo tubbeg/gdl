@@ -15,16 +15,19 @@ Feedback appreciated.
 This library is the backend for a roguelike action RPG game I am developing.
 I thought it may be useful to someone else too.
 
-# How to use
+# Installation
 
-Leiningen: Add to project.clj:
+Add the following to your project.clj file:
+
 ```
 :repositories [["jitpack" "https://jitpack.io"]]
-```
 
-```
 :dependencies [[com.github.damn/gdx "1.0"]]
 ```
+
+# Documentation
+
+* API docs
 
 # Hello world window
 
