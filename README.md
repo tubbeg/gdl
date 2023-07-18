@@ -1,5 +1,6 @@
-<img src="https://github.com/damn/gdx/blob/main/resources/logo.png"
- alt="GDX logo" title="GDX" align="center" />
+<p align="center">
+  <img src="https://github.com/damn/gdx/blob/main/resources/logo.png"/>
+</p>
 
 [![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
 
@@ -22,7 +23,7 @@ Leiningen: Add to project.clj:
 ```
 
 ```
-dependencies [[com.github.damn/gdx "1.0"]]
+:dependencies [[com.github.damn/gdx "1.0"]]
 ```
 
 # Hello world window
