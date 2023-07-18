@@ -6,8 +6,8 @@
            [com.badlogic.gdx Gdx Application]))
 
 (defn- lwjgl-config [{:keys [title width height full-screen fps]}]
-  (when SharedLibraryLoader/isMac
-    (mac-dock-icon/set-mac-os-dock-icon))
+  #_(when SharedLibraryLoader/isMac
+      (mac-dock-icon/set-mac-os-dock-icon))
 
   (let [config (doto (Lwjgl3ApplicationConfiguration.)
                  (.setTitle title)

@@ -15,35 +15,40 @@
 (defn screen-width  [] (.getWidth  graphics))
 (defn screen-height [] (.getHeight graphics))
 
-(def   gui-unit-scale 1)
+(def ^:no-doc gui-unit-scale 1) ; => pixel-unit-scale
 (def world-unit-scale 1)
 
 (defn pixels->world-units [px]
   (* px world-unit-scale))
 
-(def ^:dynamic *unit-scale*)
+(def ^:no-doc ^:dynamic *unit-scale*)
 
-(app/defmanaged ^:dispose ^Batch batch (SpriteBatch.))
+(app/defmanaged ^:no-doc ^:dispose ^Batch batch (SpriteBatch.))
 
 (app/on-create
  (shape-drawer/create batch))
 
 ;;; TODO move this to graphics.font and also truetype initialisation
 
-(app/defmanaged  ^:dispose ^BitmapFont default-font (BitmapFont.))
+(app/defmanaged ^:no-doc ^:dispose ^BitmapFont default-font (BitmapFont.))
 
 (defn draw-text [text x y]
   (.draw default-font batch ^String text (float x) (float y)))
 
-(app/defmanaged ^OrthographicCamera   gui-camera (OrthographicCamera.))
-(app/defmanaged ^OrthographicCamera world-camera (OrthographicCamera.))
+; TODO ?
+; gdx.graphics.views.world / *.gui
 
-(app/defmanaged ^Viewport gui-viewport
+; => unit-scale, camera, viewport, etc.
+
+(app/defmanaged ^:private ^OrthographicCamera   gui-camera (OrthographicCamera.))
+(app/defmanaged ^:no-doc  ^OrthographicCamera world-camera (OrthographicCamera.))
+
+(app/defmanaged ^:no-doc ^Viewport gui-viewport
   (FitViewport. (screen-width)
                 (screen-height)
                 gui-camera))
 
-(app/defmanaged ^Viewport world-viewport
+(app/defmanaged ^:private ^Viewport world-viewport
   (let [width  (* (screen-width)  world-unit-scale)
         height (* (screen-height) world-unit-scale)
         y-down false]
@@ -54,13 +59,14 @@
 
 (def ^:private world-camera-position (atom nil))
 
-(defn camera-position []
-  @world-camera-position)
+; TODO world-
+(defn camera-position [] @world-camera-position)
 
+; TODO world-
 (defn set-camera-position! [position]
   (reset! world-camera-position position))
 
-(defn update-world-camera-position []
+(defn ^:no-doc update-world-camera-position []
   (set! (.x (.position world-camera)) (@world-camera-position 0))
   (set! (.y (.position world-camera)) (@world-camera-position 1))
   (.update world-camera))
@@ -104,13 +110,14 @@
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
-; TODO gui-mouse-position!
+; TODO mouse-position
 (defn mouse-coords []
   (mapv int (unproject-mouse-posi gui-viewport)))
 
-; TODO world-mouse-position!
+; TODO world-mouse-position
+; TODO clamping only works for gui-viewport ? check. comment if true
 (defn map-coords
-  "Can be negative coordinates, undefined cells." ; TODO check if true
+  "Can be negative coordinates, undefined cells."
   []
   (unproject-mouse-posi world-viewport))
 

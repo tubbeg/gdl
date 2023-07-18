@@ -32,7 +32,7 @@
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
- ; TODO is this not included in libgdx?
+ ; TODO default skin not included in libgdx jar? check.
 (app/defmanaged
   ^{:tag Skin :dispose true}
   skin

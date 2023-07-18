@@ -1,4 +1,8 @@
+; use a clojure vector2d lib?
+; https://clojars.org/vector-2d
+; ?
 (ns gdx.vector
+  ; TODO delete requires
   (:require [gdx.graphics :refer (viewport-width viewport-height)]
             [gdx.input :refer (get-mouse-pos)])
   (:import [com.badlogic.gdx.math Vector2 MathUtils]))
@@ -112,5 +116,6 @@
 (defn degree-add [degree by]
   (rem (+ degree by) 360))
 
+; TODO comment from libgdx discord.
 (defn degree-minus [degree by]
   (rem (+ 360 (- degree by)) 360))

@@ -4,7 +4,9 @@
 
 ; TODO how to keep colors in the docs separate
 ; some prefix to the name color/white == statics ??
+; color/*white ?
 
+; TODO type hints not working /  add type hints to all fns ?
 (doseq [color '[white
                 yellow
                 red

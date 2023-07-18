@@ -47,5 +47,8 @@
       (System/setProperty property value)))
 
   ; TODO in jar file resources/ in classpath -> no need to give path here?
+
+  ; TODO in dependent projects doesnt work !
+  ; how to find the logo file ??
   (let [image (ImageIO/read (io/file (str "resources/logo.png")))]
     (.setDockIconImage (Application/getApplication) image)))

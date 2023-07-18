@@ -5,8 +5,9 @@
             [gdx.graphics :refer (mouse-coords)])
   (:import [com.badlogic.gdx Gdx Input Input$Buttons Input$Keys]))
 
-(app/defmanaged ^Input input Gdx/input)
+(app/defmanaged ^:private ^Input input Gdx/input)
 
+; TODO use set-input-processor (its the class name)
 (defn set-processor [processor]
   (.setInputProcessor input processor))
 

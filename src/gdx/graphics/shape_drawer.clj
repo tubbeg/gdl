@@ -14,17 +14,12 @@
     (.dispose pixmap)
     texture))
 
-(app/defmanaged
-  ^{:private true
-    :tag Texture
-    :dispose true}
-  drawer-texture
-  (gen-drawer-texture))
+(app/defmanaged ^:private ^:dispose ^Texture drawer-texture (gen-drawer-texture))
 
 (defn- ->ShapeDrawer [batch]
   (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1)))
 
-(declare ^ShapeDrawer drawer)
+(declare ^:private ^ShapeDrawer drawer)
 
 (defn ^:no-doc create [batch]
   (set-var-root #'drawer (->ShapeDrawer batch)))

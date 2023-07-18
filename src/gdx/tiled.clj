@@ -14,6 +14,9 @@
   (.dispose tiled-map))
 
 ; TODO this is actually get-properties for no reflection
+
+; TODO add interface HasMapProperties !!! then can just call that !
+
 (defmulti get-property (fn [obj k] (class obj)))
 
 (defmethod get-property TiledMap [^TiledMap tiled-map k]

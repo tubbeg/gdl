@@ -6,6 +6,16 @@
   (:import [com.badlogic.gdx.utils ScreenUtils]
            [com.badlogic.gdx Screen Game]))
 
+; ? this is defhash !?
+
+(comment
+ (defhashmap foo
+   :a 1
+   :b 2
+   :c 3))
+
+; is there any point to this or defcolor ?
+
 (defmacro defscreen [var-name & screen]
   `(def ~var-name (hash-map ~@screen)))
 
@@ -17,6 +27,7 @@
     (render [_ delta]
       (ScreenUtils/clear color/black)
       (g/fix-viewport-update)
+      ; TODO render & update required ?
       (when render
         (render))
       (when update
