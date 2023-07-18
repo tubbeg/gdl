@@ -1,11 +1,18 @@
-; TODO complicated! use sprite ?
 (ns gdx.graphics.image
   (:require [gdx.app :as app]
             [gdx.assets :as assets]
             [gdx.graphics :as g]
             [gdx.graphics.color :as color])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion))
-; ns gdx.graphics.image
+
+; Explanation why not using libgdx Sprite class:
+; * mutable fields
+; * render in certain position/scale -> the sprite is modified somewhere else !
+; * would have to reset it after every render ... or copy ?...
+; * -> I cache only dimensions & scale for my texture-regions
+; * color & rotation applied on rendering
+
+; TODO one 'draw' with options scale,rotation,color,etc.
 
 (defn- draw-texture [texture [x y] [w h] rotation color]
   (if color (.setColor g/batch color))
@@ -26,13 +33,13 @@
    (= g/*unit-scale* g/world-unit-scale) (:world-unit-dimensions  image)
    (= g/*unit-scale* g/gui-unit-scale)   (:pixel-dimensions       image)))
 
-(defn draw-image
+(defn draw
   ([{:keys [texture color] :as image} position]
    (draw-texture texture position (unit-dimensions image) 0 color))
   ([image x y]
-   (draw-image image [x y])))
+   (draw image [x y])))
 
-(defn draw-rotated-centered-image
+(defn draw-rotated-centered
   [{:keys [texture color] :as image} rotation [x y]]
   (let [[w h] (unit-dimensions image)]
     (draw-texture texture
@@ -42,8 +49,8 @@
                   rotation
                   color)))
 
-(defn draw-centered-image [image position]
-  (draw-rotated-centered-image image 0 position))
+(defn draw-centered [image position]
+  (draw-rotated-centered image 0 position))
 
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth  texture)
@@ -65,16 +72,14 @@
            :pixel-dimensions pixel-dimensions
            :world-unit-dimensions (mapv (partial * g/world-unit-scale) pixel-dimensions))))
 
-; TODO use Sprite??
-; * color
-; * scale/size
-; * file is from texturedata
-(defrecord Image [file
+(defrecord Image [file ; -> is in texture data, can remove.
+                  texture ; -region ?
+                  sub-image-bounds ; => is in texture-region data?
                   scale
-                  texture
+
                   pixel-dimensions
                   world-unit-dimensions
-                  sub-image-bounds
+
                   tilew
                   tileh])
 
@@ -86,7 +91,7 @@
          (TextureRegion. texture (int x) (int y) (int w) (int h))
          (TextureRegion. texture))))))
 
-(defn create-image
+(defn create
   "Scale can be a number or [width height]"
   [file & {:keys [scale]}]
   (assoc-dimensions
@@ -110,7 +115,7 @@
           :sub-image-bounds sub-image-bounds)))
 
 (defn spritesheet [file tilew tileh]
-  (assoc (create-image file) :tilew tilew :tileh tileh))
+  (assoc (create file) :tilew tilew :tileh tileh))
 
 (defn get-sprite [{:keys [tilew tileh] :as sheet} [x y]]
   (get-sub-image sheet (* x tilew) (* y tileh) tilew tileh))
@@ -123,42 +128,3 @@
 
 (defn spritesheet-frames [& args]
   (get-sheet-frames (apply spritesheet args)))
-
-(defprotocol Animation
-  (stopped?     [_])
-  (restart      [_])
-  (get-duration [_])
-  (get-frame    [_]))
-
-(defrecord ImmutableAnimation [frames frame-duration looping speed cnt maxcnt]
-  Animation
-  (stopped? [_]
-    (and (not looping) (= cnt maxcnt)))
-  (restart [this]
-    (assoc this :cnt 0))
-  (get-duration [_]
-    maxcnt)
-  (get-frame [this]
-    ; int because cnt can be a float value
-    (get frames (int (quot (dec cnt) frame-duration)))))
-
-(defn update-animation [{:keys [cnt speed maxcnt looping] :as this} delta]
-  (let [newcnt (+ cnt (* speed delta))]
-    (assoc this :cnt (cond (< newcnt maxcnt) newcnt
-                           looping           (min maxcnt (- newcnt maxcnt))
-                           :else             maxcnt))))
-
-(def default-frame-duration 33)
-
-(defn create-animation
-  [frames & {:keys [frame-duration looping] :or {frame-duration default-frame-duration}}]
-  (map->ImmutableAnimation
-    {:frames (vec frames)
-     :frame-duration frame-duration
-     :looping looping
-     :speed 1
-     :cnt 0
-     :maxcnt (* (count frames) frame-duration)}))
-
-(defn render-centered-animation [animation position]
-  (draw-centered-image (get-frame animation) position))

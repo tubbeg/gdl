@@ -4,9 +4,9 @@
             [gdx.graphics.color :as color])
   (:import [com.badlogic.gdx.graphics Texture Pixmap Pixmap$Format Color]
            com.badlogic.gdx.graphics.g2d.TextureRegion
-           [space.earlygrey.shapedrawer ShapeDrawer]))
+           space.earlygrey.shapedrawer.ShapeDrawer))
 
-(defn- gen-shape-drawer-texture []
+(defn- gen-drawer-texture []
   (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                  (.setColor color/white)
                  (.drawPixel 0 0))
@@ -14,78 +14,82 @@
     (.dispose pixmap)
     texture))
 
-(app/defmanaged ^{:private true :tag Texture :dispose true} shape-drawer-texture
-  (gen-shape-drawer-texture))
+(app/defmanaged
+  ^{:private true
+    :tag Texture
+    :dispose true}
+  drawer-texture
+  (gen-drawer-texture))
 
 (defn- ->ShapeDrawer [batch]
-  (ShapeDrawer. batch (TextureRegion. shape-drawer-texture 0 0 1 1)))
+  (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1)))
 
-(declare ^ShapeDrawer shape-drawer)
+(declare ^ShapeDrawer drawer)
 
 (defn ^:no-doc create [batch]
-  (set-var-root #'shape-drawer (->ShapeDrawer batch)))
+  (set-var-root #'drawer (->ShapeDrawer batch)))
 
-(defn- set-shapes-color [^Color color]
-  (.setColor shape-drawer color))
+(defn- set-color! [^Color color]
+  (.setColor drawer color))
 
-(defn set-default-line-width [width]
-  (.setDefaultLineWidth shape-drawer (float width)))
+(defn set-line-width! [width]
+  (.setDefaultLineWidth drawer (float width)))
 
-(defmacro with-shape-drawer-line-width [width & exprs]
-  `(let [old-line-width# (.getDefaultLineWidth shape-drawer)]
-     (set-default-line-width (* ~width old-line-width#))
+(defmacro with-line-width [width & exprs]
+  `(let [old-line-width# (.getDefaultLineWidth drawer)]
+     (set-line-width! (* ~width old-line-width#))
      ~@exprs
-     (set-default-line-width old-line-width#)))
+     (set-line-width! old-line-width#)))
 
-(defn draw-ellipse [[x y] radius-x radius-y color]
-  (set-shapes-color color)
-  (.ellipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)))
+(defn ellipse [[x y] radius-x radius-y color]
+  (set-color! color)
+  (.ellipse drawer (float x) (float y) (float radius-x) (float radius-y)))
 
-(defn fill-ellipse [[x y] radius-x radius-y color]
-  (set-shapes-color color)
-  (.filledEllipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)))
+(defn filled-ellipse [[x y] radius-x radius-y color]
+  (set-color! color)
+  (.filledEllipse drawer (float x) (float y) (float radius-x) (float radius-y)))
 
-(defn draw-circle [[x y] radius color]
-  (set-shapes-color color)
-  (.circle shape-drawer (float x) (float y) (float radius)))
+(defn circle [[x y] radius color]
+  (set-color! color)
+  (.circle drawer (float x) (float y) (float radius)))
 
-(defn fill-circle [[x y] radius color]
-  (set-shapes-color color)
-  (.filledCircle shape-drawer (float x) (float y) (float radius)))
+(defn filled-circle [[x y] radius color]
+  (set-color! color)
+  (.filledCircle drawer (float x) (float y) (float radius)))
 
 (defn- degree->radians [degree] ; TODO not here
   (* degree (/ (Math/PI) 180)))
 
-(defn draw-arc [[centre-x centre-y] radius start-angle degree color]
-  (set-shapes-color color)
-  (.arc shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
+(defn arc [[centre-x centre-y] radius start-angle degree color]
+  (set-color! color)
+  (.arc drawer centre-x centre-y radius start-angle (degree->radians degree)))
 
-(defn draw-sector [[centre-x centre-y] radius start-angle degree color]
-  (set-shapes-color color)
-  (.sector shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
+(defn sector [[centre-x centre-y] radius start-angle degree color]
+  (set-color! color)
+  (.sector drawer centre-x centre-y radius start-angle (degree->radians degree)))
 
-(defn draw-rect
+(defn rectangle
   ([[x y w h] color]
-   (draw-rect x y w h color))
+   (rectangle x y w h color))
   ([x y w h color]
-   (set-shapes-color color)
-   (.rectangle shape-drawer x y w h)))
+   (set-color! color)
+   (.rectangle drawer x y w h)))
 
-(defn fill-rect
+(defn filled-rectangle
   ([[x y w h] color]
-   (fill-rect x y w h color))
+   (filled-rectangle x y w h color))
   ([x y w h color]
-   (set-shapes-color color)
-   (.filledRectangle shape-drawer (float x) (float y) (float w) (float h))))
+   (set-color! color)
+   (.filledRectangle drawer (float x) (float y) (float w) (float h))))
 
-(defn draw-line
+(defn line
   ([[x y] [ex ey] color]
-   (draw-line x y ex ey color))
+   (line x y ex ey color))
   ([x y ex ey color]
-   (set-shapes-color color)
-   (.line shape-drawer (float x) (float y) (float ex) (float ey))))
+   (set-color! color)
+   (.line drawer (float x) (float y) (float ex) (float ey))))
 
-(defn draw-grid
+(defn grid
   [leftx bottomy gridw gridh cellw cellh color]
   (let [w (* gridw cellw)
         h (* gridh cellh)
@@ -93,7 +97,7 @@
         rightx (+ leftx w)]
     (doseq [idx (range (inc gridw))
             :let [linex (+ leftx (* idx cellw))]]
-           (draw-line linex topy linex bottomy color))
+           (line linex topy linex bottomy color))
     (doseq [idx (range (inc gridh))
             :let [liney (+ bottomy (* idx cellh))]]
-           (draw-line leftx liney rightx liney color))))
+           (line leftx liney rightx liney color))))
