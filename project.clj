@@ -1,4 +1,4 @@
-(defproject gdx "1.0"
+(defproject gdx "1.0-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [nrepl "0.9.0"]
