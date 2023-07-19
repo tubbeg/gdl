@@ -34,13 +34,19 @@ Add the following to your project.clj file:
 ```
 (ns hello-world.core
   (:require [gdx.app :as app]
-            [gdx.game :as game]))
+            [gdx.game :as game]
+            [gdx.graphics :as g]))
 
 (def main-screen
   {:show (fn [])
-   :render (fn [])
-   :destroy (fn [])
-   :update (fn [delta])})
+   :render (fn [] (g/render-gui ; takes care of all graphics context initializations
+                    (fn []
+                      ;; your render code here
+                      )))
+   :update (fn [delta] ; delta is elapsed time in ms since last update
+            ;; your update code here
+            )
+   :destroy (fn [])})
 
 (defn app []
   (app/create (game/create {:main main-screen})
