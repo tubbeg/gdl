@@ -40,6 +40,9 @@
 
 (defmanaged ^:no-doc ^Application app Gdx/app)
 
+; set here to debug e.g. asset logs
+; (on-create (.setLogLevel app Application/LOG_DEBUG))
+
 (defn destroy [] (.exit app))
 
 (defmacro with-context [& exprs]

@@ -5,18 +5,16 @@
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.graphics.Texture))
 
-(def ^:private assets-folder "resources/")
-(def ^:private sounds-subfolder "sounds/")
+(def ^:private folder "resources/")
+(def ^:private sounds-folder "sounds/")
 (def ^:private sound-files-extensions #{"wav"})
 (def ^:private image-files-extensions #{"png" "bmp"})
 
-(app/defmanaged
-  ^{:private true
-    :tag AssetManager
-    :dispose true} manager (AssetManager.))
+(app/defmanaged ^:private ^:dispose ^AssetManager manager (AssetManager.))
 
 (defn- load-assets [file-extensions klass]
-  (doseq [file (files/recursively-search-files assets-folder file-extensions)]
+  (doseq [file (files/recursively-search-files folder file-extensions)]
+    (.debug app/app "gdx.assets" (str "load [" klass "] - [" file "]"))
     (.load manager file klass)))
 
 (defn- get-asset [file klass]
@@ -28,7 +26,7 @@
  (.finishLoading manager))
 
 (defn ^Sound get-sound [file]
-  (get-asset (str sounds-subfolder file) Sound))
+  (get-asset (str sounds-folder file) Sound))
 
 (defn ^Texture get-texture [file]
   (get-asset file Texture))
