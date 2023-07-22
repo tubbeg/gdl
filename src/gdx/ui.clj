@@ -33,12 +33,10 @@
   (.act ^Stage stage delta))
 
  ; TODO default skin not included in libgdx jar? check.
-(app/defmanaged
-  ^{:tag Skin :dispose true}
-  skin
+(app/defmanaged ^:dispose ^Skin skin
   (Skin. (files/get "scene2d.ui.skin/uiskin.json")))
 
-(defn table []
+(defn table ^Table []
   (Table.))
 
 ; TODO Button implements disposable??
@@ -46,7 +44,7 @@
 
 ; TODO do I have to pass .get skin class this or can i pass directly skin?? try.
 
-(defn text-button [text on-clicked]
+(defn text-button ^TextButton [text on-clicked]
   (let [button (TextButton. ^String text skin)]
     (.addListener button
                   (proxy [ChangeListener] []

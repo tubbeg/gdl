@@ -1,6 +1,14 @@
+; TODO WARNING: colors are mutable, even the static ones in com.badlogic.gdx.graphics.Color
 (ns gdx.graphics.color
   (:require [clojure.string :as str])
   (:import com.badlogic.gdx.graphics.Color))
+
+; Idea:
+; * import all of com.badlogic.gdx.graphics.Color
+; and use .cpy to make immutable colors
+; -> but still mutable color underneath !
+
+; https://github.com/ngrunwald/gavagai
 
 ; TODO how to keep colors in the docs separate
 ; some prefix to the name color/white == statics ??
@@ -19,7 +27,8 @@
                 orange
                 magenta]]
   (eval
-   `(def ^Color ^:no-doc ~color ~(symbol (str "Color/" (str/upper-case color))))))
+   `(def ~(with-meta color {:tag Color}) ~(symbol (str "Color/" (str/upper-case color))))))
+; TODO import everything from 'Color' ???
 
 (defn rgb
   ([r g b]

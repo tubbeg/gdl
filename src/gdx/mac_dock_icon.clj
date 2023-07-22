@@ -1,9 +1,12 @@
+; TODO move to gdx.backends
 ; TODO if this is required on windows/linux will break?
 ; only call require @ mac ?
 (ns ^:no-doc gdx.mac-dock-icon
   (:require [clojure.java.io :as io])
   (:import com.apple.eawt.Application
            javax.imageio.ImageIO))
+
+; => into gdx.backends.lwjgl3
 
 ; TODO :
 ; -> move to libgdx lwjgl3 backend code?

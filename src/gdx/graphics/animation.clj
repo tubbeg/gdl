@@ -1,3 +1,5 @@
+; Main point : ! its an immutable animation, I can create once pass to hundred entities
+; and they all update it itself.
 (ns gdx.graphics.animation
   (:refer-clojure :exclude [update])
   (:require [gdx.graphics.image :as image]))

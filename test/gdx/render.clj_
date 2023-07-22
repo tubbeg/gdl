@@ -1,3 +1,4 @@
+; TODO DELTE !
 (ns engine.tests.render
   (:use
     (engine core render))
@@ -43,3 +44,4 @@
               (render container))))
 
 (start-test)
+

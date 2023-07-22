@@ -7,6 +7,8 @@
             [gdx.input :refer (get-mouse-pos)])
   (:import [com.badlogic.gdx.math Vector2 MathUtils]))
 
+; TODO there must be some clojure library to automate this ?
+
 (defn- ^Vector2 ->v [[x y]]
   (Vector2. x y))
 

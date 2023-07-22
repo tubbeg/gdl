@@ -1,8 +1,17 @@
-* asset-manager: searches through 'resources/'
-  ; could search through "." but not always supported (https://libgdx.com/wiki/file-handling)
-  ; so have to specify a folder
-  ; (def folder ".")
+[ ] check :no-doc if really necessary ? if its public its public no
 
-* remove simple6_8
+[x] README
 
-* warn-on-reflection
+[ ] license & copyright ?
+
+[ ] add var docstrings
+
+[ ] wiki with explanation of app/assets/files/dev-loop/etc. link to libgdx
+
+[ ] example - space invaders ( separate repo )
+
+[ ] clean up code & API (update into animation protocol, etc., simplify image, ... )
+
+
+
+[ ] translate libgdx wiki/starting/setting up app (new project generator ) into clojure ??

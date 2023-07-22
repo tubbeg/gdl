@@ -4,56 +4,31 @@
             [gdx.game :as game]
             [gdx.assets :as assets]
             [gdx.graphics :as g]
+            [gdx.graphics.font :as font]
             [gdx.input :as input]))
 
-#_(defn tortilla-performance-test []
-  (println)
-  (let [n 100000
-        args [[300 400] 50 100 g/white]]
-    (println "tortilla")
-    (time (dotimes [_ n] (apply g/filled-ellipse-tortilla args)))
-    (println "type hint")
-    (time (dotimes [_ n] (apply g/filled-ellipse-type-hint args)))
-    (println "reflection")
-    (time (dotimes [_ n] (apply g/filled-ellipse-reflection args)))
-
-    )
-  (println)
-
-  ;tortilla
-  ;"Elapsed time: 2443.44484 msecs"
-  ;type hint
-  ;"Elapsed time: 1280.779603 msecs"
-  ;reflection
-  ;"Elapsed time: 1724.707907 msecs"
-
-  ; slower than reflection! whole tortilla library pointless.
-
-  ; => try defwrapper from cljc.java-time
-  ; https://github.com/henryw374/cljc.java-time/blob/master/dev/defwrapper.clj#L205
-  )
+(font/def-font bmfont16 "exocet/films.EXL_____.ttf" 16)
 
 ; TODO use @ cdq/game/ui/debug-window
 (defn render-mouse-coordinates []
   (let [[x y] (map #(format "%.2f" %) (g/map-coords))
         [gx gy] (g/mouse-coords)
         [sx sy] (input/get-mouse-pos) ; TODO same as mouse-coords ?
-        the-str (str
-                 "Map x " x "\n"
-                 "Map y " y "\n"
-                 "GUI x " gx "\n"
-                 "GUI y " gy "\n"
-                 "Screen X" sx "\n"
-                 "Screen Y" sy)]
-    (g/draw-text the-str 200 155)))
+        the-str (str "Map x " x "\n"
+                     "Map y " y "\n"
+                     "GUI x " gx "\n"
+                     "GUI y " gy "\n"
+                     "Screen X" sx "\n"
+                     "Screen Y" sy)
+        y 300]
+    (g/draw-text (str "default-font\n" the-str) 0 y)
+    (font/draw-text bmfont16 (str "exl-font\n" the-str) 300 y)))
 
 (defn render []
-  (render-mouse-coordinates)
-  #_(tortilla-performance-test))
+  (render-mouse-coordinates))
 
 (game/defscreen screen
   :show (fn [])
-  ; TODO render-gui -> render & render-world => :render-world..
   :render (fn [] (g/render-gui render))
   :destroy (fn [])
   :update (fn [delta]))

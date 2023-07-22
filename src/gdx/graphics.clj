@@ -10,13 +10,26 @@
 
 (app/defmanaged ^:no-doc ^Graphics graphics Gdx/graphics)
 
+; TODO frames-per-second
 (defn fps [] (.getFramesPerSecond graphics))
 
-(defn screen-width  [] (.getWidth  graphics))
-(defn screen-height [] (.getHeight graphics))
+(defn- screen-width
+  "note: this is not the viewport-width, which may be different than the screen-width"
+  []
+  (.getWidth  graphics))
+
+(defn- screen-height
+  "note: this is not the viewport-height, which may be different than the screen-height."
+  []
+  (.getHeight graphics))
 
 (def ^:no-doc gui-unit-scale 1) ; => pixel-unit-scale
 (def world-unit-scale 1)
+
+; -> *unit-scale* is bound to :wu or :px
+; and world-unit-scale
+; or pixels->world-units is all thats needed
+; no gui-unit-scale
 
 (defn pixels->world-units [px]
   (* px world-unit-scale))
@@ -33,7 +46,13 @@
 (app/defmanaged ^:no-doc ^:dispose ^BitmapFont default-font (BitmapFont.))
 
 (defn draw-text [text x y]
-  (.draw default-font batch ^String text (float x) (float y)))
+  (.draw default-font batch (str text) (float x) (float y)))
+
+(comment
+ ; with libgdx wrapper bindings: (no type hints)
+ ;  biggest with @ multiple arity / etc. fns.
+ (defn draw-text [text x y]
+   (bitmap-font/draw default-font batch text x y)))
 
 ; TODO ?
 ; gdx.graphics.views.world / *.gui
@@ -43,6 +62,10 @@
 (app/defmanaged ^:private ^OrthographicCamera   gui-camera (OrthographicCamera.))
 (app/defmanaged ^:no-doc  ^OrthographicCamera world-camera (OrthographicCamera.))
 
+; TODO use extend viewport ???
+
+; => TODO this is screen-viewport ? == same like screen ?
+; screen-camera always pointed at center of screen !!
 (app/defmanaged ^:no-doc ^Viewport gui-viewport
   (FitViewport. (screen-width)
                 (screen-height)
@@ -51,8 +74,8 @@
 (app/defmanaged ^:private ^Viewport world-viewport
   (let [width  (* (screen-width)  world-unit-scale)
         height (* (screen-height) world-unit-scale)
-        y-down false]
-    (.setToOrtho world-camera y-down width height)
+        y-down? false]
+    (.setToOrtho world-camera y-down? width height)
     (FitViewport. width
                   height
                   world-camera)))

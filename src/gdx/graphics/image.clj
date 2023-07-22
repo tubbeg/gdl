@@ -29,6 +29,13 @@
   (if color (.setColor g/batch color/white)))
 
 (defn- unit-dimensions [image]
+  {:pre [(bound? #'g/*unit-scale*)]}
+
+  ; TODO :
+  ; * unit-scale is either :world-units or :pixels
+  ; :wu or :px
+  ; !
+
   (cond
    (= g/*unit-scale* g/world-unit-scale) (:world-unit-dimensions  image)
    (= g/*unit-scale* g/gui-unit-scale)   (:pixel-dimensions       image)))
@@ -65,6 +72,7 @@
                   (number? (scale 0))
                   (number? (scale 1))))]}
   ; TODO here implicit assumption gui-unit-scale = 1 ...
+  ; nope ! pixel-unit-scale is 1 !!!
   (let [pixel-dimensions (if (number? scale)
                            (mapv (partial * scale) (texture-dimensions texture))
                            scale)]
