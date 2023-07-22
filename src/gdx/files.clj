@@ -7,7 +7,7 @@
 
 (app/defmanaged ^:private ^Files files Gdx/files)
 
-(defn get ^FileHandle [file]
+(defn get ^FileHandle [file] ; TODO keep internal?
   (.internal files file))
 
 (defn ^:no-doc recursively-search-files [folder extensions]

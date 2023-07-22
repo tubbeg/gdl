@@ -1,6 +1,8 @@
 (ns gdx.simple-test
-  (:require [gdx.app :as app]
+  (:require [gdx.backends.lwjgl3 :as lwjgl3]
+            [gdx.app :as app]
             [gdx.game :as game]
+            [gdx.assets :as assets]
             [gdx.graphics :as g]
             [gdx.input :as input]))
 
@@ -51,14 +53,14 @@
 
 (game/defscreen screen
   :show (fn [])
+  ; TODO render-gui -> render & render-world => :render-world..
   :render (fn [] (g/render-gui render))
   :destroy (fn [])
   :update (fn [delta]))
 
-
 (defn app []
-  (app/create (game/create {:main screen})
-              {:title "gdx demo"
-               :width 800
-               :height 600
-               :full-screen false}))
+  (lwjgl3/create-app (game/create {:main screen})
+                     {:title "gdx demo"
+                      :width 800
+                      :height 600
+                      :full-screen false}))
