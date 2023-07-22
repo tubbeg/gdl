@@ -4,10 +4,12 @@
             [gdx.game :as game]
             [gdx.assets :as assets]
             [gdx.graphics :as g]
-            [gdx.graphics.font :as font]
+            [gdx.graphics.freetype :as freetype]
             [gdx.input :as input]))
 
-(font/def-font bmfont16 "exocet/films.EXL_____.ttf" 16)
+(freetype/def-font bmfont16 "exocet/films.EXL_____.ttf" 16)
+
+
 
 ; TODO use @ cdq/game/ui/debug-window
 (defn render-mouse-coordinates []
@@ -19,10 +21,13 @@
                      "GUI x " gx "\n"
                      "GUI y " gy "\n"
                      "Screen X" sx "\n"
-                     "Screen Y" sy)
-        y 300]
-    (g/draw-text (str "default-font\n" the-str) 0 y)
-    (font/draw-text bmfont16 (str "exl-font\n" the-str) 300 y)))
+                     "Screen Y" sy)]
+    (g/draw-text {:font nil
+                  :text (str "default-font\n" the-str)
+                  :x sx,:y sy,:h-align nil,:up? true})
+    (g/draw-text {:font bmfont16
+                  :text (str "exl-font\n" the-str)
+                  :x sx,:y sy,:h-align :left,:up? false})))
 
 (defn render []
   (render-mouse-coordinates))

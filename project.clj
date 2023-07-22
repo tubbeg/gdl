@@ -1,4 +1,4 @@
-(defproject com.github.damn/gdx "1.0-SNAPSHOT"
+(defproject gdx "1.0-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
   :dependencies [[org.clojure/clojure "1.11.1"]
 
@@ -30,6 +30,7 @@
   :global-vars {*warn-on-reflection* true})
 
 ;; TODO dev
-; - clojure.pprint
+; - clojure.pprint => https://github.com/AbhinavOmprakash/snitch
+; - intern them through user.clj somehow into clojure.core
 ; -XstartOnFirstThread
 ; - set repl ...

@@ -1,8 +1,10 @@
 (ns gdx.graphics
-  (:require [gdx.app :as app]
+  (:require [clojure.string :as str]
+            [gdx.app :as app]
             [gdx.graphics.color :as color]
             [gdx.graphics.shape-drawer :as shape-drawer])
   (:import [com.badlogic.gdx Gdx Graphics]
+           com.badlogic.gdx.utils.Align
            [com.badlogic.gdx.graphics OrthographicCamera]
            [com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont]
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
@@ -41,18 +43,69 @@
 (app/on-create
  (shape-drawer/create batch))
 
-;;; TODO move this to graphics.font and also truetype initialisation
-
 (app/defmanaged ^:no-doc ^:dispose ^BitmapFont default-font (BitmapFont.))
 
-(defn draw-text [text x y]
-  (.draw default-font batch (str text) (float x) (float y)))
+; TODO what if wrong name/doesnt exist? check ?
+#_(use 'clojure.pprint)
+#_(clojure.pprint/pprint
+   (com.badlogic.gdx.graphics.Colors/getColors))
 
-(comment
- ; with libgdx wrapper bindings: (no type hints)
- ;  biggest with @ multiple arity / etc. fns.
- (defn draw-text [text x y]
-   (bitmap-font/draw default-font batch text x y)))
+(defn- text-height [^BitmapFont font text]
+  (-> text
+      (str/split #"\n")
+      count
+      (* (.getLineHeight font))))
+
+; not sure is a problem (performance) to setScale
+; at every draw-text
+; could cache it @ font or somewhere for each unit-scale or not even set it back
+(defn draw-text [{:keys [font text x y h-align up?]}]
+  (let [^BitmapFont font (or font default-font)
+        data (.getData font)
+        old-scale (.scaleX data)]
+    ; background -> get width from glyphlayout only (not necessary yet)
+    ;(shape-drawer/filled-rectangle 270 177 250 height color/gray)
+    (.setScale data (float (* old-scale *unit-scale*)))
+    (.draw font
+           batch
+           (str text)
+           (float x)
+           (float (+ y (if up? (text-height font text) 0)))
+           (float 0) ; target-width
+           (case (or h-align :center)
+             :center Align/center
+             :left   Align/left
+             :right  Align/right)
+           false) ; wrap false, no need target-width
+    (.setScale data (float old-scale))))
+
+;https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.11.0/com/badlogic/gdx/graphics/g2d/BitmapFontCache.html#addText-java.lang.CharSequence-float-float-int-int-float-int-boolean-java.lang.String-
+
+;; ****
+;; **** getting height/width of text with glyphlayout :::
+;
+; BitmapFont font;
+; SpriteBatch spriteBatch;
+; //... Load any font of your choice first
+; FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(
+;    Gdx.files.internal("myFont.ttf")
+; );
+; FreeTypeFontGenerator.FreeTypeFontParameter freeTypeFontParameter =
+;       new FreeTypeFontGenerator.FreeTypeFontParameter();
+; freeTypeFontParameter.size = size;
+; fontGenerator.generateData(freeTypeFontParameter);
+; font = fontGenerator.generateFont(freeTypeFontParameter);
+;
+; //Initialize the spriteBatch as requirement
+;
+; GlyphLayout glyphLayout = new GlyphLayout();
+; String item = "Example";
+; glyphLayout.setText(font,item);
+; float w = glyphLayout.width;
+; font.draw(spriteBatch, glyphLayout, (Game.SCREEN_WIDTH - w)/2, y);
+;
+;; ****
+;; ****
 
 ; TODO ?
 ; gdx.graphics.views.world / *.gui
