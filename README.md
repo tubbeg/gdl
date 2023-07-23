@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/logo.png" width="403" height="189"/>
+  <img src="https://github.com/damn/gdx/blob/main/logo.png" width="200" height="100"/>
 </p>
 
 A new, more simple and powerful way to create games.
