@@ -2,7 +2,7 @@
   (:import [com.badlogic.gdx.backends.lwjgl3
             Lwjgl3Application
             Lwjgl3ApplicationConfiguration]
-           [com.badlogic.gdx.utils
+           [com.badlogic.gdx.utils ; -> to utils
             SharedLibraryLoader]))
 
 ; TODO 'full-screen?'
