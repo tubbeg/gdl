@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/logo.png" width="200" height="100"/>
+<p align="left">
+  <img src="https://github.com/damn/gdx/blob/main/logo.png" width="250" height="105"/>
 </p>
 
 #  Details
