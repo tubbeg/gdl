@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/resources/logo.png"/>
+  <img src="https://github.com/damn/gdx/blob/main/logo.png" width="403" height="189"/>
 </p>
 
 [![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
 
-# gdx - game development extension
+# gdl - game development language
 
-A simple and powerful language to write video games in.
+A new, more simple and powerful way to create games.
 
 #  Details
 
