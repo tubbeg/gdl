@@ -6,7 +6,7 @@
 
 # gdx - game development extension
 
-A new and simpler programming languagr to write video games.
+A new and simpler programming language to write video games.
 
 #  Details
 
