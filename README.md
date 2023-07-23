@@ -26,7 +26,7 @@ Add the following to your project.clj file:
 
 # Documentation
 
-* [API docs](https://damn.github.io/gdx/)
+* [API docs](https://damn.github.io/gdl/)
 
 # Hello world window
 
