@@ -2,10 +2,6 @@
   <img src="https://github.com/damn/gdx/blob/main/logo.png" width="403" height="189"/>
 </p>
 
-[![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
-
-# gdl - game development language
-
 A new, more simple and powerful way to create games.
 
 #  Details
@@ -19,6 +15,8 @@ Feedback appreciated.
 This library is the backend for a roguelike action RPG game I am developing.
 
 # Installation
+
+[![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
 
 Add the following to your project.clj file:
 
