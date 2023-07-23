@@ -17,7 +17,6 @@ Supporting desktop backend and 2D graphics API only at the moment.
 Feedback appreciated.
 
 This library is the backend for a roguelike action RPG game I am developing.
-I thought it may be useful to someone else too.
 
 # Installation
 
