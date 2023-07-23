@@ -6,6 +6,10 @@
 
 # gdx - game development extension
 
+A new and simpler programming languagr to write video games.
+
+#  Details
+
 Based on [libGDX](https://libgdx.com/).
 
 Supporting desktop backend and 2D graphics API only at the moment.
