@@ -6,6 +6,9 @@
 
 [Why game programming is broken](https://namekdev.net/2017/05/exploring-directions-to-fix-game-programming/)
 
+
+[Overwatch ECS architecture GDC video](https://youtu.be/zrIY0eIyqmI)
+
 #  Details
 
 Based on [libGDX](https://libgdx.com/).
