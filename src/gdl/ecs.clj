@@ -3,15 +3,31 @@
 
 (def ctype-fns {})
 
+; TODO next step -> systems as protocols (compile time check args)
+; and separate vars with only their own (ctype->f)
+; and application fn
+; (apply-system, update-system, render-system so far only ?)
+
+; also: all -component / -entity* and / -! functions
+; make available for all systems
+; e.g. on-stun*c only changes sth there...
+
 (defmacro defctypefn [fnkey ctype & fn-body]
   `(let [ctype-fn# (fn ~(symbol (str (name fnkey) "-" (name ctype)))
                      ~@fn-body)]
     (alter-var-root #'ctype-fns assoc-in [~fnkey ~ctype] ctype-fn#)
     [~fnkey ~ctype]))
 
+(defmacro defcomponent [kw & system-impls]
+  `(do
+    ~@(for [[system-name & fnbody] system-impls]
+        (do
+         (apply list `defctypefn (keyword (name system-name)) kw fnbody)))))
+
 (defn call-ctype-fns! [fn-key entity]
   (let [entity* @entity]
     (doseq [[ctype f] (get ctype-fns fn-key)
+            ; TODO we probably want the component data and also 3 kind of applications?
             :when (ctype entity*)]
       (f entity))))
 
@@ -31,21 +47,15 @@
 (defn exists? [entity]
   (get-entity (:id @entity)))
 
-(let [cnt (atom 0)]
-  (defn- unique-number! []
-    (swap! cnt inc)))
-
-(defmacro defcomponent [kw & system-impls]
-  `(do
-    ~@(for [[system-name & fnbody] system-impls]
-        (do
-         (apply list `defctypefn (keyword (name system-name)) kw fnbody)))))
-
 (defcomponent :id
   (on-create-entity [entity]
     (swap! ids->entities assoc (:id @entity) entity))
   (on-destroy-entity [entity]
     (swap! ids->entities dissoc (:id @entity))))
+
+(let [cnt (atom 0)]
+  (defn- unique-number! []
+    (swap! cnt inc)))
 
 (defn create-entity! [properties]
   {:pre [(not (contains? properties :id))]}
@@ -84,3 +94,52 @@
           :when (exists? entity)]
     (call-ctype-fns! :on-destroy-entity entity))
   (reset! removelist #{}))
+
+;;
+;;
+;; Update system (separate file/ns ?)
+;;
+;;
+
+; # Why do we use a :blocks counter and not a boolean?
+; Different effects can stun/block for example :movement component
+; and if we remove the effect, other effects still need to be there
+; so each effect increases the :blocks-count by 1 and decreases them after the effect ends.
+
+(defn- blocked? [component]
+  (when-let [blocks-count (:blocks component)]
+    (assert (and (integer? blocks-count)
+                 (>= blocks-count 0)))
+    (> blocks-count 0)))
+
+(defn- update-speed [component]
+  (if-let [multiplier (:update-speed component)]
+    multiplier
+    1))
+
+(def ^:private system-fns
+  {:update-component (fn [ctype f entity delta] (swap! entity update ctype f delta))
+   :update-entity*   (fn [_     f entity delta] (swap! entity f delta))
+   :update-entity!   (fn [_     f entity delta] (f entity delta))})
+
+; strange that update-entity! doesnt care about the ctype
+; maybe it is not meant to be a component function but rather entity-wide function?
+; or system
+
+(defn- update-entity! [entity delta]
+  (doseq [[system-k system-fn] system-fns
+          [ctype f] (system-k ctype-fns)
+          :let [component (ctype @entity)] ; TODO if has implementation, not if key not falsey ... later ...
+          :when component
+          :let [delta (->> (update-speed component) (* delta) int (max 0))]
+          ; TODO what if speed =0 ??
+          :when (not (blocked? component))]
+    (try
+     (system-fn ctype f entity delta)
+     (catch Throwable t
+       (println "Entity id " (:id @entity))
+       (throw t)))))
+
+(defn update-entities! [entities delta]
+  (doseq [entity entities]
+    (update-entity! entity delta)))
