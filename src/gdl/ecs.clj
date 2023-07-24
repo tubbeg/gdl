@@ -35,11 +35,17 @@
   (defn- unique-number! []
     (swap! cnt inc)))
 
-(defctypefn :on-create-entity :id [entity]
-  (swap! ids->entities assoc (:id @entity) entity))
+(defmacro defcomponent [kw & system-impls]
+  `(do
+    ~@(for [[system-name & fnbody] system-impls]
+        (do
+         (apply list `defctypefn (keyword (name system-name)) kw fnbody)))))
 
-(defctypefn :on-destroy-entity :id [entity]
-  (swap! ids->entities dissoc (:id @entity)))
+(defcomponent :id
+  (on-create-entity [entity]
+    (swap! ids->entities assoc (:id @entity) entity))
+  (on-destroy-entity [entity]
+    (swap! ids->entities dissoc (:id @entity))))
 
 (defn create-entity! [properties]
   {:pre [(not (contains? properties :id))]}
@@ -48,23 +54,23 @@
     (call-ctype-fns! :after-create-entity entity)
     entity))
 
-(defctypefn :on-create-entity :parent [child]
-  (let [parent (:parent @child)]
-    (assert (exists? parent))
-    (if-let [children (:children @parent)]
-      (do
-       (assert (not (contains? children child)))
-       (swap! parent update :children conj child))
-      (swap! parent assoc :children #{child}))))
-
-(defctypefn :on-destroy-entity :parent [child]
-  (let [parent (:parent @child)]
-    (when (exists? parent)
-      (let [children (:children @parent)]
-        (assert (contains? children child))
-        (if (= children #{child})
-          (swap! parent dissoc :children)
-          (swap! parent update :children disj child))))))
+(defcomponent :parent
+  (on-create-entity [child]
+   (let [parent (:parent @child)]
+     (assert (exists? parent))
+     (if-let [children (:children @parent)]
+       (do
+        (assert (not (contains? children child)))
+        (swap! parent update :children conj child))
+       (swap! parent assoc :children #{child}))))
+  (on-destroy-entity [child]
+   (let [parent (:parent @child)]
+     (when (exists? parent)
+       (let [children (:children @parent)]
+         (assert (contains? children child))
+         (if (= children #{child})
+           (swap! parent dissoc :children)
+           (swap! parent update :children disj child)))))))
 
 (defn add-to-removelist [entity]
   (swap! removelist conj entity))
