@@ -31,7 +31,7 @@
 ; there is a asset loader, then we wouldn't need to dispose here
 ; but its also a way of managing it no
 (defmacro def-font [symbol & params] ; similar to graphics/default-font declaration
-  `(app/defmanaged ~(with-meta symbol {:dispose true :tag BitmapFont})
+  `(app/defmanaged ~(vary-meta symbol merge {:dispose true :tag BitmapFont})
      (generate ~@params)))
 
 

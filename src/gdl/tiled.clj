@@ -11,7 +11,7 @@
   [file]
   (.load (TmxMapLoader.) file))
 
-(defn dispose [^TiledMap tiled-map]
+(defn dispose [^TiledMap tiled-map] ; TODO use gdl.utils/dispose ? or better tmx map asset loader.
   (.dispose tiled-map))
 
 ; TODO this is actually get-properties for no reflection
@@ -55,6 +55,9 @@
 (defn ^TiledMapTileLayer$Cell cell-at [[x y] tiled-map layer]
   (when-let [layer (get-layer tiled-map (layer-name layer))]
     (.getCell ^TiledMapTileLayer layer x y)))
+
+; TODO we want cell property not tile property
+; so why care for no-cell ? just return nil
 
 (defn property-value
   "Returns the property value from layer and position.

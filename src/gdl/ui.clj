@@ -15,9 +15,11 @@
 
 ; separate scene2d (stage,actor ) & ui ?
 
-; TODO just stage
-(defn create-stage []
+(defn stage ^Stage []
   (Stage. g/gui-viewport g/batch))
+
+(defmacro def-stage [symbol]
+  `(app/defmanaged ~(vary-meta symbol merge {:dispose true :tag Stage}) (stage)))
 
 (defn draw-stage [stage]
   ; Not using (.draw ^Stage stage) because we are already managing

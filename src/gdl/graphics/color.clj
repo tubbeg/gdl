@@ -27,7 +27,7 @@
                 orange
                 magenta]]
   (eval
-   `(def ~(with-meta color {:tag Color}) ~(symbol (str "Color/" (str/upper-case color))))))
+   `(def ~(vary-meta color merge {:tag Color}) ~(symbol (str "Color/" (str/upper-case color))))))
 ; TODO import everything from 'Color' ???
 
 (defn rgb
