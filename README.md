@@ -2,6 +2,10 @@
   <img src="https://github.com/damn/gdx/blob/main/logo.png" width="250" height="105"/>
 </p>
 
+# Useful links
+
+[Why game programming is broken](https://namekdev.net/2017/05/exploring-directions-to-fix-game-programming/)
+
 #  Details
 
 Based on [libGDX](https://libgdx.com/).
