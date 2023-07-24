@@ -15,8 +15,7 @@
 (defmacro defctypefn [fnkey ctype & fn-body]
   `(let [ctype-fn# (fn ~(symbol (str (name fnkey) "-" (name ctype)))
                      ~@fn-body)]
-    (alter-var-root #'ctype-fns assoc-in [~fnkey ~ctype] ctype-fn#)
-    [~fnkey ~ctype]))
+    (alter-var-root #'ctype-fns assoc-in [~fnkey ~ctype] ctype-fn#)))
 
 (defmacro defcomponent [kw & system-impls]
   `(do
@@ -113,9 +112,7 @@
     (> blocks-count 0)))
 
 (defn- update-speed [component]
-  (if-let [multiplier (:update-speed component)]
-    multiplier
-    1))
+  (or (:update-speed component) 1))
 
 (def ^:private system-fns
   {:update-component (fn [ctype f entity delta] (swap! entity update ctype f delta))
