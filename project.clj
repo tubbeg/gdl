@@ -28,7 +28,10 @@
 
   :codox {:source-uri "https://github.com/damn/gdl/blob/main/{filepath}#L{line}"}
 
-  :global-vars {*warn-on-reflection* true})
+  :global-vars {*warn-on-reflection* true}
+
+  :aliases {"dev" ["run" "-m" "gdl.dev-loop" "gdl.simple-test" "app"]}
+  )
 
 ;; TODO dev
 ; - clojure.pprint => https://github.com/AbhinavOmprakash/snitch

@@ -1,34 +1,25 @@
 (ns gdl.ecs
   (:require [gdl.session :as session]))
 
-(def ctype-fns {})
+(defmacro defsystem [symbol]
+  `(def ~symbol {}))
 
-; TODO next step -> systems as protocols (compile time check args)
-; and separate vars with only their own (ctype->f)
-; and application fn
-; (apply-system, update-system, render-system so far only ?)
+(defn extend-system [system-var c f]
+  (alter-var-root system-var assoc c f))
 
-; also: all -component / -entity* and / -! functions
-; make available for all systems
-; e.g. on-stun*c only changes sth there...
-
-(defmacro defctypefn [fnkey ctype & fn-body]
-  `(let [ctype-fn# (fn ~(symbol (str (name fnkey) "-" (name ctype)))
-                     ~@fn-body)]
-    (alter-var-root #'ctype-fns assoc-in [~fnkey ~ctype] ctype-fn#)))
-
-(defmacro defcomponent [kw & system-impls]
+(defmacro defcomponent [c & system-fns]
   `(do
-    ~@(for [[system-name & fnbody] system-impls]
-        (do
-         (apply list `defctypefn (keyword (name system-name)) kw fnbody)))))
+    ~@(for [[system & fn-body] system-fns
+            :let [fn-name (symbol (str (name system) "X" (name c)))
+                  fn-form `(fn ~fn-name ~@fn-body)]]
+        (list `extend-system (list 'var system) c fn-form))))
 
-(defn call-ctype-fns! [fn-key entity]
+(defn apply-system! [system entity]
   (let [entity* @entity]
-    (doseq [[ctype f] (get ctype-fns fn-key)
-            ; TODO we probably want the component data and also 3 kind of applications?
-            :when (ctype entity*)]
-      (f entity))))
+    (doseq [[ctype f] system
+            :let [v (ctype entity*)]
+            :when v]
+      (f entity)))) ; TODO pass component /// pure
 
 (def ^:private ids->entities (atom nil))
 (def ^:private removelist (atom nil))
@@ -46,6 +37,10 @@
 (defn exists? [entity]
   (get-entity (:id @entity)))
 
+(defsystem on-create-entity)
+(defsystem after-create-entity)
+(defsystem on-destroy-entity)
+
 (defcomponent :id
   (on-create-entity [entity]
     (swap! ids->entities assoc (:id @entity) entity))
@@ -59,8 +54,8 @@
 (defn create-entity! [properties]
   {:pre [(not (contains? properties :id))]}
   (let [entity (atom (assoc properties :id (unique-number!)))]
-    (call-ctype-fns! :on-create-entity    entity)
-    (call-ctype-fns! :after-create-entity entity)
+    (apply-system! on-create-entity    entity)
+    (apply-system! after-create-entity entity)
     entity))
 
 (defcomponent :parent
@@ -91,7 +86,7 @@
                    (cons entity children)
                    [entity])
           :when (exists? entity)]
-    (call-ctype-fns! :on-destroy-entity entity))
+    (apply-system! on-destroy-entity entity))
   (reset! removelist #{}))
 
 ;;
@@ -114,29 +109,42 @@
 (defn- update-speed [component]
   (or (:update-speed component) 1))
 
-(def ^:private system-fns
-  {:update-component (fn [ctype f entity delta] (swap! entity update ctype f delta))
-   :update-entity*   (fn [_     f entity delta] (swap! entity f delta))
-   :update-entity!   (fn [_     f entity delta] (f entity delta))})
+; with ecs/ prefix could make them shorter maybe
+(defsystem update-component)
+(defsystem update-entity*)
+(defsystem update-entity!)
+
+(def ^:private system-apply-fns
+  {#'update-component (fn [ctype f entity delta] (swap! entity update ctype f delta))
+   #'update-entity*   (fn [_     f entity delta] (swap! entity f delta))
+   #'update-entity!   (fn [_     f entity delta] (f entity delta))})
+
+; TODO fuck update-entity! shadowed down there ..
+; TODO call 'tick' ? because delta
+; ecs/tick*c tick*e tick*!
+; 3 types of systems, extra args are delta !
+; modifiers are also systems !!
 
 ; strange that update-entity! doesnt care about the ctype
 ; maybe it is not meant to be a component function but rather entity-wide function?
 ; or system
 
-(defn- update-entity! [entity delta]
-  (doseq [[system-k system-fn] system-fns
-          [ctype f] (system-k ctype-fns)
+; TODO similar to apply-system! !!!!!
+; also check render .. !
+(defn- update-entity!* [entity delta]
+  (doseq [[system apply-fn] system-apply-fns
+          [ctype f] @system
           :let [component (ctype @entity)] ; TODO if has implementation, not if key not falsey ... later ...
           :when component
           :let [delta (->> (update-speed component) (* delta) int (max 0))]
           ; TODO what if speed =0 ??
           :when (not (blocked? component))]
     (try
-     (system-fn ctype f entity delta)
+     (apply-fn ctype f entity delta)
      (catch Throwable t
        (println "Entity id " (:id @entity))
        (throw t)))))
 
 (defn update-entities! [entities delta]
   (doseq [entity entities]
-    (update-entity! entity delta)))
+    (update-entity!* entity delta)))
