@@ -17,11 +17,14 @@
         (list `extend-system system a `(fn ~@fn-body)))
     ~a))
 
+(defn applicable-fns [system e*]
+  (for [[a f] (methods system)
+        :when (contains? e* a)]
+    [a f])) ; TODO add 'v'
+
 (defn apply-system! [system entity]
-  (let [entity* @entity]
-    (doseq [[a f] (methods system)
-            :when (contains? entity* a)]
-      (f a entity))))
+  (doseq [[a f] (applicable-fns system @entity)]
+    (f a entity)))
 
 (def ^:private ids->entities (atom nil))
 
@@ -116,10 +119,9 @@
 
 (defn- update-entity!* [entity delta]
   (doseq [[system-var apply-fn] system-apply-fns
-          [a f] (methods @system-var)
-          :let [component (a @entity)] ; TODO if has implementation, not if key not falsey ... later ...
-          :when component
-          :let [delta (->> (update-speed component) (* delta) int (max 0))]
+          [a f] (applicable-fns @system-var @entity)
+          :let [component (a @entity)
+                delta (->> (update-speed component) (* delta) int (max 0))]
           ; TODO what if speed =0 ??
           :when (not (blocked? component))]
     (try
