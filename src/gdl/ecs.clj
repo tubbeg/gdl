@@ -22,12 +22,10 @@
       (f entity)))) ; TODO pass component /// pure
 
 (def ^:private ids->entities (atom nil))
-(def ^:private removelist (atom nil))
 
 (session/defstate state
   (load!  [_ data]
-   (reset! ids->entities {})
-   (reset! removelist #{}))
+   (reset! ids->entities {}))
   (serialize [_])
   (initial-data [_]))
 
@@ -76,18 +74,14 @@
            (swap! parent dissoc :children)
            (swap! parent update :children disj child)))))))
 
-(defn add-to-removelist [entity]
-  (swap! removelist conj entity))
-
 ; first destroy entity, then not necessary for children to remove themself anymore @ parent :children
-(defn destroy-to-be-removed-entities []
-  (doseq [entity @removelist
+(defn destroy-to-be-removed-entities! []
+  (doseq [entity (filter (comp :destroyed? deref) (vals @ids->entities))
           entity (if-let [children (:children @entity)]
                    (cons entity children)
                    [entity])
           :when (exists? entity)]
-    (apply-system! on-destroy-entity entity))
-  (reset! removelist #{}))
+    (apply-system! on-destroy-entity entity)))
 
 ;;
 ;;
