@@ -37,7 +37,7 @@ Add the following to your project.clj file:
 
 # Hello world window
 
-```
+```clojure
 (ns hello-world.core
   (:require [gdx.app :as app]
             [gdx.game :as game]
