@@ -1,25 +1,27 @@
 (ns gdl.ecs
   (:require [gdl.session :as session]))
 
-(defmacro defsystem [symbol]
-  `(def ~symbol {}))
+(defmacro defsystem
+  "A system is a multimethod which dispatches on an attribute."
+  [symbol args]
+  `(defmulti ~symbol (fn [~'a ~@args] ~'a)))
 
-(defn extend-system [system-var c f]
-  (alter-var-root system-var assoc c f))
+(defmacro extend-system [system a f]
+  `(defmethod ~system ~a ~(symbol (str (name system) "." (name a)))
+     [& [~'_ & ~'args]]
+     (apply ~f ~'args)))
 
-(defmacro defcomponent [c & system-fns]
+(defmacro extend-systems [a & system-fns]
   `(do
-    ~@(for [[system & fn-body] system-fns
-            :let [fn-name (symbol (str (name system) "X" (name c)))
-                  fn-form `(fn ~fn-name ~@fn-body)]]
-        (list `extend-system (list 'var system) c fn-form))))
+    ~@(for [[system & fn-body] system-fns]
+        (list `extend-system system a `(fn ~@fn-body)))
+    ~a))
 
 (defn apply-system! [system entity]
   (let [entity* @entity]
-    (doseq [[ctype f] system
-            :let [v (ctype entity*)]
-            :when v]
-      (f entity)))) ; TODO pass component /// pure
+    (doseq [[a f] (methods system)
+            :when (contains? entity* a)]
+      (f a entity))))
 
 (def ^:private ids->entities (atom nil))
 
@@ -35,11 +37,11 @@
 (defn exists? [entity]
   (get-entity (:id @entity)))
 
-(defsystem on-create-entity)
-(defsystem after-create-entity)
-(defsystem on-destroy-entity)
+(defsystem on-create-entity    [entity])
+(defsystem after-create-entity [entity])
+(defsystem on-destroy-entity   [entity])
 
-(defcomponent :id
+(extend-systems :id
   (on-create-entity [entity]
     (swap! ids->entities assoc (:id @entity) entity))
   (on-destroy-entity [entity]
@@ -56,7 +58,7 @@
     (apply-system! after-create-entity entity)
     entity))
 
-(defcomponent :parent
+(extend-systems :parent
   (on-create-entity [child]
    (let [parent (:parent @child)]
      (assert (exists? parent))
@@ -103,40 +105,27 @@
 (defn- update-speed [component]
   (or (:update-speed component) 1))
 
-; with ecs/ prefix could make them shorter maybe
-(defsystem update-component)
-(defsystem update-entity*)
-(defsystem update-entity!)
+(defsystem update-component [v       delta])
+(defsystem update-entity*   [entity* delta])
+(defsystem update-entity!   [entity  delta])
 
 (def ^:private system-apply-fns
-  {#'update-component (fn [ctype f entity delta] (swap! entity update ctype f delta))
-   #'update-entity*   (fn [_     f entity delta] (swap! entity f delta))
-   #'update-entity!   (fn [_     f entity delta] (f entity delta))})
+  {#'update-component (fn [f a entity delta] (swap! entity update a #(f a % delta)))
+   #'update-entity*   (fn [f a entity delta] (swap! entity #(f a % delta)))
+   #'update-entity!   (fn [f a entity delta] (f a entity delta))})
 
-; TODO fuck update-entity! shadowed down there ..
-; TODO call 'tick' ? because delta
-; ecs/tick*c tick*e tick*!
-; 3 types of systems, extra args are delta !
-; modifiers are also systems !!
-
-; strange that update-entity! doesnt care about the ctype
-; maybe it is not meant to be a component function but rather entity-wide function?
-; or system
-
-; TODO similar to apply-system! !!!!!
-; also check render .. !
 (defn- update-entity!* [entity delta]
-  (doseq [[system apply-fn] system-apply-fns
-          [ctype f] @system
-          :let [component (ctype @entity)] ; TODO if has implementation, not if key not falsey ... later ...
+  (doseq [[system-var apply-fn] system-apply-fns
+          [a f] (methods @system-var)
+          :let [component (a @entity)] ; TODO if has implementation, not if key not falsey ... later ...
           :when component
           :let [delta (->> (update-speed component) (* delta) int (max 0))]
           ; TODO what if speed =0 ??
           :when (not (blocked? component))]
     (try
-     (apply-fn ctype f entity delta)
+     (apply-fn f a entity delta)
      (catch Throwable t
-       (println "Entity id " (:id @entity))
+       (println "Entity id " (:id @entity) " attribute: " a " system: " (:name (meta system-var)))
        (throw t)))))
 
 (defn update-entities! [entities delta]
