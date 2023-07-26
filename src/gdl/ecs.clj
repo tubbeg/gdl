@@ -15,10 +15,20 @@
   (defmethod system a [_ & args]
     (apply f args)))
 
-(defmacro extend-systems [a & system-impls]
+(defmacro extend-systems
+  "Defines each system function implementation also as defn with name a-system
+
+  For example:
+  (extend-systems :foo
+    (bar! [v])
+    (baz [v delta]))
+
+  Will create defns foo-bar! and foo-baz in addition to
+  extending the system with those functions."
+  [a & system-impls]
   `(do
     ~@(for [[system & fn-body] system-impls
-            :let [fn-name (symbol (str (name system) "_" (name a)))]]
+            :let [fn-name (symbol (str (name a) "-" (name system)))]]
         `(do
           (defn ~fn-name ~@fn-body)
           (extend-system ~system ~a ~fn-name)))
