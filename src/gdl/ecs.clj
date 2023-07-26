@@ -1,20 +1,27 @@
 (ns gdl.ecs
+  "Entity: a collection of components
+
+  Component: attribute and value.
+
+  System: multimethod which dispatches on attribute.
+
+  Can be extended for attributes with extend-systems."
   (:require [gdl.session :as session]))
 
-(defmacro defsystem
-  "A system is a multimethod which dispatches on an attribute."
-  [symbol args]
+(defmacro defsystem [symbol args]
   `(defmulti ~symbol (fn [~'a ~@args] ~'a)))
 
-(defmacro extend-system [system a f]
-  `(defmethod ~system ~a ~(symbol (str (name system) "." (name a)))
-     [& [~'_ & ~'args]]
-     (apply ~f ~'args)))
+(defn extend-system [system a f]
+  (defmethod system a [_ & args]
+    (apply f args)))
 
-(defmacro extend-systems [a & system-fns]
+(defmacro extend-systems [a & system-impls]
   `(do
-    ~@(for [[system & fn-body] system-fns]
-        (list `extend-system system a `(fn ~@fn-body)))
+    ~@(for [[system & fn-body] system-impls
+            :let [fn-name (symbol (str (name system) "_" (name a)))]]
+        `(do
+          (defn ~fn-name ~@fn-body)
+          (extend-system ~system ~a ~fn-name)))
     ~a))
 
 (defn applicable-fns [system e*]
