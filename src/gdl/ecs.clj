@@ -32,7 +32,7 @@
   (->> (assoc e :id nil)
       atom
       (x/apply-systems! create-systems)
-      (x/apply! after-create!)))
+      (x/apply-sys! after-create!)))
 
 (defn destroy-to-be-removed-entities! []
   (doseq [r (filter (comp :destroyed? deref) (vals @ids->rs))

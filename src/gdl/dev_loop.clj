@@ -15,17 +15,20 @@
           (require (quote ~app-ns))
           (~app-fn))))
 
+(def obj (Object.))
+
 (defn dev-loop []
-  (start-app)
-  (println "refresh-all \n" (refresh-all :after 'gdl.dev-loop/dev-loop)))
+  (try (start-app)
+       (catch Throwable t
+         (println "Failed to start app: \n" t)))
+  (loop []
+    (def refresh-result (refresh-all :after 'gdl.dev-loop/dev-loop))
+    (println "Error on refresh: \n" refresh-result)
+    (locking obj (.wait obj))
+    (recur)))
 
-
-
-;; ; TODO game doesnt start / error on refresh -> keep JVM
-;; -> need main thread ! cannot call refresh-all here
-;; -> some kind of listener thread thing or something
-
-
+(defn restart []
+ (locking obj (.notify obj)))
 
 ; ( I dont know why nrepl start-server does not have this included ... )
 (defn save-port-file
