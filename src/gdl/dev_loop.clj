@@ -1,5 +1,6 @@
 (ns ^:no-doc gdl.dev-loop
-  (:require [clojure.java.io :as io]
+  (:require x.x
+            [clojure.java.io :as io]
             [gdl.utils :refer (set-var-root)]
             [nrepl.server :refer [start-server]]
             [clojure.tools.namespace.repl :refer [disable-reload! refresh-all]]))
@@ -17,6 +18,14 @@
 (defn dev-loop []
   (start-app)
   (println "refresh-all \n" (refresh-all :after 'gdl.dev-loop/dev-loop)))
+
+
+
+;; ; TODO game doesnt start / error on refresh -> keep JVM
+;; -> need main thread ! cannot call refresh-all here
+;; -> some kind of listener thread thing or something
+
+
 
 ; ( I dont know why nrepl start-server does not have this included ... )
 (defn save-port-file
@@ -38,6 +47,8 @@
   (defonce nrepl-server (start-server))
   (save-port-file nrepl-server)
   (println "Started nrepl server on port" (:port nrepl-server))
+
+  ;(x.x/intern-clojure)
 
   (dev-loop))
 

@@ -1,152 +1,144 @@
 (ns gdl.ecs
-  "Entity: a collection of components
+  (:require [x.x :refer :all]
+            [gdl.session :as session]))
 
-  Component: attribute and value.
+(def ^:private ids->rs (atom nil))
 
-  System: multimethod which dispatches on attribute.
-
-  Can be extended for attributes with extend-systems."
-  (:require [gdl.session :as session]))
-
-(defmacro defsystem [symbol args]
-  `(defmulti ~symbol (fn [~'a ~@args] ~'a)))
-
-(defn extend-system [system a f]
-  (defmethod system a [_ & args]
-    (apply f args)))
-
-(defmacro extend-systems
-  "Defines each system function implementation also as defn with name a-system
-
-  For example:
-  (extend-systems :foo
-    (bar! [v])
-    (baz [v delta]))
-
-  Will create defns foo-bar! and foo-baz in addition to
-  extending the system with those functions."
-  [a & system-impls]
-  `(do
-    ~@(for [[system & fn-body] system-impls
-            :let [fn-name (symbol (str (name a) "-" (name system)))]]
-        `(do
-          (defn ~fn-name ~@fn-body)
-          (extend-system ~system ~a ~fn-name)))
-    ~a))
-
-(defn applicable-fns [system e*]
-  (for [[a f] (methods system)
-        :when (contains? e* a)]
-    [a f])) ; TODO add 'v'
-
-(defn apply-system! [system entity]
-  (doseq [[a f] (applicable-fns system @entity)]
-    (f a entity)))
-
-(def ^:private ids->entities (atom nil))
+(defn get-entity [id] (get @ids->rs id))
+(defn exists? [r] (get-entity (:id @r)))
 
 (session/defstate state
   (load!  [_ data]
-   (reset! ids->entities {}))
+    (reset! ids->rs {}))
   (serialize [_])
   (initial-data [_]))
 
-(defn get-entity [id]
-  (get @ids->entities id))
+(defsystems create-systems  [create  create-e  create! ])
+(defsystems destroy-systems [destroy destroy-e destroy!])
 
-(defn exists? [entity]
-  (get-entity (:id @entity)))
-
-(defsystem on-create-entity    [entity])
-(defsystem after-create-entity [entity])
-(defsystem on-destroy-entity   [entity])
-
-(extend-systems :id
-  (on-create-entity [entity]
-    (swap! ids->entities assoc (:id @entity) entity))
-  (on-destroy-entity [entity]
-    (swap! ids->entities dissoc (:id @entity))))
-
-(let [cnt (atom 0)]
+(let [cnt (atom 0)] ; TODO reset cnt every session ?
   (defn- unique-number! []
     (swap! cnt inc)))
 
-(defn create-entity! [properties]
-  {:pre [(not (contains? properties :id))]}
-  (let [entity (atom (assoc properties :id (unique-number!)))]
-    (apply-system! on-create-entity    entity)
-    (apply-system! after-create-entity entity)
-    entity))
+(extend-component :id
+  (create [_ _] (unique-number!)) ; TODO precondition (nil? id)
+  (create!  [_ r] (swap! ids->rs assoc  (:id @r) r))
+  (destroy! [_ r] (swap! ids->rs dissoc (:id @r))))
 
-(extend-systems :parent
-  (on-create-entity [child]
-   (let [parent (:parent @child)]
-     (assert (exists? parent))
-     (if-let [children (:children @parent)]
-       (do
-        (assert (not (contains? children child)))
-        (swap! parent update :children conj child))
-       (swap! parent assoc :children #{child}))))
-  (on-destroy-entity [child]
-   (let [parent (:parent @child)]
-     (when (exists? parent)
-       (let [children (:children @parent)]
-         (assert (contains? children child))
-         (if (= children #{child})
-           (swap! parent dissoc :children)
-           (swap! parent update :children disj child)))))))
+(defsystem after-create! [c r])
 
-; first destroy entity, then not necessary for children to remove themself anymore @ parent :children
+(defn create-entity! [e]
+  {:pre [(not (contains? e :id))]}
+  (->> (assoc e :id nil)
+      atom
+      (!x! create-systems)
+      (doseq-r! after-create!)))
+
+; TODO => use destroy! callback ! for children (just mark as :destroyed? ?) one frame later?
 (defn destroy-to-be-removed-entities! []
-  (doseq [entity (filter (comp :destroyed? deref) (vals @ids->entities))
-          entity (if-let [children (:children @entity)]
-                   (cons entity children)
-                   [entity])
-          :when (exists? entity)]
-    (apply-system! on-destroy-entity entity)))
+  (doseq [r (filter (comp :destroyed? deref) (vals @ids->rs))
+          r (if-let [children (:children @r)]
+              (cons r children)
+              [r])
+          :when (exists? r)]
+    (!x! destroy-systems r)))
 
-;;
-;;
-;; Update system (separate file/ns ?)
-;;
-;;
+(defsystems tick-systems
+  [tick tick-e tick!]
+  :extra-params [delta])
+
+(defn tick-entities! [rs delta]
+  (doseq [r rs]
+    (!x! tick-systems r delta)))
 
 ; # Why do we use a :blocks counter and not a boolean?
 ; Different effects can stun/block for example :movement component
 ; and if we remove the effect, other effects still need to be there
 ; so each effect increases the :blocks-count by 1 and decreases them after the effect ends.
+(defn- blocked? [v]
+  (when-let [cnt (:blocks v)]
+    (assert (and (integer? cnt)
+                 (>= cnt 0))) ; TODO pos??
+    (> cnt 0)))
 
-(defn- blocked? [component]
-  (when-let [blocks-count (:blocks component)]
-    (assert (and (integer? blocks-count)
-                 (>= blocks-count 0)))
-    (> blocks-count 0)))
+(defn- update-speed [v] (or (:update-speed v) 1)) ; TODO delta-mult
 
-(defn- update-speed [component]
-  (or (:update-speed component) 1))
-
-(defsystem update-component [v       delta])
-(defsystem update-entity*   [entity* delta])
-(defsystem update-entity!   [entity  delta])
-
-(def ^:private system-apply-fns
-  {#'update-component (fn [f a entity delta] (swap! entity update a #(f a % delta)))
-   #'update-entity*   (fn [f a entity delta] (swap! entity #(f a % delta)))
-   #'update-entity!   (fn [f a entity delta] (f a entity delta))})
-
-(defn- update-entity!* [entity delta]
-  (doseq [[system-var apply-fn] system-apply-fns
-          [a f] (applicable-fns @system-var @entity)
-          :let [component (a @entity)
+#_(([[
                 delta (->> (update-speed component) (* delta) int (max 0))]
-          ; TODO what if speed =0 ??
           :when (not (blocked? component))]
-    (try
-     (apply-fn f a entity delta)
-     (catch Throwable t
-       (println "Entity id " (:id @entity) " attribute: " a " system: " (:name (meta system-var)))
-       (throw t)))))
+  ))
 
-(defn update-entities! [entities delta]
-  (doseq [entity entities]
-    (update-entity!* entity delta)))
+
+; TODO check (if map) blocks/delta-mult for each component
+; => wrap all the defmethods ... ? how 2 do that ?
+
+; also: why do all components have to be maps ... ?
+; because I dont have a component 'type' which holds a 'value'
+; but its not a problem to make anything which should be blocked/changed the speed into a map
+; then it must be important enough ->
+; actually the idea was to block/change speed more fine-grained not on a whole component!
+; => so move it out of here !
+; not worth the hassle right now also unintended side effects when changing component stuff
+
+
+; TODO
+; * can get rid of update-speed => use directly move-speed,attack-speed,cast-speed etc. !
+; * blocked - only movment/skill so far @ sleeping / stun
+; => more specific ? block attacks
+; -> in case of stun I STOP attacks and FREEZE (whole entity?)
+
+; same issue of 'blocking' , with checking here @ movement not :is-active?
+
+
+; stun/active-skill/sleeping => no movement (can be different for skill)
+; stun/sleeping => no skill usage (cooldown?)
+
+; these are basically COMPONENT SYSTEM MODIFIERS
+
+
+
+
+
+
+
+
+; TODO maybe not necessary when using just components ?
+; stun-effect == in effects
+; show-string-effect => also in effects/children?
+; -> render will render all children too ??
+; -> children can have z-order (like an entity itself ?)
+
+; =? also move together with other parent code @ update posi ( or i dont know what a parent is anymore)
+
+; so complicated the parent/children code !
+; just make everything with components !
+
+; I need separate z-order for each component
+; and entity-wide
+
+; so I take lowest entities - lowest-components
+; etc. build vector with certain order [e-z-order & c-z-order]
+; e-z-order because entity might 'fly'
+; or I can just add new layers and in case of flying update all z-orders ?
+; only 1 level deep components at the moment so simple, keep simple
+; or keep functions, z-order is behavior ??
+
+(extend-component :parent
+  (create! [_ child]
+    (let [parent (:parent @child)]
+      (assert (exists? parent))
+      (if-let [children (:children @parent)]
+        (do
+         (assert (not (contains? children child)))
+         (swap! parent update :children conj child))
+        (swap! parent assoc :children #{child}))))
+  (destroy! [_ child]
+    (let [parent (:parent @child)]
+      (when (exists? parent)
+        (let [children (:children @parent)]
+          (assert (contains? children child))
+          (if (= children #{child})
+            (swap! parent dissoc :children)
+            (swap! parent update :children disj child)))))))
+
+; first destroy entity, then not necessary for children to remove themself anymore @ parent :children
