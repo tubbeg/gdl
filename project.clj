@@ -16,7 +16,7 @@
 
                  [space.earlygrey/shapedrawer "2.5.0"]
 
-                 [com.github.damn/x.x "c4d549224d"]]
+                 [com.github.damn/x.x "x.1"]]
 
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"] ; TODO why ? libgdx ?
 
