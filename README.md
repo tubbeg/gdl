@@ -62,7 +62,7 @@ Add the following to your project.clj file:
 # Reloaded Workflow
 
 The command `lein dev` starts a __dev-loop__.
-When closing the app window and all namespaces will be reloaded with `clojure.tools.namespace.repl/refresh-all`.
+When closing the app window all namespaces will be reloaded with `clojure.tools.namespace.repl/refresh-all`.
 
 All variables using `app/defmanaged` are managing their lifecycle with the app lifecycle.
 
