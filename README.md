@@ -58,3 +58,17 @@ Add the following to your project.clj file:
   (app))
 
 ```
+
+# Reloaded Workflow
+
+The command `lein dev` starts a __dev-loop__.
+When closing the app window and all namespaces will be reloaded with `clojure.tools.namespace.repl/refresh-all`.
+
+All variables using `app/defmanaged` are managing their lifecycle with the app lifecycle.
+
+There is also a function `gdl.dev-loop/restart!` to restart in case of errors or even if the app does not start up. In this way you don't have to restart the JVM everytime.
+
+You can bind this on a key , here in VIM :
+``` vimscript
+nmap <F5> :Eval (do (in-ns 'gdl.dev-loop)(restart!))
+```
