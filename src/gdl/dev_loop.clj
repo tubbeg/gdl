@@ -1,9 +1,10 @@
 (ns ^:no-doc gdl.dev-loop
-  (:require x.x
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [gdl.utils :refer (set-var-root)]
             [nrepl.server :refer [start-server]]
-            [clojure.tools.namespace.repl :refer [disable-reload! refresh-all]]))
+            [clojure.tools.namespace.repl :refer [disable-reload!
+                                                  refresh
+                                                  refresh-all]]))
 
 (disable-reload!) ; keep same connection/nrepl-server up throughout refreshs
 
@@ -15,20 +16,40 @@
           (require (quote ~app-ns))
           (~app-fn))))
 
-(def obj (Object.))
+(def ^Object obj (Object.))
+
+(defn wait! []
+  (locking obj
+    (println "\n\n>>> WAITING FOR RESTART <<<")
+    (.wait obj)))
+
+(def app-start-failed (atom false))
+
+(defn restart! []
+  (reset! app-start-failed false)
+  (locking obj
+    (println "\n\n>>> RESTARTING <<<")
+    (.notify obj)))
+
+(require '[clj-commons.pretty.repl :as p])
 
 (defn dev-loop []
+  (println "start-app")
   (try (start-app)
        (catch Throwable t
-         (println "Failed to start app: \n" t)))
-  (loop []
-    (def refresh-result (refresh-all :after 'gdl.dev-loop/dev-loop))
-    (println "Error on refresh: \n" refresh-result)
-    (locking obj (.wait obj))
-    (recur)))
+         (p/pretty-pst t)
+         (println "app-start-failed")
+         (reset! app-start-failed true)))
 
-(defn restart []
- (locking obj (.notify obj)))
+  (loop []
+    (when-not @app-start-failed
+      (do
+       (println "refresh-all")
+       (def refresh-result (refresh-all :after 'gdl.dev-loop/dev-loop))
+       (p/pretty-pst refresh-result)
+       (println "error on refresh-all")))
+    (wait!)
+    (recur)))
 
 ; ( I dont know why nrepl start-server does not have this included ... )
 (defn save-port-file
@@ -49,9 +70,7 @@
 
   (defonce nrepl-server (start-server))
   (save-port-file nrepl-server)
-  (println "Started nrepl server on port" (:port nrepl-server))
-
-  ;(x.x/intern-clojure)
+  ;(println "Started nrepl server on port" (:port nrepl-server))
 
   (dev-loop))
 

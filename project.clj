@@ -7,6 +7,7 @@
                  ; only @ dev profile ?
                  [nrepl "0.9.0"]
                  [org.clojure/tools.namespace "1.3.0"]
+                 [org.clj-commons/pretty "2.0.1"]
 
                  [com.badlogicgames.gdx/gdx                   ~libgdx-version]
                  [com.badlogicgames.gdx/gdx-platform          ~libgdx-version :classifier "natives-desktop"]
