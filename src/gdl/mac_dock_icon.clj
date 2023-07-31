@@ -3,8 +3,7 @@
 ; only call require @ mac ?
 (ns ^:no-doc gdl.mac-dock-icon
   (:require [clojure.java.io :as io])
-  (:import com.apple.eawt.Application
-           javax.imageio.ImageIO))
+  (:import javax.imageio.ImageIO))
 
 ; => into gdl.backends.lwjgl3
 
@@ -53,5 +52,6 @@
 
   ; TODO in dependent projects doesnt work !
   ; how to find the logo file ??
+  (import 'com.apple.eawt.Application)
   (let [image (ImageIO/read (io/file (str "resources/logo.png")))]
-    (.setDockIconImage (Application/getApplication) image)))
+    (.setDockIconImage (com.apple.eawt.Application/getApplication) image)))
