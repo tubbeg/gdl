@@ -28,6 +28,14 @@ Add the following to your project.clj file:
 
 * [API docs](https://damn.github.io/gdl/)
 
+# On Mac
+
+You need to set this environment variable for the lwjgl3 backend to work on mac:
+
+```
+export JVM_OPTS=-XstartOnFirstThread
+```
+
 # Hello world window
 
 ```clojure

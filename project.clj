@@ -21,8 +21,6 @@
 
   :java-source-paths ["src-java"]
 
-  ;:jvm-opts ["-XstartOnFirstThread"] ; for mac (TODO how to set without project.clj but just for my lein run ?)
-
   :profiles {:dev {:resource-paths ["test/resources"]}}
 
   :plugins [[lein-codox "0.10.8"]] ; TODO dev only ...
