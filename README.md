@@ -41,7 +41,6 @@ export JVM_OPTS=-XstartOnFirstThread
 ```clojure
 (ns hello-world.core
   (:require [gdl.backends.lwjgl3 :as lwjgl3]
-            [gdl.app :as app]
             [gdl.game :as game]
             [gdl.graphics :as g]))
 
