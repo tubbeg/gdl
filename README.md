@@ -14,14 +14,14 @@ This library is the backend for a roguelike action RPG game I am developing.
 
 # Installation
 
-[![](https://jitpack.io/v/damn/gdx.svg)](https://jitpack.io/#damn/gdx)
+[![](https://jitpack.io/v/damn/gdl.svg)](https://jitpack.io/#damn/gdl)
 
 Add the following to your project.clj file:
 
 ```
 :repositories [["jitpack" "https://jitpack.io"]]
 
-:dependencies [[com.github.damn/gdx "1.0"]]
+:dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
 ```
 
 # Documentation
@@ -40,9 +40,10 @@ export JVM_OPTS=-XstartOnFirstThread
 
 ```clojure
 (ns hello-world.core
-  (:require [gdx.app :as app]
-            [gdx.game :as game]
-            [gdx.graphics :as g]))
+  (:require [gdl.backends.lwjgl3 :as lwjgl3]
+            [gdl.app :as app]
+            [gdl.game :as game]
+            [gdl.graphics :as g]))
 
 (def main-screen
   {:show (fn [])
@@ -55,16 +56,12 @@ export JVM_OPTS=-XstartOnFirstThread
             )
    :destroy (fn [])})
 
-(defn app []
-  (app/create (game/create {:main main-screen})
-              {:title "Hello World!"
-               :width 800
-               :height 600
-               :full-screen false}))
-
 (defn -main []
-  (app))
-
+  (lwjgl3/create-app (game/create {:main main-screen})
+                     {:title "Hello World!"
+                      :width 800
+                      :height 600
+                      :full-screen false}))
 ```
 
 # Reloaded Workflow
