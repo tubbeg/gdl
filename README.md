@@ -18,7 +18,7 @@ This library is the backend for a roguelike action RPG game I am developing.
 
 Add the following to your project.clj file:
 
-```
+``` clojure
 :repositories [["jitpack" "https://jitpack.io"]]
 
 :dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
