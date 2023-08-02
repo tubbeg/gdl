@@ -43,6 +43,7 @@
 (app/on-create
  (shape-drawer/create batch))
 
+; TODO doesnt work in world scale.
 (app/defmanaged ^:no-doc ^:dispose ^BitmapFont default-font (BitmapFont.))
 
 
