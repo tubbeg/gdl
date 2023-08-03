@@ -29,13 +29,13 @@
 (defn- screen-width  [] (.getWidth  graphics))
 (defn- screen-height [] (.getHeight graphics))
 
-(defn load-state [{:keys [gui-unit-scale world-unit-scale]}]
+(defn load-state [{:keys [_gui-unit-scale _world-unit-scale]}]
   (set-var-root #'graphics Gdx/graphics)
 
   (set-var-root #'batch (SpriteBatch.))
 
-  (set-var-root   #'gui-unit-scale   gui-unit-scale)
-  (set-var-root #'world-unit-scale world-unit-scale)
+  (set-var-root   #'gui-unit-scale   1)
+  ;(set-var-root #'world-unit-scale world-unit-scale)
 
   ; TODO doesnt work in world scale.
   (set-var-root #'default-font (BitmapFont.))

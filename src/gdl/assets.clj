@@ -14,6 +14,7 @@
 
 (defn- load-assets [file-extensions ^Class class]
   (doseq [file (files/recursively-search-files folder file-extensions)]
+    ; TODO
     (app/log-debug "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
     (.load manager file class)))
 
