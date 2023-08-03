@@ -23,7 +23,7 @@
 (defmacro on [event & exprs]
   `(add-listener ~event
                  (fn []
-                   ;(println "On" (quote ~event) " exprs:" (quote ~exprs))
+                   (println "On" (quote ~event) " exprs:" (quote ~exprs))
                    ~@exprs)))
 
 (defn fire-event! [event]

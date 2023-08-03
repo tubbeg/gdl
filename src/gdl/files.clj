@@ -1,11 +1,14 @@
 (ns gdl.files
   (:refer-clojure :exclude [get])
   (:require [clojure.string :as str]
-            [gdl.app :as app])
+            [gdl.utils :refer [set-var-root]])
   (:import [com.badlogic.gdx Gdx Files]
            [com.badlogic.gdx.files FileHandle]))
 
-(app/defmanaged ^:private ^Files files Gdx/files)
+(declare ^:private ^Files files)
+
+(defn load-state []
+  (set-var-root #'files Gdx/files))
 
 (defn get ^FileHandle [file] ; TODO keep internal?
   (.internal files file))

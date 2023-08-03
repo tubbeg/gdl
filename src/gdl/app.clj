@@ -17,10 +17,11 @@
        (when (:dispose (meta var#))
          (dispose ~symbol))))))
 
-(defmanaged ^:private ^Application app Gdx/app)
+(declare ^:priate ^Application app)
 
-(on-create
- (.setLogLevel app Application/LOG_DEBUG))
+(defn load-state [log-level]
+  (set-var-root #'app Gdx/app)
+  (.setLogLevel app Application/LOG_DEBUG))
 
 (defn application-listener []
   (.getApplicationListener app))

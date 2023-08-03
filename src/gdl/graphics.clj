@@ -1,6 +1,6 @@
 (ns gdl.graphics
   (:require [clojure.string :as str]
-            [gdl.app :as app]
+            [gdl.utils :refer :all]
             [gdl.graphics.color :as color]
             [gdl.graphics.shape-drawer :as shape-drawer])
   (:import [com.badlogic.gdx Gdx Graphics]
@@ -10,42 +10,63 @@
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]))
 
-(app/defmanaged ^:no-doc ^Graphics graphics Gdx/graphics)
+(declare ^:no-doc ^Graphics graphics
+         ^:no-doc ^Batch batch
+
+         ^:no-doc ^:dynamic *unit-scale*
+
+         ^:no-doc gui-unit-scale
+         world-unit-scale
+
+         ^:no-doc ^BitmapFont default-font
+
+         ^:private ^OrthographicCamera   gui-camera
+         ^:no-doc  ^OrthographicCamera world-camera
+
+         ^:no-doc  ^Viewport   gui-viewport
+         ^:private ^Viewport world-viewport)
+
+(defn- screen-width  [] (.getWidth  graphics))
+(defn- screen-height [] (.getHeight graphics))
+
+(defn load-state [{:keys [gui-unit-scale world-unit-scale]}]
+  (set-var-root #'graphics Gdx/graphics)
+
+  (set-var-root #'batch (SpriteBatch.))
+
+  (set-var-root   #'gui-unit-scale   gui-unit-scale)
+  (set-var-root #'world-unit-scale world-unit-scale)
+
+  ; TODO doesnt work in world scale.
+  (set-var-root #'default-font (BitmapFont.))
+
+  (set-var-root #'gui-camera   (OrthographicCamera.))
+  (set-var-root #'world-camera (OrthographicCamera.))
+
+  (set-var-root #'gui-viewport (FitViewport. (screen-width)
+                                             (screen-height)
+                                             gui-camera))
+
+  (set-var-root #'world-viewport (let [width  (* (screen-width)  world-unit-scale)
+                                       height (* (screen-height) world-unit-scale)
+                                       y-down? false]
+                                   (.setToOrtho world-camera y-down? width height)
+                                   (FitViewport. width
+                                                 height
+                                                 world-camera)))
+
+  (shape-drawer/load-state batch))
+
+(defn dispose-state []
+  (dispose batch)
+  (dispose default-font)
+  (shape-drawer/dispose-state))
 
 ; TODO frames-per-second
 (defn fps [] (.getFramesPerSecond graphics))
 
-(defn- screen-width
-  "note: this is not the viewport-width, which may be different than the screen-width"
-  []
-  (.getWidth  graphics))
-
-(defn- screen-height
-  "note: this is not the viewport-height, which may be different than the screen-height."
-  []
-  (.getHeight graphics))
-
-(def ^:no-doc gui-unit-scale 1) ; => pixel-unit-scale
-(def world-unit-scale 1)
-
-; -> *unit-scale* is bound to :wu or :px
-; and world-unit-scale
-; or pixels->world-units is all thats needed
-; no gui-unit-scale
-
 (defn pixels->world-units [px]
   (* px world-unit-scale))
-
-(def ^:no-doc ^:dynamic *unit-scale*)
-
-(app/defmanaged ^:no-doc ^:dispose ^Batch batch (SpriteBatch.))
-
-(app/on-create
- (shape-drawer/create batch))
-
-; TODO doesnt work in world scale.
-(app/defmanaged ^:no-doc ^:dispose ^BitmapFont default-font (BitmapFont.))
-
 
 ; 1. check colors if missing/wrong
 #_(use 'clojure.pprint)
@@ -95,33 +116,7 @@
 ;
 ;; ****
 
-; TODO ?
-; gdl.graphics.views.world / *.gui
-
-; => unit-scale, camera, viewport, etc.
-
-(app/defmanaged ^:private ^OrthographicCamera   gui-camera (OrthographicCamera.))
-(app/defmanaged ^:no-doc  ^OrthographicCamera world-camera (OrthographicCamera.))
-
-; TODO use extend viewport ???
-
-; => TODO this is screen-viewport ? == same like screen ?
-; screen-camera always pointed at center of screen !!
-(app/defmanaged ^:no-doc ^Viewport gui-viewport
-  (FitViewport. (screen-width)
-                (screen-height)
-                gui-camera))
-
-(app/defmanaged ^:private ^Viewport world-viewport
-  (let [width  (* (screen-width)  world-unit-scale)
-        height (* (screen-height) world-unit-scale)
-        y-down? false]
-    (.setToOrtho world-camera y-down? width height)
-    (FitViewport. width
-                  height
-                  world-camera)))
-
-(def ^:private world-camera-position (atom nil))
+(def ^:private world-camera-position (atom nil)) ; TODO state?
 
 ; TODO world-
 (defn camera-position [] @world-camera-position)
