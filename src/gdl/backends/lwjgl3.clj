@@ -5,6 +5,8 @@
            [com.badlogic.gdx.utils ; -> to utils
             SharedLibraryLoader]))
 
+; [org.clojure/java.data "1.0.95"]
+
 ; TODO 'full-screen?'
 (defn- configuration [{:keys [title width height full-screen fps]}]
   #_(when SharedLibraryLoader/isMac

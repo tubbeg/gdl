@@ -5,7 +5,10 @@
             [gdl.graphics :as g]
             [gdl.graphics.color :as color])
   (:import [com.badlogic.gdx.utils ScreenUtils]
-           [com.badlogic.gdx Screen ScreenAdapter Game]))
+           [com.badlogic.gdx Gdx Screen ScreenAdapter Game]))
+
+(defn- load-gdx-globals []
+  (set-var-root #'gdl.app/app Gdx/app))
 
 ; ? this is defhash !?
 
@@ -54,7 +57,11 @@
                  (map screen->libgdx-screen (vals screens)))
         game (proxy [Game] []
                (create []
-                 (app/load-state nil)
+                 (load-gdx-globals)
+                 ; TODO as per config
+                 ;(app/set-log-level :debug)
+                 ;(.setLogLevel app Application/LOG_DEBUG)
+
                  (g/load-state graphics-config)
                  (files/load-state)
                  (fire-event! :app/create)
