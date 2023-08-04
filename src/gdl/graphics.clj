@@ -10,10 +10,11 @@
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]))
 
+(declare ^Graphics graphics)
+
 (def world-unit-scale 1) ; overwrite in your app
 
-(declare ^:no-doc ^Graphics graphics
-         ^:no-doc ^Batch batch
+(declare ^:no-doc ^Batch batch
 
          ^:no-doc ^:dynamic *unit-scale*
 
@@ -32,8 +33,6 @@
 (defn- screen-height [] (.getHeight graphics))
 
 (defn load-state [{:keys [_gui-unit-scale _world-unit-scale]}]
-  (set-var-root #'graphics Gdx/graphics)
-
   (set-var-root #'batch (SpriteBatch.))
 
   (set-var-root   #'gui-unit-scale   1)

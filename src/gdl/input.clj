@@ -1,11 +1,10 @@
 ; remove all 'is-...?' -> just add '?' at end of fn name -> grep
 ; vimgrep/is-.*-down?\|is-.*-pressed?/g src/**
 (ns gdl.input
-  (:require [gdl.app :as app]
-            [gdl.graphics :refer (mouse-coords)])
-  (:import [com.badlogic.gdx Gdx Input Input$Buttons Input$Keys]))
+  (:require [gdl.graphics :refer (mouse-coords)])
+  (:import [com.badlogic.gdx Input Input$Buttons Input$Keys]))
 
-(app/defmanaged ^:private ^Input input Gdx/input)
+(declare ^Input input)
 
 ; TODO use set-input-processor (its the class name)
 (defn set-processor [processor]

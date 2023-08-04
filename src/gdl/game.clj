@@ -1,14 +1,18 @@
 (ns gdl.game
   (:require [gdl.utils :refer :all]
             [gdl.app :as app]
-            [gdl.files :as files]
+            gdl.files
             [gdl.graphics :as g]
-            [gdl.graphics.color :as color])
+            [gdl.graphics.color :as color]
+            gdl.input)
   (:import [com.badlogic.gdx.utils ScreenUtils]
            [com.badlogic.gdx Gdx Screen ScreenAdapter Game]))
 
 (defn- load-gdx-globals []
-  (set-var-root #'gdl.app/app Gdx/app))
+  (set-var-root #'gdl.app/app           Gdx/app)
+  (set-var-root #'gdl.files/files       Gdx/files)
+  (set-var-root #'gdl.graphics/graphics Gdx/graphics)
+  (set-var-root #'gdl.input/input       Gdx/input))
 
 ; ? this is defhash !?
 
@@ -63,7 +67,6 @@
                  ;(.setLogLevel app Application/LOG_DEBUG)
 
                  (g/load-state graphics-config)
-                 (files/load-state)
                  (fire-event! :app/create)
                  (set-screen (first (keys screens))))
                (dispose []
