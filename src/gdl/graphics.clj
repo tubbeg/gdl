@@ -10,13 +10,15 @@
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            [com.badlogic.gdx.math Vector2 Vector3 MathUtils]))
 
+(def world-unit-scale 1) ; overwrite in your app
+
 (declare ^:no-doc ^Graphics graphics
          ^:no-doc ^Batch batch
 
          ^:no-doc ^:dynamic *unit-scale*
 
          ^:no-doc gui-unit-scale
-         world-unit-scale
+         ;world-unit-scale
 
          ^:no-doc ^BitmapFont default-font
 
