@@ -1,6 +1,7 @@
 (ns gdl.game
   (:require [gdl.utils :refer :all]
             [gdl.app :as app]
+            [gdl.assets :as assets]
             gdl.files
             [gdl.graphics :as g]
             [gdl.graphics.color :as color]
@@ -13,6 +14,13 @@
   (set-var-root #'gdl.files/files       Gdx/files)
   (set-var-root #'gdl.graphics/graphics Gdx/graphics)
   (set-var-root #'gdl.input/input       Gdx/input))
+
+(defn- initialize-assets []
+  (set-var-root #'assets/manager (assets/asset-manager))
+  (set-var-root #'assets/sounds-folder "sounds/")
+  (assets/load-all {:folder "resources/" ; TODO these are classpath settings ?
+                    :sound-files-extensions #{"wav"}
+                    :image-files-extensions #{"png" "bmp"}}))
 
 ; ? this is defhash !?
 
@@ -65,6 +73,7 @@
                  ; TODO as per config
                  ;(app/set-log-level :debug)
                  ;(.setLogLevel app Application/LOG_DEBUG)
+                 (initialize-assets)
 
                  (g/load-state graphics-config)
                  (fire-event! :app/create)
@@ -74,7 +83,8 @@
                  ; this is not disposable interface, screen has separate dispose method
                  (doseq [screen (vals screens)]
                    (.dispose ^Screen screen))
-                 (g/dispose-state))
+                 (g/dispose-state)
+                 (dispose assets/manager))
                (pause [])
                (resize [w h]
                  (g/on-resize w h))

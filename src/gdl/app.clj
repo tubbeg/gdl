@@ -17,7 +17,7 @@
 (defmacro with-context [& exprs]
   `(.postRunnable app (fn [] ~@exprs)))
 
-;;
+;; TODO remove ! manage state centrally not automagically.
 
 (defmacro on-create  [& exprs] `(on :app/create  ~@exprs))
 (defmacro on-destroy [& exprs] `(on :app/destroy ~@exprs))

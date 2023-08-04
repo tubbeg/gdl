@@ -1,30 +1,38 @@
-(ns ^:no-doc gdl.assets
-  (:require [gdl.app :as app]
+(ns gdl.assets
+  (:require [gdl.app :refer [log-debug]]
             [gdl.files :as files])
   (:import com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.graphics.Texture))
 
-(def ^:private folder "resources/") ; TODO these are classpath settings ?
-(def ^:private sounds-folder "sounds/")
-(def ^:private sound-files-extensions #{"wav"})
-(def ^:private image-files-extensions #{"png" "bmp"})
+(declare ^AssetManager manager)
 
-(app/defmanaged ^:private ^:dispose ^AssetManager manager (AssetManager.))
+(defn asset-manager []
+  (AssetManager.))
 
-(defn- load-assets [file-extensions ^Class class]
+(defn- load-asset [file class]
+  (.load manager file class))
+
+(defn- finish-loading []
+  (.finishLoading manager))
+
+(defn- get-asset [file class]
+  (.get manager ^String file ^Class class))
+
+(defn- load-assets [folder file-extensions ^Class class]
   (doseq [file (files/recursively-search-files folder file-extensions)]
     ; TODO
-    (app/log-debug "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
-    (.load manager file class)))
+    (println "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
+    (load-asset file class)))
 
-(defn- get-asset [file class] (.get manager ^String file ^Class class))
+(defn load-all [{:keys [folder
+                        sound-files-extensions
+                        image-files-extensions]}]
+ (load-assets folder sound-files-extensions Sound)
+ (load-assets folder image-files-extensions Texture)
+ (finish-loading))
+
+(declare sounds-folder)
 
 (defn ^Sound   get-sound   [file] (get-asset (str sounds-folder file) Sound))
 (defn ^Texture get-texture [file] (get-asset                    file  Texture))
-
-(app/on-create
- (load-assets sound-files-extensions Sound)
- (load-assets image-files-extensions Texture)
- (.finishLoading manager))
-
