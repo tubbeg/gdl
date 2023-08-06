@@ -4,16 +4,9 @@
 
 (declare ^Application app)
 
-(defn application-listener []
-  (.getApplicationListener app))
-
 (defn exit []
   (.exit app))
 
-(defn log-debug [tag message]
-  (.debug app tag message))
-
-; TODO naming ...
 (defmacro with-context [& exprs]
   `(.postRunnable app (fn [] ~@exprs)))
 

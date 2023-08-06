@@ -1,6 +1,5 @@
 (ns gdl.assets
-  (:require [gdl.app :refer [log-debug]]
-            [gdl.files :as files])
+  (:require [gdl.files :as files])
   (:import com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.graphics.Texture))

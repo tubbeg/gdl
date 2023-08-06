@@ -54,7 +54,7 @@
 (declare ^:private screens)
 
 (defn set-screen [k]
-  (.setScreen ^Game (app/application-listener) (k screens)))
+  (.setScreen ^Game (.getApplicationListener app/app) (k screens)))
 
 ; TODO game main config !
 (def graphics-config {:gui-unit-scale 1
