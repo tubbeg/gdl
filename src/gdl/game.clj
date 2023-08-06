@@ -15,7 +15,7 @@
   (set-var-root #'gdl.graphics/graphics Gdx/graphics)
   (set-var-root #'gdl.input/input       Gdx/input))
 
-(defn- initialize-assets []
+(defn- load-assets []
   (set-var-root #'assets/manager (assets/asset-manager))
   (set-var-root #'assets/sounds-folder "sounds/")
   (assets/load-all {:folder "resources/" ; TODO these are classpath settings ?
@@ -70,7 +70,7 @@
         game (proxy [Game] []
                (create []
                  (load-gdx-globals)
-                 (initialize-assets)
+                 (load-assets)
 
                  (g/load-state graphics-config)
                  (fire-event! :app/create)
