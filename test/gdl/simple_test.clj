@@ -1,11 +1,20 @@
 (ns gdl.simple-test
-  (:require [gdl.backends.lwjgl3 :as lwjgl3]
+  (:require [gdl.utils :as utils]
+            [gdl.files :as files]
+            [gdl.backends.lwjgl3 :as lwjgl3]
             [gdl.game :as game]
             [gdl.graphics :as g]
             [gdl.graphics.freetype :as freetype]
             [gdl.input :as input]))
 
-(freetype/def-font bmfont16 "exocet/films.EXL_____.ttf" 16)
+(declare bmfont16)
+
+(defn- load-font []
+  (when-not (bound? #'bmfont16)
+    (utils/set-var-root #'bmfont16
+                        (freetype/generate (files/internal "exocet/films.EXL_____.ttf")
+                                           16))))
+
 
 ; TODO use @ cdq/game/ui/debug-window
 (defn render-mouse-coordinates []
@@ -29,9 +38,13 @@
   (render-mouse-coordinates))
 
 (game/defscreen screen
-  :show (fn [])
-  :render (fn [] (g/render-gui render))
-  :destroy (fn [])
+  :show (fn []
+          (load-font))
+  :render (fn []
+            (g/render-gui
+             render))
+  :destroy (fn []
+             (utils/dispose bmfont16))
   :update (fn [delta]))
 
 (defn app []
