@@ -1,6 +1,5 @@
 (ns gdl.graphics.image
-  (:require [gdl.app :as app]
-            [gdl.assets :as assets]
+  (:require [gdl.assets :as assets]
             [gdl.graphics :as g]
             [gdl.graphics.color :as color])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion))
@@ -91,13 +90,11 @@
                   tilew
                   tileh])
 
-(app/defmanaged ^:private get-texture-region
-  (memoize
-   (fn [file & [x y w h]]
-     (let [texture (assets/get-texture file)]
-       (if (and x y w h)
-         (TextureRegion. texture (int x) (int y) (int w) (int h))
-         (TextureRegion. texture))))))
+(defn- get-texture-region [file & [x y w h]]
+  (let [texture (assets/get-texture file)]
+    (if (and x y w h)
+      (TextureRegion. texture (int x) (int y) (int w) (int h))
+      (TextureRegion. texture))))
 
 (defn create
   "Scale can be a number or [width height]"
