@@ -20,7 +20,7 @@
     params))
 
 (defn generate [ttf-file size]
-  (let [generator (-> ttf-file files/get FreeTypeFontGenerator.)
+  (let [generator (-> ttf-file files/internal FreeTypeFontGenerator.)
         font (.generateFont generator (->params size))]
     (.dispose generator)
     (.setScale (.getData font) (float (/ quality-scaling)))

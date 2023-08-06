@@ -1,16 +1,15 @@
 (ns gdl.files
-  (:refer-clojure :exclude [get])
   (:require [clojure.string :as str])
   (:import com.badlogic.gdx.Files
            com.badlogic.gdx.files.FileHandle))
 
 (declare ^Files files)
 
-(defn get ^FileHandle [file] ; TODO keep internal?
+(defn internal ^FileHandle [file]
   (.internal files file))
 
 (defn ^:no-doc recursively-search-files [folder extensions]
-  (loop [[^FileHandle file & remaining] (.list (get folder))
+  (loop [[^FileHandle file & remaining] (.list (internal folder))
          result []]
     (cond (nil? file) result
           (.isDirectory file)

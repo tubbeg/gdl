@@ -36,7 +36,7 @@
 
  ; TODO default skin not included in libgdx jar? check.
 (app/defmanaged ^:dispose ^Skin skin
-  (Skin. (files/get "scene2d.ui.skin/uiskin.json")))
+  (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
 
 ; https://stackoverflow.com/questions/45523878/libgdx-skin-not-updating-when-changing-font-programmatically
 
