@@ -20,8 +20,7 @@
 
 (defn- load-assets [folder file-extensions ^Class class]
   (doseq [file (files/recursively-search-files folder file-extensions)]
-    ; TODO
-    (println "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
+    ;(println "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
     (load-asset file class)))
 
 (defn load-all [{:keys [folder

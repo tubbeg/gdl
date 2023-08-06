@@ -70,9 +70,6 @@
         game (proxy [Game] []
                (create []
                  (load-gdx-globals)
-                 ; TODO as per config
-                 ;(app/set-log-level :debug)
-                 ;(.setLogLevel app Application/LOG_DEBUG)
                  (initialize-assets)
 
                  (g/load-state graphics-config)
