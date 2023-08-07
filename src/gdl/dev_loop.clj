@@ -1,6 +1,5 @@
-(ns ^:no-doc gdl.dev-loop
+(ns gdl.dev-loop
   (:require [clojure.java.io :as io]
-            [gdl.utils :refer (set-var-root)]
             [nrepl.server :refer [start-server]]
             [clojure.tools.namespace.repl :refer [disable-reload!
                                                   refresh
@@ -65,8 +64,8 @@
     (spit port-file port)))
 
 (defn -main [& [app-namespace app-start-fn]]
-  (set-var-root #'app-ns (symbol app-namespace))
-  (set-var-root #'app-fn (symbol (str app-namespace "/" app-start-fn)))
+  (.bindRoot #'app-ns (symbol app-namespace))
+  (.bindRoot #'app-fn (symbol (str app-namespace "/" app-start-fn)))
 
   (defonce nrepl-server (start-server))
   (save-port-file nrepl-server)

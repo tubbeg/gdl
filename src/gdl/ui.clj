@@ -1,7 +1,10 @@
 (ns gdl.ui
-  (:require [gdl.app :as app]
+  (:require [x.x :refer [defcomponent]]
+            [gdl.lc :as lc]
             [gdl.files :as files]
-            [gdl.graphics :as g])
+            [gdl.graphics :as g]
+            [gdl.graphics.batch :refer [batch]]
+            [gdl.graphics.gui :as gui])
   (:import [com.badlogic.gdx.graphics.g2d TextureRegion]
            [com.badlogic.gdx.scenes.scene2d Stage Actor
             Group]
@@ -16,9 +19,10 @@
 ; separate scene2d (stage,actor ) & ui ?
 
 (defn stage ^Stage []
-  (Stage. g/gui-viewport g/batch))
+  (Stage. gui/viewport batch))
 
-(defmacro def-stage [symbol]
+; !
+#_(defmacro def-stage [symbol]
   `(app/defmanaged ~(vary-meta symbol merge {:dispose true :tag Stage}) (stage)))
 
 (defn draw-stage [stage]
@@ -28,15 +32,20 @@
   ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Group.java#L56
   ; => use inside g/render-gui
   (.draw ^Group (.getRoot ^Stage stage)
-         g/batch
+         batch
          (float 1)))
 
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
- ; TODO default skin not included in libgdx jar? check.
-(app/defmanaged ^:dispose ^Skin skin
-  (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
+(declare ^Skin skin)
+
+; TODO default skin not included in libgdx jar? check.
+(defcomponent *ns* _
+  (lc/create [_]
+    (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
+  (lc/dispose [_]
+    (.dispose skin)))
 
 ; https://stackoverflow.com/questions/45523878/libgdx-skin-not-updating-when-changing-font-programmatically
 
@@ -72,7 +81,7 @@
         _ (set! (.imageDown style) (TextureRegionDrawable. texture))
         ; imageChecked
         ; imageCheckedDown
-        ; imageCheckedOver
+       ; imageCheckedOver
         ; imageDisabled
         ; imageDown
         ; imageOver

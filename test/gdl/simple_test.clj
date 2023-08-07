@@ -1,55 +1,62 @@
 (ns gdl.simple-test
-  (:require [gdl.utils :as utils]
+  (:require [x.x :refer [defcomponent]]
+            [gdl.lc :as lc]
+            [gdl.app :as app]
             [gdl.files :as files]
-            [gdl.backends.lwjgl3 :as lwjgl3]
             [gdl.game :as game]
-            [gdl.graphics :as g]
-            [gdl.graphics.freetype :as freetype]
-            [gdl.input :as input]))
+            [gdl.graphics.world :as world]
+            [gdl.graphics.gui :as gui]
+            [gdl.graphics.font :as font]
+            [gdl.graphics.freetype :as freetype]))
 
 (declare bmfont16)
 
-(defn- load-font []
-  (when-not (bound? #'bmfont16)
-    (utils/set-var-root #'bmfont16
-                        (freetype/generate (files/internal "exocet/films.EXL_____.ttf")
-                                           16))))
+(defn- gen-font []
+  (freetype/generate (files/internal "exocet/films.EXL_____.ttf")
+                     16))
 
-
-; TODO use @ cdq/game/ui/debug-window
 (defn render-mouse-coordinates []
-  (let [[x y] (map #(format "%.2f" %) (g/map-coords))
-        [gx gy] (g/mouse-coords)
-        [sx sy] (input/get-mouse-pos) ; TODO same as mouse-coords ?
-        the-str (str "Map x " x "\n"
-                     "Map y " y "\n"
+  (let [[wx wy] (map #(format "%.2f" %) (world/mouse-position))
+        [gx gy] (gui/mouse-position)
+        the-str (str "World x " wx "\n"
+                     "World y " wy "\n"
                      "GUI x " gx "\n"
-                     "GUI y " gy "\n"
-                     "Screen X" sx "\n"
-                     "Screen Y" sy)]
-    (g/draw-text {:font nil
-                  :text (str "default-font\n" the-str)
-                  :x sx,:y sy,:h-align nil,:up? true})
-    (g/draw-text {:font bmfont16
-                  :text (str "exl-font\n" the-str)
-                  :x sx,:y sy,:h-align :left,:up? false})))
+                     "GUI y " gy "\n")]
+    (font/draw-text {:font nil
+                     :text (str "default-font\n" the-str)
+                     :x gx,:y gy,:h-align nil,:up? true})
+    (font/draw-text {:font bmfont16
+                     :text (str "exl-font\n" the-str)
+                     :x gx,:y gy,:h-align :left,:up? false})))
 
-(defn render []
-  (render-mouse-coordinates))
+(def my-screen
+  (reify app/Screen
+    (show [_])
+    (render [_]
+      (game/render-gui
+       render-mouse-coordinates))
+    (tick [_ delta])))
 
-(game/defscreen screen
-  :show (fn []
-          (load-font))
-  :render (fn []
-            (g/render-gui
-             render))
-  :destroy (fn []
-             (utils/dispose bmfont16))
-  :update (fn [delta]))
+; !
+; TODO lein template
+; application config
+; config/application.edn
+; => window config
+; => screens / ns-components ? same ? gets loaded automatically?
+; no more 'start' ns => remove ! config files?
+
+(defcomponent *ns* _
+  (lc/create [_]
+    (.bindRoot #'bmfont16 (gen-font)) )
+  (lc/dispose [_]
+    (.dispose bmfont16) ))
 
 (defn app []
-  (lwjgl3/create-app (game/create {:main screen})
-                     {:title "gdl demo"
-                      :width 800
-                      :height 600
-                      :full-screen false}))
+  (game/start {:screens {:my-screen my-screen}
+               :tile-size 48
+               :window {:title "gdl demo"
+                        :width 800
+                        :height 600
+                        :full-screen false}
+               :log-lc? true
+               :ns-components [[:gdl.simple-test]]}))

@@ -1,8 +1,8 @@
 (ns gdl.app
-  (:require [gdl.utils :refer :all])
-  (:import com.badlogic.gdx.Application))
-
-(declare ^Application app)
+  (:require [x.x :refer [defcomponent]]
+            [gdl.lc :as lc]
+            [gdl.gdx :refer [app]])
+  (:import (com.badlogic.gdx ScreenAdapter Game)))
 
 (defn exit []
   (.exit app))
@@ -10,19 +10,33 @@
 (defmacro with-context [& exprs]
   `(.postRunnable app (fn [] ~@exprs)))
 
-;; TODO remove ! manage state centrally not automagically.
+(defprotocol Screen
+  (show    [_])
+  (render  [_])
+  (tick    [_ delta]))
 
-(defmacro on-create  [& exprs] `(on :app/create  ~@exprs))
-(defmacro on-destroy [& exprs] `(on :app/destroy ~@exprs))
+(defn- ->ScreenAdapter [screen]
+  (proxy [ScreenAdapter] []
+    (show []
+      (show screen))
+    (render [delta-seconds]
+      (render screen)
+      (let [delta-milliseconds (* delta-seconds 1000)]
+        (tick screen delta-milliseconds)))))
 
-(defmacro defmanaged [symbol init]
-  `(do
-    (declare ~symbol)
+; screens are map of keyword to screen
+; for handling cyclic dependencies
+; (options screen can set main screen and vice versa)
+(declare ^:private screens)
 
-    (let [var# (var ~symbol)]
-      (on-create
-       (set-var-root var# ~init))
+(defn set-screen [k]
+  (.setScreen ^Game (.getApplicationListener app)
+              (k screens)))
 
-      (on-destroy
-       (when (:dispose (meta var#))
-         (dispose ~symbol))))))
+(defn- map-vals [m f]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defcomponent *ns* screens
+  (lc/create [_]
+    (.bindRoot #'screens (map-vals screens ->ScreenAdapter))
+    (set-screen (first (keys screens)))))

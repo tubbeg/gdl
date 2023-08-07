@@ -1,6 +1,8 @@
 (ns gdl.graphics.shape-drawer
-  (:require [gdl.utils :refer :all]
-            [gdl.graphics.color :as color])
+  (:require [x.x :refer [defcomponent]]
+            [gdl.lc :as lc]
+            [gdl.graphics.color :as color]
+            [gdl.graphics.batch :refer [batch]])
   (:import [com.badlogic.gdx.graphics Texture Pixmap Pixmap$Format Color]
            com.badlogic.gdx.graphics.g2d.TextureRegion
            space.earlygrey.shapedrawer.ShapeDrawer))
@@ -14,14 +16,14 @@
     texture))
 
 (declare ^:private ^Texture drawer-texture
-         ^:no-doc ^ShapeDrawer drawer)
+         ^:private ^ShapeDrawer drawer)
 
-(defn load-state [batch]
-  (set-var-root #'drawer-texture (gen-drawer-texture))
-  (set-var-root #'drawer (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1))))
-
-(defn dispose-state []
-  (dispose drawer-texture))
+(defcomponent *ns* _
+  (lc/create [_]
+    (.bindRoot #'drawer-texture (gen-drawer-texture))
+    (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1))))
+  (lc/dispose [_]
+    (.dispose drawer-texture)))
 
 (defn- set-color! [^Color color]
   (.setColor drawer color))

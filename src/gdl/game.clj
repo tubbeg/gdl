@@ -1,90 +1,93 @@
 (ns gdl.game
-  (:require [gdl.utils :refer :all]
-            [gdl.app :as app]
-            [gdl.assets :as assets]
-            gdl.files
+  (:require [gdl.lc :as lc]
+            [gdl.gdx :as gdx]
             [gdl.graphics :as g]
             [gdl.graphics.color :as color]
-            gdl.input)
-  (:import [com.badlogic.gdx.utils ScreenUtils]
-           [com.badlogic.gdx Gdx Screen ScreenAdapter Game]))
+            [gdl.graphics.gui :as gui]
+            [gdl.graphics.world :as world]
+            [gdl.graphics.unit-scale :refer [*unit-scale*]]
+            [gdl.graphics.shape-drawer :as shape-drawer]
+            [gdl.graphics.batch :refer [batch]]
+            [gdl.backends.lwjgl3 :as lwjgl3])
+  (:import [com.badlogic.gdx Gdx Game]
+           com.badlogic.gdx.utils.ScreenUtils
+           com.badlogic.gdx.graphics.OrthographicCamera))
 
-(defn- load-gdx-globals []
-  (set-var-root #'gdl.app/app           Gdx/app)
-  (set-var-root #'gdl.files/files       Gdx/files)
-  (set-var-root #'gdl.graphics/graphics Gdx/graphics)
-  (set-var-root #'gdl.input/input       Gdx/input))
+(defn- on-resize [w h]
+  (let [center-camera? true]
+    (.update gui/viewport   w h center-camera?)
+    (.update world/viewport w h center-camera?)))
 
-(defn- load-assets []
-  (set-var-root #'assets/manager (assets/asset-manager))
-  (set-var-root #'assets/sounds-folder "sounds/")
-  (assets/load-all {:folder "resources/" ; TODO these are classpath settings ?
-                    :sound-files-extensions #{"wav"}
-                    :image-files-extensions #{"png" "bmp"}}))
+(defn- fix-viewport-update
+  "Sometimes the viewport update is not triggered."
+  []
+  (when-not (and (= (.getScreenWidth  gui/viewport) (g/screen-width))
+                 (= (.getScreenHeight gui/viewport) (g/screen-height)))
+    (on-resize (g/screen-width) (g/screen-height))))
 
-; ? this is defhash !?
+(defn- render-with [unit-scale ^OrthographicCamera camera renderfn]
+  (binding [*unit-scale* unit-scale]
+    (shape-drawer/set-line-width! *unit-scale*)
+    (.setColor batch color/white) ; fix scene2d.ui.tooltip flickering
+    (.setProjectionMatrix batch (.combined camera))
+    (.begin batch)
+    (renderfn)
+    (.end batch)))
 
-(comment
- (defhashmap foo
-   :a 1
-   :b 2
-   :c 3))
+(defn render-gui   [renderfn] (render-with   gui/unit-scale   gui/camera renderfn))
+(defn render-world [renderfn] (render-with world/unit-scale world/camera renderfn))
 
-; is there any point to this or defcolor ?
+(defn- default-components [{:keys [tile-size screens]}]
+  [[:gdl.gdx]
+   [:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
+                 :sounds-folder "sounds/"
+                 :sound-files-extensions #{"wav"}
+                 :image-files-extensions #{"png" "bmp"}
+                 :log-load-assets? false}]
+   [:gdl.graphics.gui]
+   [:gdl.graphics.world (or tile-size 1)]
+   [:gdl.graphics.font]
+   [:gdl.graphics.batch]
+   [:gdl.graphics.shape-drawer]  ; after :gdl.graphics.batch
+   [:gdl.ui]
+   [:gdl.app screens]])
 
-(defmacro defscreen [var-name & screen]
-  `(def ~var-name (hash-map ~@screen)))
+(defn- apply-ns-components
+  "Given a map of components where keywords represent namespaces
+  Dispatches on the namespace object via ns-find.
 
-(defn- screen->libgdx-screen [{:keys [show render update dispose]}]
-  (proxy [ScreenAdapter] []
-    (show []
-      (when show
-        (show)))
-    (render [delta]
-      (ScreenUtils/clear color/black)
-      (g/fix-viewport-update)
-      (when render
-        (render))
-      (when update
-        (update (* delta 1000))))
-    (dispose []
-      (when dispose
-        (dispose)))))
+  Requires namespaces which could not be found with find-ns.
 
-(declare ^:private screens)
+  assert's if a namespace can not be found even after require."
+  [system components log?]
+  (doseq [[k v] components
+          :let [ns-sym (-> k name symbol)
+                _ (when-not (find-ns ns-sym)
+                    (require ns-sym))
+                ns-obj (find-ns ns-sym)]]
+    (assert ns-obj (str "Could not find-ns " ns-sym))
+    (when log?
+      (println (symbol system) ">" k))
+    (system [ns-obj v])))
 
-(defn set-screen [k]
-  (.setScreen ^Game (.getApplicationListener app/app) (k screens)))
+(defn- ->Game [{:keys [log-lc?  ns-components]
+                :as config}]
+  (let [components (concat (default-components config)
+                           ns-components)
+        _ (when log-lc?
+            (clojure.pprint/pprint components))
+        apply! #(apply-ns-components % components log-lc?)]
+    (proxy [Game] []
+      (create  [] (apply! #'lc/create))
+      (dispose [] (apply! #'lc/dispose))
+      (render []
+        (ScreenUtils/clear color/black)
+        (fix-viewport-update)
+        ;(proxy-super render) ; fix for reflection warning (https://clojure.atlassian.net/browse/CLJ-1433)
+        (proxy-call-with-super #(.render ^Game this) this "render"))
+      (resize [w h]
+        (on-resize w h)))))
 
-; TODO game main config !
-(def graphics-config {:gui-unit-scale 1
-                      :world-unit-scale 48})
-
-; screens are map of keyword to screen
-; for handling cyclic dependencies
-; (options screen can set main screen and vice versa)
-(defn create [screens] ; TODO keys->screens / or key->screen ?? / hashmap naming ?
-  (let [screens (zipmap
-                 (keys screens)
-                 (map screen->libgdx-screen (vals screens)))
-        game (proxy [Game] []
-               (create []
-                 (load-gdx-globals)
-                 (load-assets)
-
-                 (g/load-state graphics-config)
-                 (fire-event! :app/create)
-                 (set-screen (first (keys screens))))
-               (dispose []
-                 (fire-event! :app/destroy)
-                 ; this is not disposable interface, screen has separate dispose method
-                 (doseq [screen (vals screens)]
-                   (.dispose ^Screen screen))
-                 (g/dispose-state)
-                 (dispose assets/manager))
-               (pause [])
-               (resize [w h]
-                 (g/on-resize w h))
-               (resume []))]
-    (set-var-root #'screens screens)
-    game))
+(defn start [{:keys [window] :as config}]
+  (lwjgl3/create-app (->Game config)
+                     window))

@@ -1,36 +1,52 @@
 (ns gdl.assets
-  (:require [gdl.files :as files])
+  (:require [x.x :refer [defcomponent]]
+            [gdl.lc :as lc]
+            [gdl.files :as files])
   (:import com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.graphics.Texture))
 
-(declare ^AssetManager manager)
+(declare ^:private ^AssetManager manager
+         ^:private sounds-folder)
 
-(defn asset-manager []
-  (AssetManager.))
-
-(defn- load-asset [file class]
-  (.load manager file class))
-
-(defn- finish-loading []
-  (.finishLoading manager))
-
-(defn- get-asset [file class]
-  (.get manager ^String file ^Class class))
-
-(defn- load-assets [folder file-extensions ^Class class]
+(defn- load-assets [folder file-extensions ^Class klass log-load-assets?]
   (doseq [file (files/recursively-search-files folder file-extensions)]
-    ;(println "load-assets" (str "[" (.getSimpleName class) "] - [" file "]"))
-    (load-asset file class)))
+    (when log-load-assets?
+      (println "load-assets" (str "[" (.getSimpleName klass) "] - [" file "]")))
+    (.load manager file klass)))
 
-(defn load-all [{:keys [folder
-                        sound-files-extensions
-                        image-files-extensions]}]
- (load-assets folder sound-files-extensions Sound)
- (load-assets folder image-files-extensions Texture)
- (finish-loading))
+(defn- check-config [config]
+  (doseq [k [:folder
+             :sounds-folder
+             :log-load-assets?
+             :sound-files-extensions
+             :image-files-extensions]]
+    (assert (contains? config k)
+            (str "config key(s) missing: " k))))
 
-(declare sounds-folder)
+(defcomponent *ns* {:keys [folder
+                           sounds-folder
+                           log-load-assets?
+                           sound-files-extensions
+                           image-files-extensions]
+                    :as config}
+  (lc/create [_]
+    (check-config config)
+    (.bindRoot #'manager (AssetManager.))
+    (.bindRoot #'sounds-folder sounds-folder)
+    (load-assets folder sound-files-extensions Sound   log-load-assets?)
+    (load-assets folder image-files-extensions Texture log-load-assets?)
+    (.finishLoading manager))
+  (lc/dispose [_]
+    (.dispose manager)))
 
-(defn ^Sound   get-sound   [file] (get-asset (str sounds-folder file) Sound))
-(defn ^Texture get-texture [file] (get-asset                    file  Texture))
+(defn- get-asset [file klass]
+  (.get manager ^String file ^Class klass))
+
+(defn ^Sound get-sound [file]
+  (get-asset (str sounds-folder file) Sound))
+
+(defn ^Texture get-texture [file]
+  (get-asset file Texture))
+
+

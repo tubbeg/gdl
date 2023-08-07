@@ -1,5 +1,7 @@
 (ns gdl.tiled
-  (:require [gdl.graphics :as g])
+  (:require [gdl.graphics :as g]
+            [gdl.graphics.batch :refer [batch]]
+            [gdl.graphics.world :as world])
   (:import [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
             TiledMapTileLayer TiledMapTileLayer$Cell]
@@ -101,8 +103,8 @@
 ; we do not need to dispose the renderer
 (defn- map-renderer-for [tiled-map color-setter]
   (OrthogonalTiledMapRendererWithColorSetter. tiled-map
-                                              (float g/world-unit-scale)
-                                              g/batch
+                                              (float world/unit-scale)
+                                              batch
                                               (reify ColorSetter
                                                 (apply [_ color x y]
                                                   (color-setter color x y)))))
@@ -111,8 +113,8 @@
 
 (defn render-map [tiled-map color-setter]
   (let [^MapRenderer map-renderer (cached-map-renderer tiled-map color-setter)]
-    (g/update-world-camera-position)
-    (.setView map-renderer g/world-camera)
+    (world/update-camera-position)
+    (.setView map-renderer world/camera)
     (->> tiled-map
          layers
          (filter #(.isVisible ^MapLayer %))

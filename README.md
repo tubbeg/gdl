@@ -36,6 +36,7 @@ You need to set this environment variable for the lwjgl3 backend to work on mac:
 export JVM_OPTS=-XstartOnFirstThread
 ```
 
+ TODO REMOVE JUST POINT TO TEST AND LEIN DEV OR MAKE TEMPLATE
 # Hello world window
 
 ```clojure
@@ -65,7 +66,7 @@ export JVM_OPTS=-XstartOnFirstThread
 
 # Reloaded Workflow
 
-The command `lein dev` starts a __dev-loop__. 
+The command `lein dev` starts a __dev-loop__.
 When closing the app window all namespaces will be reloaded with `clojure.tools.namespace.repl/refresh-all`.
 
 All variables using `app/defmanaged` are managing their lifecycle with the app lifecycle.

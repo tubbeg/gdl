@@ -1,10 +1,9 @@
 ; use a clojure vector2d lib?
 ; https://clojars.org/vector-2d
 ; ?
+
+; TODO intersector & vector in math/
 (ns gdl.vector
-  ; TODO delete requires
-  (:require [gdl.graphics :refer (viewport-width viewport-height)]
-            [gdl.input :refer (get-mouse-pos)])
   (:import [com.badlogic.gdx.math Vector2 MathUtils]))
 
 ; TODO there must be some clojure library to automate this ?

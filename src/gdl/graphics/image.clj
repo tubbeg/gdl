@@ -1,7 +1,11 @@
 (ns gdl.graphics.image
   (:require [gdl.assets :as assets]
             [gdl.graphics :as g]
-            [gdl.graphics.color :as color])
+            [gdl.graphics.color :as color]
+            [gdl.graphics.batch :refer [batch]]
+            [gdl.graphics.unit-scale :refer [*unit-scale*]]
+            [gdl.graphics.world :as world]
+            [gdl.graphics.gui :as gui])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion))
 
 ; Explanation why not using libgdx Sprite class:
@@ -14,8 +18,8 @@
 ; TODO one 'draw' with options scale,rotation,color,etc.
 
 (defn- draw-texture [texture [x y] [w h] rotation color]
-  (if color (.setColor g/batch color))
-  (.draw g/batch texture
+  (if color (.setColor batch color))
+  (.draw batch texture
          x
          y
          (/ w 2) ; rotation origin
@@ -25,10 +29,10 @@
          1 ; scaling factor
          1
          rotation)
-  (if color (.setColor g/batch color/white)))
+  (if color (.setColor batch color/white)))
 
 (defn- unit-dimensions [image]
-  {:pre [(bound? #'g/*unit-scale*)]}
+  {:pre [(bound? #'*unit-scale*)]}
 
   ; TODO :
   ; * unit-scale is either :world-units or :pixels
@@ -36,8 +40,8 @@
   ; !
 
   (cond
-   (= g/*unit-scale* g/world-unit-scale) (:world-unit-dimensions  image)
-   (= g/*unit-scale* g/gui-unit-scale)   (:pixel-dimensions       image)))
+   (= *unit-scale* world/unit-scale) (:world-unit-dimensions  image)
+   (= *unit-scale* gui/unit-scale)   (:pixel-dimensions       image)))
 
 (defn draw
   ([{:keys [texture color] :as image} position]
@@ -77,7 +81,7 @@
                            scale)]
     (assoc image
            :pixel-dimensions pixel-dimensions
-           :world-unit-dimensions (mapv (partial * g/world-unit-scale) pixel-dimensions))))
+           :world-unit-dimensions (mapv (partial * world/unit-scale) pixel-dimensions))))
 
 (defrecord Image [file ; -> is in texture data, can remove.
                   texture ; -region ?
