@@ -2,7 +2,8 @@
   (:require [x.x :refer [defcomponent]]
             [gdl.lc :as lc]
             [gdl.graphics :as g]
-            [gdl.graphics.viewport :as viewport])
+            [gdl.graphics.viewport :as viewport]
+            gdl.render)
   (:import com.badlogic.gdx.graphics.OrthographicCamera
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]))
 
@@ -23,3 +24,6 @@
 
 (defn viewport-width  [] (.getWorldWidth  viewport))
 (defn viewport-height [] (.getWorldHeight viewport))
+
+(defn render [renderfn]
+  (gdl.render/render-with unit-scale camera renderfn))

@@ -1,4 +1,4 @@
-<p align="left">
+<p align="center">
   <img src="https://github.com/damn/gdx/blob/main/logo.png" width="250" height="105"/>
 </p>
 
@@ -36,33 +36,10 @@ You need to set this environment variable for the lwjgl3 backend to work on mac:
 export JVM_OPTS=-XstartOnFirstThread
 ```
 
- TODO REMOVE JUST POINT TO TEST AND LEIN DEV OR MAKE TEMPLATE
-# Hello world window
+# Examples
 
-```clojure
-(ns hello-world.core
-  (:require [gdl.backends.lwjgl3 :as lwjgl3]
-            [gdl.game :as game]
-            [gdl.graphics :as g]))
-
-(def main-screen
-  {:show (fn [])
-   :render (fn [] (g/render-gui ; takes care of all graphics context initializations
-                    (fn []
-                      ;; your render code here
-                      )))
-   :update (fn [delta] ; delta is elapsed time in ms since last update
-            ;; your update code here
-            )
-   :destroy (fn [])})
-
-(defn -main []
-  (lwjgl3/create-app (game/create {:main main-screen})
-                     {:title "Hello World!"
-                      :width 800
-                      :height 600
-                      :full-screen false}))
-```
+* [Simple Test](https://github.com/damn/gdl/blob/main/test/gdl/simple_test.clj)
+* [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest)
 
 # Reloaded Workflow
 

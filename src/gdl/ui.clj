@@ -21,9 +21,6 @@
 (defn stage ^Stage []
   (Stage. gui/viewport batch))
 
-; !
-#_(defmacro def-stage [symbol]
-  `(app/defmanaged ~(vary-meta symbol merge {:dispose true :tag Stage}) (stage)))
 
 (defn draw-stage [stage]
   ; Not using (.draw ^Stage stage) because we are already managing

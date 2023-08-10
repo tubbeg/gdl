@@ -16,7 +16,7 @@
     texture))
 
 (declare ^:private ^Texture drawer-texture
-         ^:private ^ShapeDrawer drawer)
+         ^ShapeDrawer drawer)
 
 (defcomponent *ns* _
   (lc/create [_]
