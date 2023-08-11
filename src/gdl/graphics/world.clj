@@ -16,7 +16,7 @@
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defcomponent *ns* tile-size
+(defcomponent (keyword (ns-name *ns*)) tile-size
   (lc/create [_]
     (assert tile-size "Not given world tile-size config.")
     (.bindRoot #'unit-scale (/ tile-size))

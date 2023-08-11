@@ -12,7 +12,7 @@
          ^Graphics    graphics
          ^Input       input)
 
-(defcomponent *ns* _
+(defcomponent (keyword (ns-name *ns*)) _
   (lc/create [_]
     (.bindRoot #'app      Gdx/app)
     (.bindRoot #'files    Gdx/files)

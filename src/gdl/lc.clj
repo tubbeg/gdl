@@ -1,7 +1,11 @@
 (ns gdl.lc
+  "https://libgdx.com/wiki/app/the-life-cycle"
   (:require [x.x :refer [defsystem]]))
 
 (defsystem create  [_])
 (defsystem dispose [_])
 
-; https://libgdx.com/wiki/app/the-life-cycle
+; screen/.*
+(defsystem show   [_])
+(defsystem render [_])
+(defsystem tick   [_ delta])

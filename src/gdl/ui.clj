@@ -38,7 +38,7 @@
 (declare ^Skin skin)
 
 ; TODO default skin not included in libgdx jar? check.
-(defcomponent *ns* _
+(defcomponent (keyword (ns-name *ns*)) _
   (lc/create [_]
     (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
   (lc/dispose [_]

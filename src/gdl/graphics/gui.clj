@@ -12,7 +12,7 @@
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defcomponent *ns* _
+(defcomponent (keyword (ns-name *ns*)) _
   (lc/create [_]
     (.bindRoot #'camera   (OrthographicCamera.))
     (.bindRoot #'viewport (FitViewport. (g/screen-width)

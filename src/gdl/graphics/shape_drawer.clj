@@ -18,7 +18,7 @@
 (declare ^:private ^Texture drawer-texture
          ^ShapeDrawer drawer)
 
-(defcomponent *ns* _
+(defcomponent (keyword (ns-name *ns*)) _
   (lc/create [_]
     (.bindRoot #'drawer-texture (gen-drawer-texture))
     (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1))))

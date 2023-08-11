@@ -25,7 +25,7 @@
 
 (declare ^BitmapFont default-font)
 
-(defcomponent *ns* _
+(defcomponent (keyword (ns-name *ns*)) _
   (lc/create [_]
     (.bindRoot #'default-font (BitmapFont.))) ; TODO does not work in world scale!
   (lc/dispose [_]

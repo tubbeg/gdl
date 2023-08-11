@@ -24,12 +24,13 @@
     (assert (contains? config k)
             (str "config key(s) missing: " k))))
 
-(defcomponent *ns* {:keys [folder
-                           sounds-folder
-                           log-load-assets?
-                           sound-files-extensions
-                           image-files-extensions]
-                    :as config}
+(defcomponent (keyword (ns-name *ns*))
+  {:keys [folder
+          sounds-folder
+          log-load-assets?
+          sound-files-extensions
+          image-files-extensions]
+   :as config}
   (lc/create [_]
     (check-config config)
     (.bindRoot #'manager (AssetManager.))
