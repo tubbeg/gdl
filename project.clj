@@ -17,7 +17,7 @@
                  [com.badlogicgames.gdx/gdx-freetype-platform     ~libgdx-version :classifier "natives-desktop"]
 
                  [space.earlygrey/shapedrawer "2.5.0"]
-                 [com.github.damn/x.x "da64835"]]
+                 [com.github.damn/x.x "ae5856d"]]
 
   :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"] ; TODO why ? libgdx ?
 
