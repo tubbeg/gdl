@@ -12,7 +12,7 @@
                  [com.badlogicgames.gdx/gdx                       ~libgdx-version]
                  [com.badlogicgames.gdx/gdx-platform              ~libgdx-version :classifier "natives-desktop"]
                  [com.badlogicgames.gdx/gdx-backend-lwjgl3        ~libgdx-version]
-                 [com.badlogicgames.gdx/gdx-lwjgl3-glfw-awt-macos ~libgdx-version]
+                 ;[com.badlogicgames.gdx/gdx-lwjgl3-glfw-awt-macos ~libgdx-version]
                  [com.badlogicgames.gdx/gdx-freetype              ~libgdx-version]
                  [com.badlogicgames.gdx/gdx-freetype-platform     ~libgdx-version :classifier "natives-desktop"]
 
