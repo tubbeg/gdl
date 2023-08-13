@@ -1,5 +1,5 @@
 (ns gdl.graphics.gui
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.graphics :as g]
             [gdl.graphics.viewport :as viewport]
@@ -12,7 +12,7 @@
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defcomponent (keyword (ns-name *ns*)) _
+(defmodule _
   (lc/create [_]
     (.bindRoot #'camera   (OrthographicCamera.))
     (.bindRoot #'viewport (FitViewport. (g/screen-width)

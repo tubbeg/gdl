@@ -1,5 +1,5 @@
 (ns gdl.graphics.world
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.graphics :as g]
             [gdl.graphics.viewport :as viewport]
@@ -16,7 +16,7 @@
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defcomponent (keyword (ns-name *ns*)) tile-size
+(defmodule tile-size
   (lc/create [_]
     (assert tile-size "Not given world tile-size config.")
     (.bindRoot #'unit-scale (/ tile-size))

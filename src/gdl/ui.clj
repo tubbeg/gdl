@@ -1,5 +1,5 @@
 (ns gdl.ui
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.files :as files]
             [gdl.graphics :as g]
@@ -38,7 +38,7 @@
 (declare ^Skin skin)
 
 ; TODO default skin not included in libgdx jar? check.
-(defcomponent (keyword (ns-name *ns*)) _
+(defmodule _
   (lc/create [_]
     (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
   (lc/dispose [_]

@@ -63,9 +63,8 @@
        (into {})))
 
 (defn set-screen [k]
+  (lc/hide (current-screen-component))
   (reset! current-screen k)
-  (println "set screen " k)
-  ; TODO mistyped, not rendering anything! assert what ? p art of @state?
   (lc/show (current-screen-component)))
 
 (defn- ->Game [{:keys [log-lc? modules first-screen] :as config}]

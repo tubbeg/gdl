@@ -1,5 +1,5 @@
 (ns gdl.gdx
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc])
   (:import (com.badlogic.gdx Gdx
                              Application
@@ -12,7 +12,7 @@
          ^Graphics    graphics
          ^Input       input)
 
-(defcomponent (keyword (ns-name *ns*)) _
+(defmodule _
   (lc/create [_]
     (.bindRoot #'app      Gdx/app)
     (.bindRoot #'files    Gdx/files)

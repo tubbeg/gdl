@@ -1,5 +1,5 @@
 (ns gdl.graphics.shape-drawer
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.graphics.color :as color]
             [gdl.graphics.batch :refer [batch]])
@@ -18,7 +18,7 @@
 (declare ^:private ^Texture drawer-texture
          ^ShapeDrawer drawer)
 
-(defcomponent (keyword (ns-name *ns*)) _
+(defmodule _
   (lc/create [_]
     (.bindRoot #'drawer-texture (gen-drawer-texture))
     (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1))))

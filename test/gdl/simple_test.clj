@@ -1,5 +1,5 @@
 (ns gdl.simple-test
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.app :as app]
             [gdl.files :as files]
@@ -26,14 +26,11 @@
                      :text (str "exl-font\n" the-str)
                      :x gx,:y gy,:h-align :left,:up? false})))
 
-(defcomponent (keyword (ns-name *ns*)) font
-  (lc/create [_]
-    (gen-font))
-  (lc/dispose [_]
-    (.dispose font))
-  (lc/show [_]
-    (println "showing simple-test-screen")
-    )
+; also : font as sub-component ??? 'media' ?
+(defmodule
+  font
+  (lc/create [_] (gen-font))
+  (lc/dispose [_] (.dispose font))
   (lc/render [_]
     (gui/render #(render-mouse-coordinates font))))
 

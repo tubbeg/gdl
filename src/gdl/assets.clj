@@ -1,5 +1,5 @@
 (ns gdl.assets
-  (:require [x.x :refer [defcomponent]]
+  (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.files :as files])
   (:import com.badlogic.gdx.assets.AssetManager
@@ -24,13 +24,12 @@
     (assert (contains? config k)
             (str "config key(s) missing: " k))))
 
-(defcomponent (keyword (ns-name *ns*))
-  {:keys [folder
-          sounds-folder
-          log-load-assets?
-          sound-files-extensions
-          image-files-extensions]
-   :as config}
+(defmodule {:keys [folder
+                   sounds-folder
+                   log-load-assets?
+                   sound-files-extensions
+                   image-files-extensions]
+            :as config}
   (lc/create [_]
     (check-config config)
     (.bindRoot #'manager (AssetManager.))

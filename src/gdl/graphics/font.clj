@@ -1,6 +1,6 @@
 (ns gdl.graphics.font
   (:require [clojure.string :as str]
-            [x.x :refer [defcomponent]]
+            [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.unit-scale :refer [*unit-scale*]])
@@ -25,7 +25,7 @@
 
 (declare ^BitmapFont default-font)
 
-(defcomponent (keyword (ns-name *ns*)) _
+(defmodule _
   (lc/create [_]
     (.bindRoot #'default-font (BitmapFont.))) ; TODO does not work in world scale!
   (lc/dispose [_]
