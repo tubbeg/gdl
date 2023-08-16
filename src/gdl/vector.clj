@@ -120,3 +120,4 @@
 ; TODO comment from libgdx discord.
 (defn degree-minus [degree by]
   (rem (+ 360 (- degree by)) 360))
+; <@927315926032998421> I'm poking around, since I used to use Clojure quite a lot... in vector.clj, `(defn degree-minus [degree by] (mod (- degree by) 360))` would be a better implementation, because your current one with `rem` can return negative values if `by` is greater than `degree` by more than 360
