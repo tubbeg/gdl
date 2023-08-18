@@ -11,7 +11,8 @@
            [com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable]
            [com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window
             Button Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle
-            Label TooltipManager Tooltip TextTooltip]))
+            Label TooltipManager Tooltip TextTooltip
+            TextField]))
 
 ; TODO constructor fns type hint for result -> no reflection @ game.*
 ; => check @ game.* reflection warnings too... !
@@ -97,6 +98,9 @@
 
 (defn label [text]
   (Label. ^CharSequence text skin))
+
+(defn text-field [text]
+  (TextField. text skin))
 
 (defn actor [actfn]
   (proxy [Actor] []
