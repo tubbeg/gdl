@@ -6,11 +6,12 @@
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.gui :as gui])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
-           [com.badlogic.gdx.scenes.scene2d Stage Actor Group]
-           [com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable]
-           [com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window Button
+           (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
+           (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
+           (com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window Button
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
-            TextTooltip TextField SplitPane Stack Image]))
+            TextTooltip TextField SplitPane Stack Image)
+           (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
 
 (comment
  ; actor opts:
@@ -34,37 +35,25 @@
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
+(defn mouseover? [^Stage stage]
+  (let [[x y] (gui/mouse-position)]
+    (.hit stage x y true)))
+
 (declare ^Skin skin)
 
 ; TODO default skin not included in libgdx jar? check.
 (defmodule _
   (lc/create [_]
-    (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json"))))
+    (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
+    (when-not (VisUI/isLoaded) ; app has error before VisUI/dispose and we call refresh-all
+      (VisUI/load #_VisUI$SkinScale/X2)))
   (lc/dispose [_]
-    (.dispose skin)))
+    (.dispose skin)
+    (VisUI/dispose)))
 
-; custom skin code for using custom font.
 (comment
- (declare ^:dispose ^Skin skin)
-
- (defn create-skin
-   ([]
-    (create-skin default-skin))
-   ([skin]
-    (set-var-root #'skin skin)))
-
- ; TODO but how to arrange it that
- ; it will be created before other on-create??
- ; by leaving it declared only yes
- ; ...
-
-
-
- ; add my font to skin
- ; -> need to do before any things get created with the skin
- ; for example game/items/inventory on-create ... ui/window ...
- ; => how to set the skin before anything gets loaded ?
-
+ ; TODO set custom font with default skin - or set custom skin param
+ ; https://stackoverflow.com/questions/45523878/libgdx-skin-not-updating-when-changing-font-programmatically
  (let [empty-skin (Skin.)]
    (.add skin "font" my-font)
    ; skin.addRegion(new TextureAtlas(Gdx.files.internal("mySkin.atlas")));
@@ -76,11 +65,7 @@
    ; {
    ;   font: font
    ; }
-
-   )
- )
-
-; https://stackoverflow.com/questions/45523878/libgdx-skin-not-updating-when-changing-font-programmatically
+   ))
 
 (defn table ^Table []
   (Table.))
@@ -172,15 +157,9 @@ The preferred size of a window is the preferred size of the title text and the c
 (defn stack ^Stack []
   (Stack.))
 
-(defn mouseover? [^Stage stage]
-  (let [[x y] (gui/mouse-position)]
-    (.hit stage x y true)))
-
-(defn visible? [^Actor actor] (.isVisible actor))
-(defn name     [^Actor actor] (.getName   actor))
-
-(defn set-position [^Actor actor x y]
-  (.setPosition actor x y))
+(defn visible?     [^Actor actor]     (.isVisible   actor))
+(defn name         [^Actor actor]     (.getName     actor))
+(defn set-position [^Actor actor x y] (.setPosition actor x y))
 
 (defn image ^Image [^Drawable drawable]
   (Image. drawable))
