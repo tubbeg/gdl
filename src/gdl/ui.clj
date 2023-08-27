@@ -3,7 +3,6 @@
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.files :as files]
-            [gdl.graphics :as g]
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.gui :as gui])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
