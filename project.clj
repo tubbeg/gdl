@@ -1,6 +1,6 @@
 (def libgdx-version "1.12.0")
 
-(defproject gdl "main-SNAPSHOT"
+(defproject com.github.damn/gdl "main-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
   :dependencies [[org.clojure/clojure "1.11.1"]
 
