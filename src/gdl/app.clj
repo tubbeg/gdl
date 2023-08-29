@@ -40,7 +40,7 @@
    [:gdl.graphics.font]
    [:gdl.graphics.batch]
    [:gdl.graphics.shape-drawer]  ; after :gdl.graphics.batch
-   [:gdl.ui]])
+   [:gdl.scene2d.ui]])
 
 (def state (atom nil))
 
