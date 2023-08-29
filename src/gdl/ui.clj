@@ -27,6 +27,16 @@
 (defn name          [^Actor actor]     (.getName       actor))
 (defn set-position  [^Actor actor x y] (.setPosition   actor x y))
 
+(defn set-center [^Actor actor x y]
+  (.setPosition actor
+                (- x (/ (.getWidth  actor) 2))
+                (- y (/ (.getHeight actor) 2))))
+
+(defn set-center-screen [actor]
+  (set-center actor
+              (/ (gui/viewport-width)  2)
+              (/ (gui/viewport-height) 2)))
+
 (defn actors [^Stage stage]
   (.getActors stage))
 
