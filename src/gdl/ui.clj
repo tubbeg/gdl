@@ -4,47 +4,26 @@
             [gdl.lc :as lc]
             [gdl.files :as files]
             [gdl.graphics.batch :refer [batch]]
-            [gdl.graphics.gui :as gui])
+            [gdl.graphics.gui :as gui]
+            [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
-           (com.badlogic.gdx.scenes.scene2d Stage Actor Group Touchable)
+           (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window Button
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
 
-(defn set-touchable [^Actor actor touchable]
-  (.setTouchable actor (case touchable
-                         :children-only Touchable/childrenOnly
-                         :disabled      Touchable/disabled
-                         :enabled       Touchable/enabled
-                         Touchable/enabled)))
-
-(defn id            [^Actor actor]     (.getUserObject actor))
-(defn set-id        [^Actor actor id]  (.setUserObject actor id))
-(defn visible?      [^Actor actor]     (.isVisible     actor))
-(defn set-invisible [^Actor actor]     (.setVisible    actor false))
-(defn name          [^Actor actor]     (.getName       actor))
-(defn set-position  [^Actor actor x y] (.setPosition   actor x y))
-
-(defn set-center [^Actor actor x y]
-  (.setPosition actor
-                (- x (/ (.getWidth  actor) 2))
-                (- y (/ (.getHeight actor) 2))))
-
-(defn set-center-screen [actor]
-  (set-center actor
-              (/ (gui/viewport-width)  2)
-              (/ (gui/viewport-height) 2)))
-
 (defn actors [^Stage stage]
   (.getActors stage))
 
-(defn- find-actor-with-id [stage actor-id]
-  (assert (apply distinct? (keep id (actors stage)))
-          (str "Actor ids are not distinct: " (vec (keep id (actors stage)))))
-  (first (filter #(= actor-id (id %))
-                 (actors stage))))
+(defn- find-actor-with-id [stage id]
+  (let [actors (actors stage)
+        ids (keep actor/id actors)]
+    (assert (apply distinct? ids)
+            (str "Actor ids are not distinct: " (vec ids)))
+    (first (filter #(= id (actor/id %))
+                   actors))))
 
 (defn- stage-ilookup [viewport batch]
   (proxy [Stage clojure.lang.ILookup] [viewport batch]
@@ -144,18 +123,10 @@
 
 ; https://stackoverflow.com/questions/29771114/how-can-i-add-button-to-top-right-corner-of-a-dialog-in-libgdx
 ; window with close button
-(defn window
-  "A table that can be dragged and act as a modal window. The top padding is used as the window's title height.
-
-The preferred size of a window is the preferred size of the title text and the children as laid out by the table. After adding children to the window, it can be convenient to call WidgetGroup.pack() to size the window to the size of the children.
-
-  See https://javadoc.io/doc/com.badlogicgames.gdx/gdx/latest/com/badlogic/gdx/scenes/scene2d/ui/Window.html
-
-  Options: :title, :modal?"
-  ^Window [& {:keys [title modal? id]}]
-  (doto (Window. ^String title skin)
-    (.setModal (boolean modal?))
-    (.setUserObject id)))
+(defn window ^Window [& {:keys [title modal?] :as opts}]
+  (-> (doto (Window. ^String title skin)
+        (.setModal (boolean modal?)))
+      (actor/set-opts opts)))
 
 (defn label ^Label [text]
   (Label. ^CharSequence text skin))
