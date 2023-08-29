@@ -6,21 +6,47 @@
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.gui :as gui])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
-           (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
+           (com.badlogic.gdx.scenes.scene2d Stage Actor Group Touchable)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window Button
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
 
-(comment
- ; actor opts:
- ; .setName
- ; .setTouchable
- )
+(defn set-touchable [^Actor actor touchable]
+  (.setTouchable actor (case touchable
+                         :children-only Touchable/childrenOnly
+                         :disabled      Touchable/disabled
+                         :enabled       Touchable/enabled
+                         Touchable/enabled)))
+
+(defn id            [^Actor actor]     (.getUserObject actor))
+(defn set-id        [^Actor actor id]  (.setUserObject actor id))
+(defn visible?      [^Actor actor]     (.isVisible     actor))
+(defn set-invisible [^Actor actor]     (.setVisible    actor false))
+(defn name          [^Actor actor]     (.getName       actor))
+(defn set-position  [^Actor actor x y] (.setPosition   actor x y))
+
+(defn actors [^Stage stage]
+  (.getActors stage))
+
+(defn- find-actor-with-id [stage actor-id]
+  (assert (apply distinct? (keep id (actors stage)))
+          (str "Actor ids are not distinct: " (vec (keep id (actors stage)))))
+  (first (filter #(= actor-id (id %))
+                 (actors stage))))
+
+(defn- stage-ilookup [viewport batch]
+  (proxy [Stage clojure.lang.ILookup] [viewport batch]
+    (valAt
+      ([id]
+       (find-actor-with-id this id))
+      ([id not-found]
+       (or (find-actor-with-id this id)
+           not-found)))))
 
 (defn stage ^Stage []
-  (Stage. gui/viewport batch))
+  (stage-ilookup gui/viewport batch))
 
 (defn draw-stage [stage]
   ; Not using (.draw ^Stage stage) because we are already managing
@@ -116,9 +142,10 @@ The preferred size of a window is the preferred size of the title text and the c
   See https://javadoc.io/doc/com.badlogicgames.gdx/gdx/latest/com/badlogic/gdx/scenes/scene2d/ui/Window.html
 
   Options: :title, :modal?"
-  ^Window [& {:keys [title modal?]}]
+  ^Window [& {:keys [title modal? id]}]
   (doto (Window. ^String title skin)
-    (.setModal (boolean modal?))))
+    (.setModal (boolean modal?))
+    (.setUserObject id)))
 
 (defn label ^Label [text]
   (Label. ^CharSequence text skin))
@@ -156,10 +183,6 @@ The preferred size of a window is the preferred size of the title text and the c
 
 (defn stack ^Stack []
   (Stack.))
-
-(defn visible?     [^Actor actor]     (.isVisible   actor))
-(defn name         [^Actor actor]     (.getName     actor))
-(defn set-position [^Actor actor x y] (.setPosition actor x y))
 
 (defn image ^Image [^Drawable drawable]
   (Image. drawable))
