@@ -1,5 +1,4 @@
 (ns gdl.scene2d.ui
-  (:refer-clojure :exclude [name])
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.files :as files]
