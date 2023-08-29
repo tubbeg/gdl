@@ -65,7 +65,7 @@
        (into {})))
 
 (defn set-screen [k]
-  {:pre [(k @state)]}
+  (assert (contains? @state k) (str "Cannot find screen with key: " k " in state."))
   (when (::current-screen @state)
     (lc/hide (current-screen-component)))
   (swap! state assoc ::current-screen k)
