@@ -43,11 +43,13 @@
    [:gdl.ui]])
 
 (def state (atom nil))
-(def current-screen (atom nil))
 
-(defn- current-screen-component [] ;
-  (let [component-k @current-screen]
-    [component-k (get @state component-k)]))
+(defn- current-screen-component []
+  (let [k (::current-screen @state)]
+    [k (k @state)]))
+
+(defn current-screen-value []
+  ((::current-screen @state) @state))
 
 (defn- create-state [modules]
   ; turn state into a map after create, because order is important!
@@ -63,8 +65,10 @@
        (into {})))
 
 (defn set-screen [k]
-  (lc/hide (current-screen-component))
-  (reset! current-screen k)
+  {:pre [(k @state)]}
+  (when (::current-screen @state)
+    (lc/hide (current-screen-component)))
+  (swap! state assoc ::current-screen k)
   (lc/show (current-screen-component)))
 
 (defn- ->Game [{:keys [log-lc? modules first-screen] :as config}]
