@@ -8,7 +8,7 @@
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
-           (com.badlogic.gdx.scenes.scene2d.ui Table Skin TextButton CheckBox Window Button
+           (com.badlogic.gdx.scenes.scene2d.ui Cell Table Skin WidgetGroup TextButton CheckBox Window Button
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
@@ -81,8 +81,45 @@
    ; }
    ))
 
-(defn table ^Table []
-  (Table.))
+(defn set-cell-opts [^Cell cell opts]
+  (doseq [[option arg] opts]
+    (case option
+      :expand?    (.expand    cell)
+      :bottom?    (.bottom    cell)
+      :colspan    (.colspan   cell (int arg))
+      :pad-bottom (.padBottom cell (float arg)))) )
+
+(defn add-rows [^Table table rows]
+  (doseq [row rows]
+    (doseq [props-or-actor row]
+      (if (map? props-or-actor)
+        (-> (.add table ^Actor (:actor props-or-actor))
+            (set-cell-opts (dissoc props-or-actor :actor)))
+        (.add table ^Actor props-or-actor)))
+    (.row table))
+  table)
+
+(defn pack [^WidgetGroup widget-group]
+  (.pack widget-group))
+
+(defn set-widget-group-opts [^WidgetGroup widget-group {:keys [fill-parent? pack?]}]
+  (.setFillParent widget-group (boolean fill-parent?))
+  (when pack? (pack widget-group))
+  widget-group)
+
+(defn set-table-opts [^Table table {:keys [rows cell-defaults]}]
+  (set-cell-opts (.defaults table) cell-defaults)
+  (add-rows table rows))
+
+(defn set-opts [actor opts]
+  (actor/set-opts actor opts)
+  (when (instance? WidgetGroup actor) (set-widget-group-opts actor opts))
+  (when (instance? Table actor)       (set-table-opts        actor opts))
+  actor)
+
+(defn table ^Table [& opts]
+  (-> (Table.)
+      (set-opts opts)))
 
 (defn text-button ^TextButton [text on-clicked]
   (let [button (TextButton. ^String text skin)]
@@ -125,7 +162,7 @@
 (defn window ^Window [& {:keys [title modal?] :as opts}]
   (-> (doto (Window. ^String title skin)
         (.setModal (boolean modal?)))
-      (actor/set-opts opts)))
+      (set-opts opts)))
 
 (defn label ^Label [text]
   (Label. ^CharSequence text skin))
@@ -158,8 +195,11 @@
 (defn text-tooltip ^TextTooltip [textfn]
   (TextTooltip. "" (instant-show-tooltip-manager textfn) skin))
 
-(defn split-pane ^SplitPane [^Actor first-widget ^Actor second-widget ^Boolean vertical?]
-  (SplitPane. first-widget second-widget vertical? skin))
+(defn split-pane ^SplitPane [& {:keys [^Actor first-widget
+                                       ^Actor second-widget
+                                       ^Boolean vertical?] :as opts}]
+  (-> (SplitPane. first-widget second-widget vertical? skin)
+      (actor/set-opts opts)))
 
 (defn stack ^Stack []
   (Stack.))
