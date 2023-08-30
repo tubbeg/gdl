@@ -113,8 +113,8 @@
 
 (defn set-opts [actor opts]
   (actor/set-opts actor opts)
+  (when (instance? Table actor)       (set-table-opts        actor opts)) ; before widget-group-opts so pack is packing rows
   (when (instance? WidgetGroup actor) (set-widget-group-opts actor opts))
-  (when (instance? Table actor)       (set-table-opts        actor opts))
   actor)
 
 (defn table ^Table [& opts]
