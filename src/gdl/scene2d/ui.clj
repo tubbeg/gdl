@@ -2,8 +2,6 @@
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.files :as files]
-            [gdl.graphics.batch :refer [batch]]
-            [gdl.graphics.gui :as gui]
             [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
@@ -13,7 +11,7 @@
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
 
-(defn actors [^Stage stage]
+(defn actors [^Stage stage] ; TODO make stage seq-able.
   (.getActors stage))
 
 (defn- find-actor-with-id [stage id]
@@ -24,7 +22,7 @@
     (first (filter #(= id (actor/id %))
                    actors))))
 
-(defn- stage-ilookup [viewport batch]
+(defn stage ^Stage [viewport batch]
   (proxy [Stage clojure.lang.ILookup] [viewport batch]
     (valAt
       ([id]
@@ -33,10 +31,7 @@
        (or (find-actor-with-id this id)
            not-found)))))
 
-(defn stage ^Stage []
-  (stage-ilookup gui/viewport batch))
-
-(defn draw-stage [stage]
+(defn draw-stage [stage batch]
   ; Not using (.draw ^Stage stage) because we are already managing
   ; .setProjectionMatrix / begin / end of batch and setting unit-scale in g/render-with
   ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Stage.java#L119
@@ -49,20 +44,21 @@
 (defn update-stage [stage delta]
   (.act ^Stage stage delta))
 
-(defn mouseover? [^Stage stage]
-  (let [[x y] (gui/mouse-position)]
-    (.hit stage x y true)))
+(defn mouseover? [^Stage stage [x y]]
+  (.hit stage x y true))
 
-(declare ^Skin skin)
+(declare ^Skin default-skin)
 
-; TODO default skin not included in libgdx jar? check.
-(defmodule _
+(defn skin [file]
+  (Skin. file))
+
+(defmodule skin-file
   (lc/create [_]
-    (.bindRoot #'skin (Skin. (files/internal "scene2d.ui.skin/uiskin.json")))
+    (.bindRoot #'default-skin (skin (files/internal skin-file)))
     (when-not (VisUI/isLoaded) ; app has error before VisUI/dispose and we call refresh-all
       (VisUI/load #_VisUI$SkinScale/X2)))
   (lc/dispose [_]
-    (.dispose skin)
+    (.dispose default-skin)
     (VisUI/dispose)))
 
 (comment
@@ -122,7 +118,7 @@
       (set-opts opts)))
 
 (defn text-button ^TextButton [text on-clicked]
-  (let [button (TextButton. ^String text skin)]
+  (let [button (TextButton. ^String text default-skin)]
     (.addListener button
                   (proxy [ChangeListener] []
                     (changed [event actor]
@@ -130,7 +126,7 @@
     button))
 
 (defn check-box ^CheckBox [text on-clicked checked?]
-  (let [^Button button (CheckBox. ^String text skin)]
+  (let [^Button button (CheckBox. ^String text default-skin)]
     (.setChecked button checked?)
     (.addListener button
                   (proxy [ChangeListener] []
@@ -140,7 +136,7 @@
 
 ; TODO 'toggle' - imagebutton , :toggle true ?
 (defn image-button ^ImageButton [{:keys [^TextureRegion texture] :as image} on-clicked]
-  (let [style (ImageButton$ImageButtonStyle. ^Button$ButtonStyle (.get skin "toggle" Button$ButtonStyle))
+  (let [style (ImageButton$ImageButtonStyle. ^Button$ButtonStyle (.get default-skin "toggle" Button$ButtonStyle))
         _ (set! (.imageUp   style) (TextureRegionDrawable. texture))
         _ (set! (.imageDown style) (TextureRegionDrawable. texture))
         ; imageChecked
@@ -160,15 +156,15 @@
 ; https://stackoverflow.com/questions/29771114/how-can-i-add-button-to-top-right-corner-of-a-dialog-in-libgdx
 ; window with close button
 (defn window ^Window [& {:keys [title modal?] :as opts}]
-  (-> (doto (Window. ^String title skin)
+  (-> (doto (Window. ^String title default-skin)
         (.setModal (boolean modal?)))
       (set-opts opts)))
 
 (defn label ^Label [text]
-  (Label. ^CharSequence text skin))
+  (Label. ^CharSequence text default-skin))
 
 (defn text-field ^TextField [^String text]
-  (TextField. text skin))
+  (TextField. text default-skin))
 
 (defn actor ^Actor [actfn]
   (proxy [Actor] []
@@ -193,12 +189,12 @@
     manager))
 
 (defn text-tooltip ^TextTooltip [textfn]
-  (TextTooltip. "" (instant-show-tooltip-manager textfn) skin))
+  (TextTooltip. "" (instant-show-tooltip-manager textfn) default-skin))
 
 (defn split-pane ^SplitPane [& {:keys [^Actor first-widget
                                        ^Actor second-widget
                                        ^Boolean vertical?] :as opts}]
-  (-> (SplitPane. first-widget second-widget vertical? skin)
+  (-> (SplitPane. first-widget second-widget vertical? default-skin)
       (actor/set-opts opts)))
 
 (defn stack ^Stack []
