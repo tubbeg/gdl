@@ -2,9 +2,12 @@
   (:require [x.x :refer [update-map]]
             [gdl.lc :as lc]
             [gdl.graphics :as g]
+            [gdl.files :as files]
+            [gdl.graphics.batch :refer [sprite-batch]]
             [gdl.graphics.color :as color]
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
+            [gdl.scene2d.ui :as ui]
             [gdl.backends.lwjgl3 :as lwjgl3])
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
            com.badlogic.gdx.utils.ScreenUtils))
@@ -39,10 +42,10 @@
    [:gdl.graphics.gui]
    [:gdl.graphics.world (or tile-size 1)]
    [:gdl.graphics.font]
-   [:gdl.graphics.batch]
+   [:gdl.graphics.batch (sprite-batch)]
    [:gdl.graphics.shape-drawer]  ; requires batch
    ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-   [:gdl.scene2d.ui "scene2d.ui.skin/uiskin.json"]])
+   [:gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))]])
 
 (def state (atom nil))
 
@@ -73,24 +76,22 @@
   (swap! state assoc ::current-screen k)
   (lc/show (current-screen-component)))
 
-(defn- ->Game [{:keys [log-lc? modules first-screen] :as config}]
-  (let [modules (concat (default-modules config)
-                        modules)]
-    (when log-lc? (clojure.pprint/pprint modules))
-    (proxy [ApplicationAdapter] []
-      (create  []
-        (reset! state (create-state modules))
-        (set-screen first-screen))
-      (dispose []
-        (swap! state update-map lc/dispose))
-      (render []
-        (ScreenUtils/clear color/black)
-        (fix-viewport-update)
-        (lc/render (current-screen-component))
-        (lc/tick (current-screen-component)
-                 (* (g/delta-time) 1000)))
-      (resize [w h]
-        (on-resize w h)))))
+(defn- application-adapter [{:keys [log-lc? modules first-screen] :as config}]
+  (proxy [ApplicationAdapter] []
+    (create  []
+      (reset! state (create-state (concat (default-modules config)
+                                          modules)))
+      (set-screen first-screen))
+    (dispose []
+      (swap! state update-map lc/dispose))
+    (render []
+      (ScreenUtils/clear color/black)
+      (fix-viewport-update)
+      (lc/render (current-screen-component))
+      (lc/tick (current-screen-component)
+               (* (g/delta-time) 1000)))
+    (resize [w h]
+      (on-resize w h))))
 
 (comment
 
@@ -104,5 +105,5 @@
 
 
 (defn start [{:keys [window] :as config}]
-  (lwjgl3/create-app (->Game config)
+  (lwjgl3/create-app (application-adapter config)
                      window))

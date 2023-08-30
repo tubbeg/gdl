@@ -1,7 +1,6 @@
 (ns gdl.scene2d.ui
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
-            [gdl.files :as files]
             [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
@@ -49,17 +48,17 @@
 
 (declare ^Skin default-skin)
 
-(defn skin [file]
-  (Skin. file))
-
-(defmodule skin-file
+(defmodule user-skin
   (lc/create [_]
-    (.bindRoot #'default-skin (skin (files/internal skin-file)))
+    (.bindRoot #'default-skin user-skin)
     (when-not (VisUI/isLoaded) ; app has error before VisUI/dispose and we call refresh-all
       (VisUI/load #_VisUI$SkinScale/X2)))
   (lc/dispose [_]
     (.dispose default-skin)
     (VisUI/dispose)))
+
+(defn skin [file]
+  (Skin. file))
 
 (comment
  ; TODO set custom font with default skin - or set custom skin param
