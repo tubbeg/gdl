@@ -2,7 +2,8 @@
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
             [gdl.scene2d.actor :as actor])
-  (:import com.badlogic.gdx.graphics.g2d.TextureRegion
+  (:import com.badlogic.gdx.files.FileHandle
+           com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.badlogic.gdx.scenes.scene2d.ui Cell Table Skin WidgetGroup TextButton CheckBox Window Button
@@ -57,7 +58,7 @@
     (.dispose default-skin)
     (VisUI/dispose)))
 
-(defn skin [file]
+(defn skin [^FileHandle file]
   (Skin. file))
 
 (comment
