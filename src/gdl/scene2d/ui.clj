@@ -6,12 +6,16 @@
            com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
+           ; TODO unused objects remove... VisUI & also remove default-skin then
            (com.badlogic.gdx.scenes.scene2d.ui Cell Table Skin WidgetGroup TextButton CheckBox Window Button
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
             TextTooltip TextField SplitPane Stack Image)
-           (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
+           (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
+           (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisWindow VisLabel VisSplitPane VisCheckBox)))
 
-(defn actors [^Stage stage] ; TODO make stage seq-able.
+; TODO gdl.scene2d.stage ns.
+
+(defn actors [^Stage stage] ; TODO make stage seq-able
   (.getActors stage))
 
 (defn- find-actor-with-id [stage id]
@@ -83,6 +87,7 @@
       :expand?    (.expand    cell)
       :bottom?    (.bottom    cell)
       :colspan    (.colspan   cell (int arg))
+      :pad        (.pad       cell (float arg))
       :pad-bottom (.padBottom cell (float arg)))) )
 
 (defn add-rows [^Table table rows]
@@ -114,11 +119,11 @@
   actor)
 
 (defn table ^Table [& opts]
-  (-> (Table.)
+  (-> (VisTable.)
       (set-opts opts)))
 
 (defn text-button ^TextButton [text on-clicked]
-  (let [button (TextButton. ^String text default-skin)]
+  (let [button (VisTextButton. ^String text)]
     (.addListener button
                   (proxy [ChangeListener] []
                     (changed [event actor]
@@ -126,7 +131,7 @@
     button))
 
 (defn check-box ^CheckBox [text on-clicked checked?]
-  (let [^Button button (CheckBox. ^String text default-skin)]
+  (let [^Button button (VisCheckBox. ^String text)]
     (.setChecked button checked?)
     (.addListener button
                   (proxy [ChangeListener] []
@@ -156,15 +161,15 @@
 ; https://stackoverflow.com/questions/29771114/how-can-i-add-button-to-top-right-corner-of-a-dialog-in-libgdx
 ; window with close button
 (defn window ^Window [& {:keys [title modal?] :as opts}]
-  (-> (doto (Window. ^String title default-skin)
+  (-> (doto (VisWindow. ^String title)
         (.setModal (boolean modal?)))
       (set-opts opts)))
 
 (defn label ^Label [text]
-  (Label. ^CharSequence text default-skin))
+  (VisLabel. ^CharSequence text))
 
-(defn text-field ^TextField [^String text]
-  (TextField. text default-skin))
+(defn text-field ^VisTextField [^String text]
+  (VisTextField. text))
 
 (defn actor ^Actor [actfn]
   (proxy [Actor] []
@@ -188,17 +193,18 @@
     (.hideAll manager)
     manager))
 
+; TODO VisToolTip
 (defn text-tooltip ^TextTooltip [textfn]
   (TextTooltip. "" (instant-show-tooltip-manager textfn) default-skin))
 
 (defn split-pane ^SplitPane [& {:keys [^Actor first-widget
                                        ^Actor second-widget
                                        ^Boolean vertical?] :as opts}]
-  (-> (SplitPane. first-widget second-widget vertical? default-skin)
+  (-> (VisSplitPane. first-widget second-widget vertical?)
       (actor/set-opts opts)))
 
 (defn stack ^Stack []
   (Stack.))
 
-(defn image ^Image [^Drawable drawable]
-  (Image. drawable))
+(defn image ^Image [{:keys [texture]}]
+  (Image. (TextureRegionDrawable. ^TextureRegion texture)))
