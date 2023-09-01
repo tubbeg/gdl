@@ -4,7 +4,7 @@
             [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.graphics.g2d.TextureRegion
-           (com.badlogic.gdx.scenes.scene2d Stage Actor Group)
+           com.badlogic.gdx.scenes.scene2d.Actor
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            ; TODO unused objects remove... VisUI & also remove default-skin then
            (com.badlogic.gdx.scenes.scene2d.ui Cell Table Skin WidgetGroup TextButton CheckBox Window Button
@@ -12,44 +12,6 @@
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisWindow VisLabel VisSplitPane VisCheckBox)))
-
-; TODO gdl.scene2d.stage ns.
-
-(defn actors [^Stage stage] ; TODO make stage seq-able
-  (.getActors stage))
-
-(defn- find-actor-with-id [stage id]
-  (let [actors (actors stage)
-        ids (keep actor/id actors)]
-    (assert (apply distinct? ids)
-            (str "Actor ids are not distinct: " (vec ids)))
-    (first (filter #(= id (actor/id %))
-                   actors))))
-
-(defn stage ^Stage [viewport batch]
-  (proxy [Stage clojure.lang.ILookup] [viewport batch]
-    (valAt
-      ([id]
-       (find-actor-with-id this id))
-      ([id not-found]
-       (or (find-actor-with-id this id)
-           not-found)))))
-
-(defn draw-stage [stage batch]
-  ; Not using (.draw ^Stage stage) because we are already managing
-  ; .setProjectionMatrix / begin / end of batch and setting unit-scale in g/render-with
-  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Stage.java#L119
-  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Group.java#L56
-  ; => use inside g/render-gui
-  (.draw ^Group (.getRoot ^Stage stage)
-         batch
-         (float 1)))
-
-(defn update-stage [stage delta]
-  (.act ^Stage stage delta))
-
-(defn mouseover? [^Stage stage [x y]]
-  (.hit stage x y true))
 
 (declare ^Skin default-skin)
 
@@ -170,11 +132,6 @@
 
 (defn text-field ^VisTextField [^String text]
   (VisTextField. text))
-
-(defn actor ^Actor [actfn]
-  (proxy [Actor] []
-    (act [delta]
-      (actfn))))
 
 ; TODO the tooltip manager sets my spritebatch color to 0.2 alpha for short time
 ; TODO also the widget where the tooltip is attached is flickering after
