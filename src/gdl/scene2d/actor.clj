@@ -6,9 +6,15 @@
 (defn set-id        [^Actor actor id]  (.setUserObject actor id))
 (defn visible?      [^Actor actor]     (.isVisible     actor))
 (defn set-invisible [^Actor actor]     (.setVisible    actor false))
+(defn set-visible   [^Actor actor v?]  (.setVisible    actor v?))
 (defn set-position  [^Actor actor x y] (.setPosition   actor x y))
 (defn width         [^Actor actor]     (.getWidth      actor))
 (defn height        [^Actor actor]     (.getHeight     actor))
+(defn set-width     [^Actor actor w]   (.setWidth      actor (float w)))
+(defn set-height    [^Actor actor h]   (.setHeight     actor (float h)))
+
+(defn toggle-visible [actor]
+  (set-visible actor (not (visible? actor))))
 
 (defn remove
   "Removes this actor from its parent, if it has a parent. Returns a boolean."
@@ -31,7 +37,7 @@
       (set-id id))
   actor)
 
-(defn create [& {:keys [act draw]}]
+(defn create ^Actor [& {:keys [act draw]}]
   (proxy [Actor] []
     (act [delta]
       (when act (act delta)))

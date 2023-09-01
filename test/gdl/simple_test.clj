@@ -1,6 +1,7 @@
 (ns gdl.simple-test
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
+            [gdl.utils :refer [dispose]]
             [gdl.app :as app]
             [gdl.files :as files]
             [gdl.graphics.world :as world]
@@ -26,10 +27,9 @@
                      :text (str "exl-font\n" the-str)
                      :x gx,:y gy,:h-align :left,:up? false})))
 
-(defmodule
-  font
+(defmodule font
   (lc/create [_] (gen-font))
-  (lc/dispose [_] (.dispose font))
+  (lc/dispose [_] (dispose font))
   (lc/render [_]
     (gui/render #(render-mouse-coordinates font))))
 

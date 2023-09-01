@@ -134,6 +134,9 @@
 (defn label ^Label [text]
   (VisLabel. ^CharSequence text))
 
+(defn set-text [^Label label ^CharSequence text]
+  (.setText label text))
+
 (defn text-field ^VisTextField [^String text]
   (VisTextField. text))
 
@@ -158,9 +161,11 @@
 (defn text-tooltip ^TextTooltip [textfn]
   (TextTooltip. "" (instant-show-tooltip-manager textfn) default-skin))
 
-(defn split-pane ^SplitPane [& {:keys [^Actor first-widget
-                                       ^Actor second-widget
-                                       ^Boolean vertical?] :as opts}]
+; TODO is not decendend of SplitPane anymore => check all type hints here
+
+(defn split-pane ^VisSplitPane [& {:keys [^Actor first-widget
+                                          ^Actor second-widget
+                                          ^Boolean vertical?] :as opts}]
   (-> (VisSplitPane. first-widget second-widget vertical?)
       (actor/set-opts opts)))
 
