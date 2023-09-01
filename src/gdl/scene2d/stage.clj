@@ -32,7 +32,7 @@
     (first (filter #(= id (actor/id %))
                    actors))))
 
-(defn create [viewport batch]
+(defn create ^Stage [viewport batch]
   (proxy [Stage clojure.lang.ILookup] [viewport batch]
     (valAt
       ([id]

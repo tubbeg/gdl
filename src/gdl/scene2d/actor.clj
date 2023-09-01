@@ -36,4 +36,4 @@
     (act [delta]
       (when act (act delta)))
     (draw [_batch _parent-alpha]
-      (when draw (draw)))))
+      (when draw (draw this)))))

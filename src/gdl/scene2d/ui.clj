@@ -13,13 +13,17 @@
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisWindow VisLabel VisSplitPane VisCheckBox)))
 
+; TODO use VisToolTip -> remove default-skin
+
 (declare ^Skin default-skin)
 
 (defmodule user-skin
   (lc/create [_]
     (.bindRoot #'default-skin user-skin)
-    (when-not (VisUI/isLoaded) ; app has error before VisUI/dispose and we call refresh-all
-      (VisUI/load #_VisUI$SkinScale/X2)))
+    ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
+    (when (VisUI/isLoaded)
+      (VisUI/dispose))
+    (VisUI/load #_VisUI$SkinScale/X2))
   (lc/dispose [_]
     (.dispose default-skin)
     (VisUI/dispose)))
@@ -163,5 +167,8 @@
 (defn stack ^Stack []
   (Stack.))
 
-(defn image ^Image [{:keys [texture]}]
-  (Image. (TextureRegionDrawable. ^TextureRegion texture)))
+(defn image ^Image [^Drawable drawable]
+  (Image. drawable))
+
+(defn texture-region-drawable ^TextureRegionDrawable [^TextureRegion texture]
+  (TextureRegionDrawable. texture))
