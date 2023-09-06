@@ -39,11 +39,12 @@
                  :sound-files-extensions #{"wav"}
                  :image-files-extensions #{"png" "bmp"}
                  :log-load-assets? false}]
+   ; TODO add viewports/cameras here FitViewport user-choice !
    [:gdl.graphics.gui]
    [:gdl.graphics.world (or tile-size 1)]
    [:gdl.graphics.font]
    [:gdl.graphics.batch (sprite-batch)]
-   [:gdl.graphics.shape-drawer]  ; requires batch
+   [:gdl.graphics.shape-drawer]  ; requires batch => just pass it here, let over all !
    ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
    [:gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))]])
 

@@ -21,6 +21,8 @@
   (lc/create [_]
     (.bindRoot #'default-skin user-skin)
     ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
+    ; => actually there is a deeper issue at play
+    ; we need to dispose ALL resources which were loaded already ...
     (when (VisUI/isLoaded)
       (VisUI/dispose))
     (VisUI/load #_VisUI$SkinScale/X2))
@@ -137,8 +139,9 @@
 (defn set-text [^Label label ^CharSequence text]
   (.setText label text))
 
-(defn text-field ^VisTextField [^String text]
-  (VisTextField. text))
+(defn text-field ^VisTextField [^String text & opts]
+  (-> (VisTextField. text)
+      (set-opts opts)))
 
 ; TODO the tooltip manager sets my spritebatch color to 0.2 alpha for short time
 ; TODO also the widget where the tooltip is attached is flickering after
@@ -172,8 +175,9 @@
 (defn stack ^Stack []
   (Stack.))
 
-(defn image ^Image [^Drawable drawable]
-  (Image. drawable))
+(defn image ^Image [^Drawable drawable & opts]
+  (-> (Image. drawable)
+      (set-opts opts)))
 
 (defn texture-region-drawable ^TextureRegionDrawable [^TextureRegion texture]
   (TextureRegionDrawable. texture))
