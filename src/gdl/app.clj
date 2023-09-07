@@ -12,14 +12,11 @@
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
            com.badlogic.gdx.utils.ScreenUtils))
 
-(defn app ^Application []
-  Gdx/app)
-
 (defn exit []
-  (.exit (app)))
+  (.exit Gdx/app))
 
 (defmacro with-context [& exprs]
-  `(.postRunnable (app) (fn [] ~@exprs)))
+  `(.postRunnable Gdx/app (fn [] ~@exprs)))
 
 (defn- on-resize [w h]
   (let [center-camera? true]
