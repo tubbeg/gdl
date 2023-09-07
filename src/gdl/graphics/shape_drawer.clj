@@ -5,7 +5,7 @@
            com.badlogic.gdx.graphics.g2d.TextureRegion
            space.earlygrey.shapedrawer.ShapeDrawer))
 
-(defn- gen-drawer-texture []
+(defn- gen-drawer-texture ^Texture []
   (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                  (.setColor Color/WHITE)
                  (.drawPixel 0 0))
@@ -21,7 +21,7 @@
       (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. texture 0 0 1 1)))
       texture))
   (lc/dispose [_]
-    (.dispose texture)))
+    (.dispose ^Texture texture)))
 
 (defn- set-color! [^Color color]
   (.setColor drawer color))
