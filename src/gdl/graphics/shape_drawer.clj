@@ -1,29 +1,27 @@
 (ns gdl.graphics.shape-drawer
   (:require [x.x :refer [defmodule]]
-            [gdl.lc :as lc]
-            [gdl.graphics.color :as color]
-            [gdl.graphics.batch :refer [batch]])
+            [gdl.lc :as lc])
   (:import [com.badlogic.gdx.graphics Texture Pixmap Pixmap$Format Color]
            com.badlogic.gdx.graphics.g2d.TextureRegion
            space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn- gen-drawer-texture []
   (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
-                 (.setColor color/white)
+                 (.setColor Color/WHITE)
                  (.drawPixel 0 0))
         texture (Texture. pixmap)]
     (.dispose pixmap)
     texture))
 
-(declare ^:private ^Texture drawer-texture
-         ^ShapeDrawer drawer)
+(declare ^ShapeDrawer drawer)
 
-(defmodule _
-  (lc/create [_]
-    (.bindRoot #'drawer-texture (gen-drawer-texture))
-    (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. drawer-texture 0 0 1 1))))
+(defmodule texture
+  (lc/create [[_ batch]]
+    (let [texture (gen-drawer-texture)]
+      (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. texture 0 0 1 1)))
+      texture))
   (lc/dispose [_]
-    (.dispose drawer-texture)))
+    (.dispose texture)))
 
 (defn- set-color! [^Color color]
   (.setColor drawer color))

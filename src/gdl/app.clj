@@ -31,19 +31,20 @@
     (on-resize (g/screen-width) (g/screen-height))))
 
 (defn- default-modules [{:keys [tile-size]}]
-  [[:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
-                 :sounds-folder "sounds/"
-                 :sound-files-extensions #{"wav"}
-                 :image-files-extensions #{"png" "bmp"}
-                 :log-load-assets? false}]
-   ; TODO add viewports/cameras here FitViewport user-choice !
-   [:gdl.graphics.gui]
-   [:gdl.graphics.world (or tile-size 1)]
-   [:gdl.graphics.font]
-   [:gdl.graphics.batch (sprite-batch)]
-   [:gdl.graphics.shape-drawer]  ; requires batch => just pass it here, let over all !
-   ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-   [:gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))]])
+  (let [batch (sprite-batch)]
+    [[:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
+                   :sounds-folder "sounds/"
+                   :sound-files-extensions #{"wav"}
+                   :image-files-extensions #{"png" "bmp"}
+                   :log-load-assets? false}]
+     ; TODO add viewports/cameras here FitViewport user-choice !
+     [:gdl.graphics.gui]
+     [:gdl.graphics.world (or tile-size 1)]
+     [:gdl.graphics.font]
+     [:gdl.graphics.batch batch]
+     [:gdl.graphics.shape-drawer batch]
+     ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
+     [:gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))]]))
 
 (def state (atom nil))
 
