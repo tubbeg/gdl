@@ -1,10 +1,13 @@
 (ns gdl.app
   (:require [x.x :refer [update-map]]
             [gdl.lc :as lc]
+            gdl.assets
             [gdl.graphics :as g]
             [gdl.files :as files]
             [gdl.graphics.batch :refer [sprite-batch]]
             [gdl.graphics.color :as color]
+            gdl.graphics.shape-drawer
+            gdl.graphics.font
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
             [gdl.scene2d.ui :as ui]
@@ -55,16 +58,17 @@
 (defn current-screen-value []
   ((::current-screen @state) @state))
 
+(defn- assert-module-loaded [k]
+  (let [ns-sym (-> k name symbol)]
+    (assert (find-ns ns-sym)
+            (str "Cannot find module namespace " ns-sym))))
+
 (defn- create-state [modules]
   ; turn state into a map after create, because order is important!
   (assert (apply distinct? (map first modules)))
   (->> (for [[k v] modules]
          (do
-          ;(println "Create > " k)
-          (let [ns-sym (-> k name symbol)]
-            (or (find-ns ns-sym)
-                (require ns-sym))
-            (assert (find-ns ns-sym)))
+          (assert-module-loaded k)
           [k (lc/create [k v])]))
        (into {})))
 
