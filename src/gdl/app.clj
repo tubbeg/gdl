@@ -96,17 +96,6 @@
     (resize [w h]
       (on-resize w h))))
 
-(comment
-
- ; TODO? modules internal state, functional way? impractical?
- ; TODO pass without * 1000 => speed/everything is in seconds anyway
-
- (clojure.pprint/pprint @state)
-
- )
-
-
-
 (defn start [{:keys [window] :as config}]
   (lwjgl3/create-app (application-adapter config)
                      window))

@@ -15,8 +15,6 @@
 ; * -> I cache only dimensions & scale for my texture-regions
 ; * color & rotation applied on rendering
 
-; TODO one 'draw' with options scale,rotation,color,etc.
-
 (defn- draw-texture [texture [x y] [w h] rotation color]
   (if color (.setColor batch color))
   (.draw batch texture

@@ -22,6 +22,5 @@
       (.setWindowedMode config width height))
     config))
 
-; TODO docstring
 (defn create-app [game config]
   (Lwjgl3Application. game (configuration config)))
