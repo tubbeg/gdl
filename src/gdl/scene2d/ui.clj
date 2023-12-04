@@ -126,12 +126,16 @@
                       (on-clicked))))
     button))
 
-; https://stackoverflow.com/questions/29771114/how-can-i-add-button-to-top-right-corner-of-a-dialog-in-libgdx
-; window with close button
+(defn- add-window-close-button [^Window window]
+  (.add (.getTitleTable window)
+        (text-button "x" #(.setVisible window false)))
+  window)
+
 (defn window ^Window [& {:keys [title modal?] :as opts}]
   (-> (doto (VisWindow. ^String title)
         (.setModal (boolean modal?)))
-      (set-opts opts)))
+      (set-opts opts)
+      add-window-close-button))
 
 (defn label ^Label [text]
   (VisLabel. ^CharSequence text))
