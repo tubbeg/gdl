@@ -4,7 +4,7 @@
             gdl.assets
             [gdl.graphics :as g]
             [gdl.files :as files]
-            [gdl.graphics.batch :refer [sprite-batch]]
+            gdl.graphics.batch
             [gdl.graphics.color :as color]
             gdl.graphics.shape-drawer
             gdl.graphics.font
@@ -13,7 +13,8 @@
             [gdl.scene2d.ui :as ui]
             [gdl.backends.lwjgl3 :as lwjgl3])
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
-           com.badlogic.gdx.utils.ScreenUtils))
+           com.badlogic.gdx.utils.ScreenUtils
+           com.badlogic.gdx.graphics.g2d.SpriteBatch))
 
 (defn exit []
   (.exit Gdx/app))
@@ -34,7 +35,7 @@
     (on-resize (g/screen-width) (g/screen-height))))
 
 (defn- default-modules [{:keys [tile-size]}]
-  (let [batch (sprite-batch)]
+  (let [batch (SpriteBatch.)]
     [[:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
                    :sound-files-extensions #{"wav"}
                    :image-files-extensions #{"png" "bmp"}

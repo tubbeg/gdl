@@ -1,7 +1,7 @@
 (ns gdl.graphics.batch
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc])
-  (:import (com.badlogic.gdx.graphics.g2d Batch SpriteBatch)))
+  (:import com.badlogic.gdx.graphics.g2d.Batch))
 
 (declare ^Batch batch)
 
@@ -10,6 +10,3 @@
     (.bindRoot #'batch user-batch))
   (lc/dispose [_]
     (.dispose batch)))
-
-(defn sprite-batch []
-  (SpriteBatch.))
