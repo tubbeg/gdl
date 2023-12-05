@@ -36,7 +36,6 @@
 (defn- default-modules [{:keys [tile-size]}]
   (let [batch (sprite-batch)]
     [[:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
-                   :sounds-folder "sounds/"
                    :sound-files-extensions #{"wav"}
                    :image-files-extensions #{"png" "bmp"}
                    :log-load-assets? false}]

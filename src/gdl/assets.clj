@@ -6,8 +6,7 @@
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.graphics.Texture))
 
-(declare ^:private ^AssetManager manager
-         ^:private sounds-folder)
+(declare ^:private ^AssetManager manager)
 
 (defn- load-assets [folder file-extensions ^Class klass log-load-assets?]
   (doseq [file (files/recursively-search-files folder file-extensions)]
@@ -17,7 +16,6 @@
 
 (defn- check-config [config]
   (doseq [k [:folder
-             :sounds-folder
              :log-load-assets?
              :sound-files-extensions
              :image-files-extensions]]
@@ -25,7 +23,6 @@
             (str "config key(s) missing: " k))))
 
 (defmodule {:keys [folder
-                   sounds-folder
                    log-load-assets?
                    sound-files-extensions
                    image-files-extensions]
@@ -33,7 +30,6 @@
   (lc/create [_]
     (check-config config)
     (.bindRoot #'manager (AssetManager.))
-    (.bindRoot #'sounds-folder sounds-folder)
     (load-assets folder sound-files-extensions Sound   log-load-assets?)
     (load-assets folder image-files-extensions Texture log-load-assets?)
     (.finishLoading manager))
@@ -44,9 +40,7 @@
   (.get manager ^String file ^Class klass))
 
 (defn ^Sound get-sound [file]
-  (get-asset (str sounds-folder file) Sound))
+  (get-asset file Sound))
 
 (defn ^Texture get-texture [file]
   (get-asset file Texture))
-
-
