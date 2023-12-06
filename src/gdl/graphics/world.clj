@@ -67,5 +67,5 @@
            y (range (int bottom-y) (+ 2 (int top-y)))]
       [x y])))
 
-(defn render [renderfn]
-  (gdl.render/render-with unit-scale camera renderfn))
+(defn render [batch renderfn]
+  (gdl.render/render-with batch unit-scale camera renderfn))

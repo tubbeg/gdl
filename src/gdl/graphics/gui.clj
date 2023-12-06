@@ -25,5 +25,5 @@
 (defn viewport-width  [] (.getWorldWidth  viewport))
 (defn viewport-height [] (.getWorldHeight viewport))
 
-(defn render [renderfn]
-  (gdl.render/render-with unit-scale camera renderfn))
+(defn render [batch renderfn]
+  (gdl.render/render-with batch unit-scale camera renderfn))

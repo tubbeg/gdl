@@ -4,6 +4,7 @@
             [gdl.utils :refer [dispose]]
             [gdl.app :as app]
             [gdl.files :as files]
+            [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.world :as world]
             [gdl.graphics.gui :as gui]
             [gdl.graphics.font :as font]
@@ -19,24 +20,24 @@
     (dispose special-font)
     (dispose default-font))
   (lc/render [_]
-    (gui/render
-     (fn [unit-scale]
-       (let [context {:default-font default-font
-                      :unit-scale unit-scale
-                      :batch gdl.graphics.batch/batch}
-             [wx wy] (map #(format "%.2f" %) (world/mouse-position))
-             [gx gy] (gui/mouse-position)
-             the-str (str "World x " wx "\n"
-                          "World y " wy "\n"
-                          "GUI x " gx "\n"
-                          "GUI y " gy "\n")]
-         (font/draw-text context
-                         {:text (str "default-font\n" the-str)
-                          :x gx,:y gy,:h-align nil,:up? true})
-         (font/draw-text context
-                         {:font special-font
-                          :text (str "exl-font\n" the-str)
-                          :x gx,:y gy,:h-align :left,:up? false}))))))
+    (gui/render batch
+                (fn [unit-scale]
+                  (let [context {:default-font default-font
+                                 :unit-scale unit-scale
+                                 :batch batch}
+                        [wx wy] (map #(format "%.2f" %) (world/mouse-position))
+                        [gx gy] (gui/mouse-position)
+                        the-str (str "World x " wx "\n"
+                                     "World y " wy "\n"
+                                     "GUI x " gx "\n"
+                                     "GUI y " gy "\n")]
+                    (font/draw-text context
+                                    {:text (str "default-font\n" the-str)
+                                     :x gx,:y gy,:h-align nil,:up? true})
+                    (font/draw-text context
+                                    {:font special-font
+                                     :text (str "exl-font\n" the-str)
+                                     :x gx,:y gy,:h-align :left,:up? false}))))))
 
 (defn app []
   (app/start {:window {:title "gdl demo"
