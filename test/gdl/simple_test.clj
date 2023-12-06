@@ -20,9 +20,9 @@
     (dispose default-font))
   (lc/render [_]
     (gui/render
-     (fn []
+     (fn [unit-scale]
        (let [context {:default-font default-font
-                      :unit-scale gdl.graphics.unit-scale/*unit-scale*
+                      :unit-scale unit-scale
                       :batch gdl.graphics.batch/batch}
              [wx wy] (map #(format "%.2f" %) (world/mouse-position))
              [gx gy] (gui/mouse-position)
