@@ -4,4 +4,3 @@
 (defn screen-width  [] (.getWidth           Gdx/graphics))
 (defn screen-height [] (.getHeight          Gdx/graphics))
 (defn fps           [] (.getFramesPerSecond Gdx/graphics))
-(defn delta-time    [] (.getDeltaTime       Gdx/graphics))

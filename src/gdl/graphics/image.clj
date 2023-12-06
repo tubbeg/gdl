@@ -1,6 +1,5 @@
 (ns gdl.graphics.image
   (:require [gdl.assets :as assets]
-            [gdl.graphics :as g]
             [gdl.graphics.color :as color]
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.unit-scale :refer [*unit-scale*]]

@@ -1,6 +1,5 @@
 (ns gdl.tiled
-  (:require [gdl.graphics :as g]
-            [gdl.graphics.batch :refer [batch]]
+  (:require [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.world :as world])
   (:import [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile

@@ -92,7 +92,7 @@
       (fix-viewport-update)
       (lc/render (current-screen-component))
       (lc/tick (current-screen-component)
-               (* (g/delta-time) 1000)))
+               (* (.getDeltaTime Gdx/graphics) 1000)))
     (resize [w h]
       (on-resize w h))))
 
