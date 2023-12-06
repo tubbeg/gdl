@@ -1,10 +1,7 @@
 (ns gdl.graphics
-  (:import (com.badlogic.gdx Gdx Graphics)))
+  (:import com.badlogic.gdx.Gdx))
 
-(defn graphics ^Graphics []
-  Gdx/graphics)
-
-(defn screen-width  [] (.getWidth           (graphics)))
-(defn screen-height [] (.getHeight          (graphics)))
-(defn fps           [] (.getFramesPerSecond (graphics)))
-(defn delta-time    [] (.getDeltaTime       (graphics)))
+(defn screen-width  [] (.getWidth           Gdx/graphics))
+(defn screen-height [] (.getHeight          Gdx/graphics))
+(defn fps           [] (.getFramesPerSecond Gdx/graphics))
+(defn delta-time    [] (.getDeltaTime       Gdx/graphics))
