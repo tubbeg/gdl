@@ -62,19 +62,13 @@
   (set-color color)
   (.sector drawer centre-x centre-y radius start-angle (degree->radians degree)))
 
-(defn rectangle
-  ([[x y w h] color]
-   (rectangle x y w h color))
-  ([x y w h color]
-   (set-color color)
-   (.rectangle drawer x y w h)))
+(defn rectangle [x y w h color]
+  (set-color color)
+  (.rectangle drawer x y w h))
 
-(defn filled-rectangle
-  ([[x y w h] color]
-   (filled-rectangle x y w h color))
-  ([x y w h color]
-   (set-color color)
-   (.filledRectangle drawer (float x) (float y) (float w) (float h))))
+(defn filled-rectangle [x y w h color]
+  (set-color color)
+  (.filledRectangle drawer (float x) (float y) (float w) (float h)))
 
 (defn line
   ([[x y] [ex ey] color]
