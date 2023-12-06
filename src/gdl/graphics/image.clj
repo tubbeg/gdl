@@ -80,14 +80,15 @@
            :pixel-dimensions pixel-dimensions
            :world-unit-dimensions (mapv (partial * world/unit-scale) pixel-dimensions))))
 
+; (.getTextureData (.getTexture (:texture (first (:frames (:animation @(game.db/get-entity 1)))))))
+; can remove :file @ Image because its in texture-data
+; only TextureRegion doesn't have toString , can implement myself ? so can see which image is being used (in case)
 (defrecord Image [file ; -> is in texture data, can remove.
                   texture ; -region ?
                   sub-image-bounds ; => is in texture-region data?
                   scale
-
                   pixel-dimensions
                   world-unit-dimensions
-
                   tilew
                   tileh])
 
