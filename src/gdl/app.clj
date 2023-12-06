@@ -5,7 +5,6 @@
             [gdl.graphics :as g]
             [gdl.files :as files]
             gdl.graphics.batch
-            [gdl.graphics.color :as color]
             gdl.graphics.shape-drawer
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
@@ -13,6 +12,7 @@
             [gdl.backends.lwjgl3 :as lwjgl3])
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
            com.badlogic.gdx.utils.ScreenUtils
+           com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.graphics.g2d.SpriteBatch))
 
 (defn exit []
@@ -86,7 +86,7 @@
     (dispose []
       (swap! state update-map lc/dispose))
     (render []
-      (ScreenUtils/clear color/black)
+      (ScreenUtils/clear Color/BLACK)
       (fix-viewport-update)
       (lc/render (current-screen-component))
       (lc/tick (current-screen-component)

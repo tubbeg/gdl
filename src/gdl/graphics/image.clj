@@ -1,11 +1,11 @@
 (ns gdl.graphics.image
   (:require [gdl.assets :as assets]
-            [gdl.graphics.color :as color]
             [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.unit-scale :refer [*unit-scale*]]
             [gdl.graphics.world :as world]
             [gdl.graphics.gui :as gui])
-  (:import com.badlogic.gdx.graphics.g2d.TextureRegion))
+  (:import com.badlogic.gdx.graphics.Color
+           com.badlogic.gdx.graphics.g2d.TextureRegion))
 
 ; Explanation why not using libgdx Sprite class:
 ; * mutable fields
@@ -26,7 +26,7 @@
          1 ; scaling factor
          1
          rotation)
-  (if color (.setColor batch color/white)))
+  (if color (.setColor batch Color/WHITE)))
 
 (defn- unit-dimensions [image]
   {:pre [(bound? #'*unit-scale*)]}
