@@ -7,7 +7,6 @@
             gdl.graphics.batch
             [gdl.graphics.color :as color]
             gdl.graphics.shape-drawer
-            gdl.graphics.font
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
             [gdl.scene2d.ui :as ui]
@@ -43,7 +42,6 @@
      ; TODO add viewports/cameras here FitViewport user-choice !
      [:gdl.graphics.gui]
      [:gdl.graphics.world (or tile-size 1)]
-     [:gdl.graphics.font]
      [:gdl.graphics.batch batch]
      [:gdl.graphics.shape-drawer batch]
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
