@@ -6,14 +6,15 @@
             gdl.graphics.shape-drawer
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
-            [gdl.scene2d.ui :as ui]
-            [gdl.backends.lwjgl3 :as lwjgl3])
+            [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.utils.ScreenUtils
            (com.badlogic.gdx.graphics Color Texture)
-           com.badlogic.gdx.graphics.g2d.SpriteBatch))
+           com.badlogic.gdx.graphics.g2d.SpriteBatch
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
+           com.badlogic.gdx.utils.SharedLibraryLoader))
 
 (defn exit []
   (.exit Gdx/app))
@@ -96,7 +97,7 @@
   (swap! state assoc ::current-screen k)
   (lc/show (current-screen-component)))
 
-(defn- application-adapter [{:keys [log-lc? modules first-screen] :as config}]
+(defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
       (reset! state
@@ -116,6 +117,19 @@
     (resize [w h]
       (on-resize w h))))
 
-(defn start [{:keys [window] :as config}]
-  (lwjgl3/create-app (application-adapter config)
-                     window))
+(defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
+  #_(when SharedLibraryLoader/isMac
+      (mac-dock-icon/set-mac-os-dock-icon))
+  ; https://github.com/trptr/java-wrapper/blob/39a0947f4e90857512c1999537d0de83d130c001/src/trptr/java_wrapper/locale.clj#L87
+  ; cond->
+  (let [config (doto (Lwjgl3ApplicationConfiguration.)
+                 (.setTitle title)
+                 (.setForegroundFPS (or fps 60)))]
+    (if full-screen?
+      (.setFullscreenMode config (Lwjgl3ApplicationConfiguration/getDisplayMode))
+      (.setWindowedMode config width height))
+    config))
+
+(defn start [config]
+  (Lwjgl3Application. (application-adapter config)
+                      (lwjgl3-configuration (:app config))))

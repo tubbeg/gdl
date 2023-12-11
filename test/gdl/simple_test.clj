@@ -39,10 +39,9 @@
                                      :x gx,:y gy,:h-align :left,:up? false}))))))
 
 (defn app []
-  (app/start {:window {:title "gdl demo"
-                       :width 800
-                       :height 600
-                       :full-screen false}
-              :log-lc? true
+  (app/start {:app {:title "gdl demo"
+                    :width 800
+                    :height 600
+                    :full-screen? false}
               :modules {:gdl.simple-test nil}
               :first-screen :gdl.simple-test}))
