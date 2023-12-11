@@ -1,7 +1,6 @@
 (ns gdl.app
   (:require [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
-            gdl.assets
             [gdl.graphics :as g]
             [gdl.files :as files]
             gdl.graphics.shape-drawer
@@ -10,8 +9,10 @@
             [gdl.scene2d.ui :as ui]
             [gdl.backends.lwjgl3 :as lwjgl3])
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
+           com.badlogic.gdx.audio.Sound
+           com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.utils.ScreenUtils
-           com.badlogic.gdx.graphics.Color
+           (com.badlogic.gdx.graphics Color Texture)
            com.badlogic.gdx.graphics.g2d.SpriteBatch))
 
 (defn exit []
@@ -32,17 +33,46 @@
                  (= (.getScreenHeight gui/viewport) (g/screen-height)))
     (on-resize (g/screen-width) (g/screen-height))))
 
-(defcomponent :batch value
+(defn- load-assets [^AssetManager manager folder file-extensions ^Class klass log-load-assets?]
+  (doseq [file (files/recursively-search-files folder file-extensions)]
+    (when log-load-assets?
+      (println "load-assets" (str "[" (.getSimpleName klass) "] - [" file "]")))
+    (.load manager file klass)))
+
+(defn- load-all-assets [{:keys [folder
+                                log-load-assets?
+                                sound-files-extensions
+                                image-files-extensions]
+                         :as config}]
+  (doseq [k [:folder
+             :log-load-assets?
+             :sound-files-extensions
+             :image-files-extensions]]
+    (assert (contains? config k)
+            (str "config key(s) missing: " k)))
+  (let [manager (proxy [AssetManager clojure.lang.ILookup] []
+                  (valAt [file]
+                    (.get this ^String file)))]
+    (load-assets manager folder sound-files-extensions Sound   log-load-assets?)
+    (load-assets manager folder image-files-extensions Texture log-load-assets?)
+    (.finishLoading manager)
+    manager))
+
+(defcomponent :batch batch
   (lc/dispose [_]
-    (.dispose ^SpriteBatch value)))
+    (.dispose ^SpriteBatch batch)))
+
+(defcomponent :assets manager
+  (lc/dispose [_]
+    (.dispose ^AssetManager manager)))
 
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     {:batch batch
-     :gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
-                  :sound-files-extensions #{"wav"}
-                  :image-files-extensions #{"png" "bmp"}
-                  :log-load-assets? false}
+     :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
+                               :sound-files-extensions #{"wav"}
+                               :image-files-extensions #{"png" "bmp"}
+                               :log-load-assets? false})
      ; TODO add viewports/cameras here FitViewport user-choice !
      :gdl.graphics.gui nil
      :gdl.graphics.world (or tile-size 1)

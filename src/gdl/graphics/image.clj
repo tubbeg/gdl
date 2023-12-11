@@ -1,8 +1,17 @@
 (ns gdl.graphics.image
-  (:require [gdl.assets :as assets]
-            [gdl.graphics.world :as world])
-  (:import com.badlogic.gdx.graphics.Color
+  (:require [gdl.graphics.world :as world])
+  (:import (com.badlogic.gdx.graphics Color Texture)
            (com.badlogic.gdx.graphics.g2d Batch TextureRegion)))
+
+; TODO
+; lots of simplification potential -> constructor take texture-region directly?, no need so many
+; complicated constructors
+; sprite-batch or scaling factor can set unit-scale ? independent ?
+; pass dimensions @ image component (body dimensions?)
+; => maybe store on rendering the dimensions per unit-scale as a side effect (cache)
+; inside the 'image'
+; maybe use only texture-region itself (for example in game.properties,
+; need in ui only texture-region also and no image ....) only required @ game., not property-editor.
 
 ; Explanation why not using libgdx Sprite class:
 ; * mutable fields
@@ -86,19 +95,19 @@
                   tilew
                   tileh])
 
-(defn- get-texture-region [file & [x y w h]]
-  (let [texture (assets/get-texture file)]
+(defn- get-texture-region [assets file & [x y w h]]
+  (let [^Texture texture (get assets file)]
     (if (and x y w h)
       (TextureRegion. texture (int x) (int y) (int w) (int h))
       (TextureRegion. texture))))
 
 (defn create
   "Scale can be a number or [width height]"
-  [file & {:keys [scale]}]
+  [assets file & {:keys [scale]}]
   (assoc-dimensions
    (map->Image {:file file
                 :scale (or scale 1)
-                :texture (get-texture-region file)})))
+                :texture (get-texture-region assets file)})))
 
 (defn get-scaled-copy
   "Scaled of original texture-dimensions, not any existing scale."
@@ -108,24 +117,15 @@
 
 (defn get-sub-image
   "Coordinates are from original image, not scaled one."
-  [{:keys [file] :as image} & sub-image-bounds]
+  [assets {:keys [file] :as image} & sub-image-bounds]
   (assoc-dimensions
    (assoc image
           :scale 1
-          :texture (apply get-texture-region file sub-image-bounds)
+          :texture (apply get-texture-region assets file sub-image-bounds)
           :sub-image-bounds sub-image-bounds)))
 
-(defn spritesheet [file tilew tileh]
-  (assoc (create file) :tilew tilew :tileh tileh))
+(defn spritesheet [assets file tilew tileh]
+  (assoc (create assets file) :tilew tilew :tileh tileh))
 
-(defn get-sprite [{:keys [tilew tileh] :as sheet} [x y]]
-  (get-sub-image sheet (* x tilew) (* y tileh) tilew tileh))
-
-(defn get-sheet-frames [sheet]
-  (let [[w h] (:pixel-dimensions sheet)]
-    (for [y (range (/ w (:tilew sheet)))
-          x (range (/ h (:tileh sheet)))]
-      (get-sprite sheet [x y]))))
-
-(defn spritesheet-frames [& args]
-  (get-sheet-frames (apply spritesheet args)))
+(defn get-sprite [assets {:keys [tilew tileh] :as sheet} [x y]]
+  (get-sub-image assets sheet (* x tilew) (* y tileh) tilew tileh))
