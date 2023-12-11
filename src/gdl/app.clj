@@ -11,22 +11,26 @@
            com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.utils.ScreenUtils
-           (com.badlogic.gdx.graphics Color Texture)
+           (com.badlogic.gdx.graphics Color Texture OrthographicCamera)
            com.badlogic.gdx.graphics.g2d.SpriteBatch
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
-           com.badlogic.gdx.utils.SharedLibraryLoader))
+           com.badlogic.gdx.utils.SharedLibraryLoader
+           (com.badlogic.gdx.utils.viewport Viewport FitViewport)))
 
-(defn- update-viewports [w h]
+(defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
   (let [center-camera? true]
-    (.update gui/viewport   w h center-camera?)
-    (.update world/viewport w h center-camera?)))
+    (.update ^Viewport gui-viewport   w h center-camera?)
+    (.update ^Viewport world-viewport w h center-camera?)))
 
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
-  []
-  (when-not (and (= (.getScreenWidth  gui/viewport) (.getWidth Gdx/graphics))
-                 (= (.getScreenHeight gui/viewport) (.getHeight Gdx/graphics)))
-    (update-viewports (.getWidth Gdx/graphics) (.getHeight Gdx/graphics))))
+  ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
+  [{:keys [^Viewport gui-viewport] :as context}]
+  (let [screen-width (.getWidth Gdx/graphics)
+        screen-height (.getHeight Gdx/graphics)]
+    (when-not (and (= (.getScreenWidth  gui-viewport) screen-width)
+                   (= (.getScreenHeight gui-viewport) screen-height))
+      (update-viewports context screen-width screen-height))))
 
 (defn- recursively-search-files [folder extensions]
   (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))
@@ -77,15 +81,35 @@
     (.dispose ^AssetManager manager)))
 
 (defn- default-components [{:keys [tile-size]}]
-  (let [batch (SpriteBatch.)]
+  (let [batch (SpriteBatch.)
+
+        gui-unit-scale 1
+        gui-camera (OrthographicCamera.)
+        gui-viewport (FitViewport. (.getWidth Gdx/graphics)
+                                   (.getHeight Gdx/graphics)
+                                   gui-camera)
+
+        world-unit-scale (/ (or tile-size 1))
+        world-camera (OrthographicCamera.)
+        world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
+                             height (* (.getHeight Gdx/graphics) world-unit-scale)
+                             y-down? false]
+                         (.setToOrtho world-camera y-down? width height)
+                         (FitViewport. width height world-camera))]
     {:batch batch
      :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
                                :sound-files-extensions #{"wav"}
                                :image-files-extensions #{"png" "bmp"}
                                :log-load-assets? false})
-     ; TODO add viewports/cameras here FitViewport user-choice !
-     :gdl.graphics.gui nil
-     :gdl.graphics.world (or tile-size 1)
+     :gui-unit-scale gui-unit-scale
+     :gui-viewport gui-viewport
+     :world-unit-scale world-unit-scale
+     :world-viewport world-viewport
+     :gdl.graphics.gui {:gui-camera gui-camera
+                        :gui-viewport gui-viewport}
+     :gdl.graphics.world {:world-unit-scale world-unit-scale
+                          :world-camera world-camera
+                          :world-viewport world-viewport}
      :gdl.graphics.shape-drawer batch
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
      :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}))
@@ -118,13 +142,13 @@
       (swap! state update-map lc/dispose))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (fix-viewport-update)
+      (fix-viewport-update @state)
       (lc/render (current-screen-component) @state)
       (lc/tick (current-screen-component)
                @state
                (* (.getDeltaTime Gdx/graphics) 1000)))
     (resize [w h]
-      (update-viewports w h))))
+      (update-viewports @state w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
   #_(when SharedLibraryLoader/isMac

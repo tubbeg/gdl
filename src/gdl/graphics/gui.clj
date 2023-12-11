@@ -12,12 +12,10 @@
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defmodule _
+(defmodule {:keys [gui-camera gui-viewport]}
   (lc/create [_ _ctx]
-    (.bindRoot #'camera   (OrthographicCamera.))
-    (.bindRoot #'viewport (FitViewport. (.getWidth Gdx/graphics)
-                                        (.getHeight Gdx/graphics)
-                                        camera))))
+    (.bindRoot #'camera gui-camera)
+    (.bindRoot #'viewport gui-viewport)))
 
 (defn mouse-position []
   (mapv int (viewport/unproject-mouse-posi viewport)))

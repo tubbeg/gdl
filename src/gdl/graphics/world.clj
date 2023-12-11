@@ -10,22 +10,17 @@
 
 (declare unit-scale)
 
-(defn pixels->world-units [px] ; TODO world/pixels->units
+(defn pixels->world-units [px]
   (* px unit-scale))
 
 (declare ^OrthographicCamera camera
          ^Viewport viewport)
 
-(defmodule tile-size
+(defmodule {:keys [world-unit-scale world-camera world-viewport]}
   (lc/create [_ _ctx]
-    (assert tile-size "Not given world tile-size config.")
-    (.bindRoot #'unit-scale (/ tile-size))
-    (.bindRoot #'camera (OrthographicCamera.))
-    (.bindRoot #'viewport (let [width  (* (.getWidth Gdx/graphics)  unit-scale)
-                                height (* (.getHeight Gdx/graphics) unit-scale)
-                                y-down? false]
-                            (.setToOrtho camera y-down? width height)
-                            (FitViewport. width height camera)))))
+    (.bindRoot #'unit-scale world-unit-scale)
+    (.bindRoot #'camera world-camera)
+    (.bindRoot #'viewport world-viewport)))
 
 ; TODO clamping only works for gui-viewport ? check. comment if true
 (defn mouse-position
