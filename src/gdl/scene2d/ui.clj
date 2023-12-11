@@ -11,7 +11,7 @@
             Button$ButtonStyle ImageButton ImageButton$ImageButtonStyle Label TooltipManager Tooltip
             TextTooltip TextField SplitPane Stack Image)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
-           (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisWindow VisLabel VisSplitPane VisCheckBox)))
+           (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisImageButton VisWindow VisLabel VisSplitPane VisCheckBox)))
 
 ; TODO use VisToolTip -> remove default-skin
 
@@ -107,19 +107,10 @@
                       (on-clicked (.isChecked actor)))))
     button))
 
-; TODO 'toggle' - imagebutton , :toggle true ?
-(defn image-button ^ImageButton [{:keys [^TextureRegion texture] :as image} on-clicked]
-  (let [style (ImageButton$ImageButtonStyle. ^Button$ButtonStyle (.get default-skin "toggle" Button$ButtonStyle))
-        _ (set! (.imageUp   style) (TextureRegionDrawable. texture))
-        _ (set! (.imageDown style) (TextureRegionDrawable. texture))
-        ; imageChecked
-        ; imageCheckedDown
-       ; imageCheckedOver
-        ; imageDisabled
-        ; imageDown
-        ; imageOver
-        ; imageUp
-        button (ImageButton. style)]
+; TODO give directly texture-region
+; TODO check how to make toggle-able ? with hotkeys for actionbar trigger ?
+(defn image-button ^ImageButton [image on-clicked]
+  (let [button (VisImageButton. (TextureRegionDrawable. ^TextureRegion (:texture image)))]
     (.addListener button
                   (proxy [ChangeListener] []
                     (changed [event actor]
