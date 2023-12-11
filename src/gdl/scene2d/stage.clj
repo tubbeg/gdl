@@ -2,9 +2,6 @@
   (:require [gdl.scene2d.actor :as actor])
   (:import (com.badlogic.gdx.scenes.scene2d Stage Group)))
 
-(defn add-actor [^Stage stage actor]
-  (.addActor stage actor))
-
 (defn draw [^Stage stage batch]
   ; Not using (.draw ^Stage stage) because we are already managing
   ; .setProjectionMatrix / begin / end of batch and setting unit-scale in g/render-with
@@ -15,17 +12,11 @@
          batch
          (float 1)))
 
-(defn act [^Stage stage delta]
-  (.act stage delta))
-
 (defn hit [^Stage stage [x y]]
   (.hit stage x y true))
 
-(defn- actors [^Stage stage]
-  (.getActors stage))
-
-(defn- find-actor-with-id [stage id]
-  (let [actors (actors stage)
+(defn- find-actor-with-id [^Stage stage id]
+  (let [actors (.getActors stage)
         ids (keep actor/id actors)]
     (assert (apply distinct? ids)
             (str "Actor ids are not distinct: " (vec ids)))
