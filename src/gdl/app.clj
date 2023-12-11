@@ -42,10 +42,10 @@
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     {:batch batch
-     :assets {:folder "resources/" ; TODO these are classpath settings ?
-              :sound-files-extensions #{"wav"}
-              :image-files-extensions #{"png" "bmp"}
-              :log-load-assets? false}
+     :gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
+                  :sound-files-extensions #{"wav"}
+                  :image-files-extensions #{"png" "bmp"}
+                  :log-load-assets? false}
      ; TODO add viewports/cameras here FitViewport user-choice !
      :gdl.graphics.gui nil
      :gdl.graphics.world (or tile-size 1)
