@@ -1,16 +1,6 @@
 (ns gdl.scene2d.stage
   (:require [gdl.scene2d.actor :as actor])
-  (:import (com.badlogic.gdx.scenes.scene2d Stage Group)))
-
-(defn draw [^Stage stage batch]
-  ; Not using (.draw ^Stage stage) because we are already managing
-  ; .setProjectionMatrix / begin / end of batch and setting unit-scale in g/render-with
-  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Stage.java#L119
-  ; https://github.com/libgdx/libgdx/blob/75612dae1eeddc9611ed62366858ff1d0ac7898b/gdx/src/com/badlogic/gdx/scenes/scene2d/Group.java#L56
-  ; => use inside g/render-gui
-  (.draw ^Group (.getRoot stage)
-         batch
-         (float 1)))
+  (:import com.badlogic.gdx.scenes.scene2d.Stage))
 
 (defn hit [^Stage stage [x y]]
   (.hit stage x y true))

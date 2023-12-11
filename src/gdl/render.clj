@@ -9,4 +9,5 @@
   (.setProjectionMatrix batch (.combined camera))
   (.begin batch)
   (renderfn unit-scale)
-  (.end batch))
+  (.end batch)
+  (shape-drawer/set-line-width 1))
