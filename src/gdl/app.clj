@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
-            [gdl.graphics :as g]
             gdl.graphics.shape-drawer
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
@@ -31,9 +30,9 @@
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
   []
-  (when-not (and (= (.getScreenWidth  gui/viewport) (g/screen-width))
-                 (= (.getScreenHeight gui/viewport) (g/screen-height)))
-    (on-resize (g/screen-width) (g/screen-height))))
+  (when-not (and (= (.getScreenWidth  gui/viewport) (.getWidth Gdx/graphics))
+                 (= (.getScreenHeight gui/viewport) (.getHeight Gdx/graphics)))
+    (on-resize (.getWidth Gdx/graphics) (.getHeight Gdx/graphics))))
 
 (defn- recursively-search-files [folder extensions]
   (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))

@@ -1,10 +1,10 @@
 (ns gdl.graphics.world
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
-            [gdl.graphics :as g]
             [gdl.graphics.viewport :as viewport]
             gdl.render)
-  (:import com.badlogic.gdx.graphics.OrthographicCamera
+  (:import com.badlogic.gdx.Gdx
+           com.badlogic.gdx.graphics.OrthographicCamera
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            com.badlogic.gdx.math.Vector3))
 
@@ -21,8 +21,8 @@
     (assert tile-size "Not given world tile-size config.")
     (.bindRoot #'unit-scale (/ tile-size))
     (.bindRoot #'camera (OrthographicCamera.))
-    (.bindRoot #'viewport (let [width  (* (g/screen-width)  unit-scale)
-                                height (* (g/screen-height) unit-scale)
+    (.bindRoot #'viewport (let [width  (* (.getWidth Gdx/graphics)  unit-scale)
+                                height (* (.getHeight Gdx/graphics) unit-scale)
                                 y-down? false]
                             (.setToOrtho camera y-down? width height)
                             (FitViewport. width height camera)))))

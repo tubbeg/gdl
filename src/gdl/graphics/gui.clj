@@ -1,10 +1,10 @@
 (ns gdl.graphics.gui
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
-            [gdl.graphics :as g]
             [gdl.graphics.viewport :as viewport]
             gdl.render)
-  (:import com.badlogic.gdx.graphics.OrthographicCamera
+  (:import com.badlogic.gdx.Gdx
+           com.badlogic.gdx.graphics.OrthographicCamera
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]))
 
 (def unit-scale 1)
@@ -15,8 +15,8 @@
 (defmodule _
   (lc/create [_ _ctx]
     (.bindRoot #'camera   (OrthographicCamera.))
-    (.bindRoot #'viewport (FitViewport. (g/screen-width)
-                                        (g/screen-height)
+    (.bindRoot #'viewport (FitViewport. (.getWidth Gdx/graphics)
+                                        (.getHeight Gdx/graphics)
                                         camera))))
 
 (defn mouse-position []
