@@ -52,7 +52,7 @@
             (str "config key(s) missing: " k)))
   (let [manager (proxy [AssetManager clojure.lang.ILookup] []
                   (valAt [file]
-                    (.get this ^String file)))]
+                    (.get ^AssetManager this ^String file)))]
     (load-assets manager folder sound-files-extensions Sound   log-load-assets?)
     (load-assets manager folder image-files-extensions Texture log-load-assets?)
     (.finishLoading manager)
