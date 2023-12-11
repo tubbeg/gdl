@@ -8,5 +8,5 @@
 ; screen/.*
 (defsystem show   [_])
 (defsystem hide   [_])
-(defsystem render [_])
-(defsystem tick   [_ delta])
+(defsystem render [_ state])
+(defsystem tick   [_ state delta])

@@ -4,7 +4,6 @@
             [gdl.utils :refer [dispose]]
             [gdl.app :as app]
             [gdl.files :as files]
-            [gdl.graphics.batch :refer [batch]]
             [gdl.graphics.world :as world]
             [gdl.graphics.gui :as gui]
             [gdl.graphics.font :as font]
@@ -19,7 +18,7 @@
   (lc/dispose [_]
     (dispose special-font)
     (dispose default-font))
-  (lc/render [_]
+  (lc/render [_ {:keys [batch]}]
     (gui/render batch
                 (fn [unit-scale]
                   (let [context {:default-font default-font

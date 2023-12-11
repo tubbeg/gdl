@@ -4,7 +4,6 @@
             gdl.assets
             [gdl.graphics :as g]
             [gdl.files :as files]
-            gdl.graphics.batch
             gdl.graphics.shape-drawer
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
@@ -34,8 +33,6 @@
     (on-resize (g/screen-width) (g/screen-height))))
 
 (defcomponent :batch value
-  (lc/create [_ _ctx]
-    (.bindRoot #'gdl.graphics.batch/batch value))
   (lc/dispose [_]
     (.dispose ^SpriteBatch value)))
 
@@ -71,18 +68,20 @@
 
 (defn- application-adapter [{:keys [log-lc? modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
-    (create  []
-      (let [context (update-map (default-components config) lc/create nil)]
-        (reset! state (merge context
-                             (update-map modules lc/create context))))
+    (create []
+      (reset! state
+              (let [context (update-map (default-components config) lc/create nil)]
+                (merge context
+                       (update-map modules lc/create context))))
       (set-screen first-screen))
     (dispose []
       (swap! state update-map lc/dispose))
     (render []
       (ScreenUtils/clear Color/BLACK)
       (fix-viewport-update)
-      (lc/render (current-screen-component))
+      (lc/render (current-screen-component) @state)
       (lc/tick (current-screen-component)
+               @state
                (* (.getDeltaTime Gdx/graphics) 1000)))
     (resize [w h]
       (on-resize w h))))
