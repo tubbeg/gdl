@@ -6,7 +6,7 @@
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
             [gdl.scene2d.ui :as ui])
-  (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
+  (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.files.FileHandle
@@ -16,7 +16,7 @@
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.utils.SharedLibraryLoader))
 
-(defn- on-resize [w h]
+(defn- update-viewports [w h]
   (let [center-camera? true]
     (.update gui/viewport   w h center-camera?)
     (.update world/viewport w h center-camera?)))
@@ -26,7 +26,7 @@
   []
   (when-not (and (= (.getScreenWidth  gui/viewport) (.getWidth Gdx/graphics))
                  (= (.getScreenHeight gui/viewport) (.getHeight Gdx/graphics)))
-    (on-resize (.getWidth Gdx/graphics) (.getHeight Gdx/graphics))))
+    (update-viewports (.getWidth Gdx/graphics) (.getHeight Gdx/graphics))))
 
 (defn- recursively-search-files [folder extensions]
   (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))
@@ -124,7 +124,7 @@
                @state
                (* (.getDeltaTime Gdx/graphics) 1000)))
     (resize [w h]
-      (on-resize w h))))
+      (update-viewports w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
   #_(when SharedLibraryLoader/isMac
