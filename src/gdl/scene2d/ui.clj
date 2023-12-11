@@ -18,7 +18,7 @@
 (declare ^Skin default-skin)
 
 (defmodule user-skin
-  (lc/create [_]
+  (lc/create [_ _ctx]
     (.bindRoot #'default-skin user-skin)
     ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
     ; => actually there is a deeper issue at play
@@ -165,6 +165,7 @@
     manager))
 
 ; TODO VisToolTip
+; https://github.com/kotcrab/vis-ui/wiki/Tooltips
 (defn text-tooltip ^TextTooltip [textfn]
   (TextTooltip. "" (instant-show-tooltip-manager textfn) default-skin))
 

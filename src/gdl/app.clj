@@ -1,5 +1,5 @@
 (ns gdl.app
-  (:require [x.x :refer [update-map]]
+  (:require [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
             gdl.assets
             [gdl.graphics :as g]
@@ -33,19 +33,25 @@
                  (= (.getScreenHeight gui/viewport) (g/screen-height)))
     (on-resize (g/screen-width) (g/screen-height))))
 
-(defn- default-modules [{:keys [tile-size]}]
+(defcomponent :batch value
+  (lc/create [_ _ctx]
+    (.bindRoot #'gdl.graphics.batch/batch value))
+  (lc/dispose [_]
+    (.dispose ^SpriteBatch value)))
+
+(defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
-    [[:gdl.assets {:folder "resources/" ; TODO these are classpath settings ?
-                   :sound-files-extensions #{"wav"}
-                   :image-files-extensions #{"png" "bmp"}
-                   :log-load-assets? false}]
+    {:batch batch
+     :assets {:folder "resources/" ; TODO these are classpath settings ?
+              :sound-files-extensions #{"wav"}
+              :image-files-extensions #{"png" "bmp"}
+              :log-load-assets? false}
      ; TODO add viewports/cameras here FitViewport user-choice !
-     [:gdl.graphics.gui]
-     [:gdl.graphics.world (or tile-size 1)]
-     [:gdl.graphics.batch batch]
-     [:gdl.graphics.shape-drawer batch]
+     :gdl.graphics.gui nil
+     :gdl.graphics.world (or tile-size 1)
+     :gdl.graphics.shape-drawer batch
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-     [:gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))]]))
+     :gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))}))
 
 (def state (atom nil))
 
@@ -55,20 +61,6 @@
 
 (defn current-screen-value []
   ((::current-screen @state) @state))
-
-(defn- assert-module-loaded [k]
-  (let [ns-sym (-> k name symbol)]
-    (assert (find-ns ns-sym)
-            (str "Cannot find module namespace " ns-sym))))
-
-(defn- create-state [modules]
-  ; turn state into a map after create, because order is important!
-  (assert (apply distinct? (map first modules)))
-  (->> (for [[k v] modules]
-         (do
-          (assert-module-loaded k)
-          [k (lc/create [k v])]))
-       (into {})))
 
 (defn set-screen [k]
   (assert (contains? @state k) (str "Cannot find screen with key: " k " in state."))
@@ -80,8 +72,9 @@
 (defn- application-adapter [{:keys [log-lc? modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create  []
-      (reset! state (create-state (concat (default-modules config)
-                                          modules)))
+      (let [context (update-map (default-components config) lc/create nil)]
+        (reset! state (merge context
+                             (update-map modules lc/create context))))
       (set-screen first-screen))
     (dispose []
       (swap! state update-map lc/dispose))

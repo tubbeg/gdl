@@ -2,7 +2,7 @@
   "https://libgdx.com/wiki/app/the-life-cycle"
   (:require [x.x :refer [defsystem]]))
 
-(defsystem create  [_])
+(defsystem create  [_ state])
 (defsystem dispose [_])
 
 ; screen/.*

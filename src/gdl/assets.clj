@@ -27,7 +27,7 @@
                    sound-files-extensions
                    image-files-extensions]
             :as config}
-  (lc/create [_]
+  (lc/create [_ _ctx]
     (check-config config)
     (.bindRoot #'manager (AssetManager.))
     (load-assets folder sound-files-extensions Sound   log-load-assets?)

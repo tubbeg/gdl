@@ -12,7 +12,7 @@
   (:import com.badlogic.gdx.graphics.g2d.BitmapFont))
 
 (defmodule {:keys [special-font default-font]}
-  (lc/create [_]
+  (lc/create [_ _ctx]
     {:special-font (freetype/generate (files/internal "exocet/films.EXL_____.ttf")
                                       16)
      :default-font (BitmapFont.)})
@@ -45,5 +45,5 @@
                        :height 600
                        :full-screen false}
               :log-lc? true
-              :modules [[:gdl.simple-test]]
+              :modules {:gdl.simple-test nil}
               :first-screen :gdl.simple-test}))

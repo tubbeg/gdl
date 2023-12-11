@@ -16,7 +16,7 @@
 (declare ^ShapeDrawer drawer)
 
 (defmodule texture
-  (lc/create [[_ batch]]
+  (lc/create [[_ batch] _ctx]
     (let [texture (gen-drawer-texture)]
       (.bindRoot #'drawer (ShapeDrawer. batch (TextureRegion. texture 0 0 1 1)))
       texture))

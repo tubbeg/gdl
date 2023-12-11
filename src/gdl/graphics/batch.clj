@@ -1,12 +1,3 @@
-(ns gdl.graphics.batch
-  (:require [x.x :refer [defmodule]]
-            [gdl.lc :as lc])
-  (:import com.badlogic.gdx.graphics.g2d.Batch))
+(ns gdl.graphics.batch)
 
-(declare ^Batch batch)
-
-(defmodule user-batch
-  (lc/create [_]
-    (.bindRoot #'batch user-batch))
-  (lc/dispose [_]
-    (.dispose batch)))
+(declare batch)

@@ -13,7 +13,7 @@
          ^Viewport viewport)
 
 (defmodule _
-  (lc/create [_]
+  (lc/create [_ _ctx]
     (.bindRoot #'camera   (OrthographicCamera.))
     (.bindRoot #'viewport (FitViewport. (g/screen-width)
                                         (g/screen-height)

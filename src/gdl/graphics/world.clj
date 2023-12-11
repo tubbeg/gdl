@@ -17,7 +17,7 @@
          ^Viewport viewport)
 
 (defmodule tile-size
-  (lc/create [_]
+  (lc/create [_ _ctx]
     (assert tile-size "Not given world tile-size config.")
     (.bindRoot #'unit-scale (/ tile-size))
     (.bindRoot #'camera (OrthographicCamera.))
