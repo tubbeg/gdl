@@ -16,12 +16,6 @@
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.utils.SharedLibraryLoader))
 
-(defn exit []
-  (.exit Gdx/app))
-
-(defmacro with-context [& exprs]
-  `(.postRunnable Gdx/app (fn [] ~@exprs)))
-
 (defn- on-resize [w h]
   (let [center-camera? true]
     (.update gui/viewport   w h center-camera?)
