@@ -11,7 +11,7 @@
   [file]
   (.load (TmxMapLoader.) file))
 
-(defn dispose [^TiledMap tiled-map] ; TODO use gdl.utils/dispose ? or better tmx map asset loader.
+(defn dispose [^TiledMap tiled-map]
   (.dispose tiled-map))
 
 ; TODO this is actually get-properties for no reflection

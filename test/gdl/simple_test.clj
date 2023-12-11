@@ -1,7 +1,6 @@
 (ns gdl.simple-test
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
-            [gdl.utils :refer [dispose]]
             [gdl.app :as app]
             [gdl.files :as files]
             [gdl.graphics.world :as world]
@@ -16,8 +15,8 @@
                                       16)
      :default-font (BitmapFont.)})
   (lc/dispose [_]
-    (dispose special-font)
-    (dispose default-font))
+    (.dispose ^BitmapFont special-font)
+    (.dispose ^BitmapFont default-font))
   (lc/render [_ {:keys [batch]}]
     (gui/render batch
                 (fn [unit-scale]
