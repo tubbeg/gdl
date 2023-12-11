@@ -1,8 +1,8 @@
 (ns gdl.app
-  (:require [x.x :refer [defcomponent update-map]]
+  (:require [clojure.string :as str]
+            [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
             [gdl.graphics :as g]
-            [gdl.files :as files]
             gdl.graphics.shape-drawer
             [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
@@ -10,6 +10,7 @@
   (:import (com.badlogic.gdx Gdx Application ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
+           com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.utils.ScreenUtils
            (com.badlogic.gdx.graphics Color Texture)
            com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -34,8 +35,23 @@
                  (= (.getScreenHeight gui/viewport) (g/screen-height)))
     (on-resize (g/screen-width) (g/screen-height))))
 
+(defn- recursively-search-files [folder extensions]
+  (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))
+         result []]
+    (cond (nil? file)
+          result
+
+          (.isDirectory file)
+          (recur (concat remaining (.list file)) result)
+
+          (extensions (.extension file))
+          (recur remaining (conj result (str/replace-first (.path file) folder "")))
+
+          :else
+          (recur remaining result))))
+
 (defn- load-assets [^AssetManager manager folder file-extensions ^Class klass log-load-assets?]
-  (doseq [file (files/recursively-search-files folder file-extensions)]
+  (doseq [file (recursively-search-files folder file-extensions)]
     (when log-load-assets?
       (println "load-assets" (str "[" (.getSimpleName klass) "] - [" file "]")))
     (.load manager file klass)))
@@ -79,7 +95,7 @@
      :gdl.graphics.world (or tile-size 1)
      :gdl.graphics.shape-drawer batch
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-     :gdl.scene2d.ui (ui/skin (files/internal "scene2d.ui.skin/uiskin.json"))}))
+     :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}))
 
 (def state (atom nil))
 
