@@ -158,7 +158,8 @@
   (when (::current-screen @state)
     (lc/hide (current-screen-component)))
   (swap! state assoc ::current-screen k)
-  (lc/show (current-screen-component)))
+  (lc/show (current-screen-component)
+           (current-context)))
 
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
