@@ -34,11 +34,11 @@
          rotation)
   (if color (.setColor batch Color/WHITE)))
 
-(defn- unit-dimensions [{:keys [unit-scale world-unit-scale gui-unit-scale] :as context} image]
+(defn- unit-dimensions [{:keys [unit-scale world-unit-scale] :as context} image]
   {:pre [(number? unit-scale)]}
   (cond
    (= unit-scale world-unit-scale) (:world-unit-dimensions image)
-   (= unit-scale gui-unit-scale) (:pixel-dimensions image)))
+   (= unit-scale 1) (:pixel-dimensions image)))
 
 (defn draw
   ([{:keys [batch] :as context} {:keys [texture color] :as image} position]
@@ -72,8 +72,6 @@
              (and (vector? scale)
                   (number? (scale 0))
                   (number? (scale 1))))]}
-  ; TODO here implicit assumption gui-unit-scale = 1 ...
-  ; nope ! pixel-unit-scale is 1 !!!
   (let [pixel-dimensions (if (number? scale)
                            (mapv (partial * scale) (texture-dimensions texture))
                            scale)]

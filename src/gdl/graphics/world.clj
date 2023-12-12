@@ -1,10 +1,8 @@
 (ns gdl.graphics.world
   (:require [x.x :refer [defmodule]]
             [gdl.lc :as lc]
-            [gdl.graphics.viewport :as viewport]
-            gdl.render)
-  (:import com.badlogic.gdx.Gdx
-           com.badlogic.gdx.graphics.OrthographicCamera
+            [gdl.graphics.viewport :as viewport])
+  (:import com.badlogic.gdx.graphics.OrthographicCamera
            [com.badlogic.gdx.utils.viewport Viewport FitViewport]
            com.badlogic.gdx.math.Vector3))
 
@@ -61,6 +59,3 @@
     (for  [x (range (int left-x)   (int right-x))
            y (range (int bottom-y) (+ 2 (int top-y)))]
       [x y])))
-
-(defn render [batch renderfn]
-  (gdl.render/render-with batch unit-scale camera renderfn))
