@@ -4,7 +4,6 @@
             [gdl.lc :as lc]
             [gdl.graphics.viewport :as viewport]
             [gdl.graphics.shape-drawer :as shape-drawer]
-            [gdl.graphics.world :as world]
             [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
@@ -119,16 +118,17 @@
                                :sound-files-extensions #{"wav"}
                                :image-files-extensions #{"png" "bmp"}
                                :log-load-assets? false})
+
      :gui-camera gui-camera
      :gui-viewport gui-viewport
      :gui-viewport-width  (.getWorldWidth  gui-viewport)
      :gui-viewport-height (.getWorldHeight gui-viewport)
+
      :world-unit-scale world-unit-scale
      :world-camera world-camera
      :world-viewport world-viewport
-     :gdl.graphics.world {:world-unit-scale world-unit-scale
-                          :world-camera world-camera
-                          :world-viewport world-viewport}
+     :world-viewport-width  (.getWorldWidth  world-viewport)
+     :world-viewport-height (.getWorldHeight world-viewport)
 
      :gdl.graphics.shape-drawer batch
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
@@ -137,7 +137,11 @@
 (def ^:private state (atom nil))
 
 (defn- update-mouse-positions [context]
-  (assoc context :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport context)))))
+  (assoc context
+         :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport context)))
+         ; TODO clamping only works for gui-viewport ? check. comment if true
+         ; TODO ? "Can be negative coordinates, undefined cells."
+         :world-mouse-position (viewport/unproject-mouse-posi (:world-viewport context))))
 
 (defn current-context []
   (update-mouse-positions @state))
@@ -193,3 +197,6 @@
 (defn start [config]
   (Lwjgl3Application. (application-adapter config)
                       (lwjgl3-configuration (:app config))))
+
+(defn pixels->world-units [{:keys [world-unit-scale]} pixels]
+  (* pixels world-unit-scale))
