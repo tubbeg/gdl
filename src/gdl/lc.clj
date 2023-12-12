@@ -2,6 +2,8 @@
   "https://libgdx.com/wiki/app/the-life-cycle"
   (:require [x.x :refer [defsystem]]))
 
+; TODO consistent last arg = context/game/state like in game.entity
+
 (defsystem create  [_ state])
 (defsystem dispose [_])
 

@@ -8,8 +8,10 @@
 
 (declare unit-scale)
 
-(defn pixels->world-units [px]
-  (* px unit-scale))
+; context fn !
+; part of context protocol !
+(defn pixels->world-units [{:keys [context/world-unit-scale]} px]
+  (* px world-unit-scale))
 
 (declare ^OrthographicCamera camera
          ^Viewport viewport)

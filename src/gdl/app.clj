@@ -2,8 +2,8 @@
   (:require [clojure.string :as str]
             [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
+            [gdl.graphics.viewport :as viewport]
             [gdl.graphics.shape-drawer :as shape-drawer]
-            [gdl.graphics.gui :as gui]
             [gdl.graphics.world :as world]
             [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
@@ -103,12 +103,10 @@
 
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)
-
         gui-camera (OrthographicCamera.)
         gui-viewport (FitViewport. (.getWidth Gdx/graphics)
                                    (.getHeight Gdx/graphics)
                                    gui-camera)
-
         world-unit-scale (/ (or tile-size 1))
         world-camera (OrthographicCamera.)
         world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
@@ -121,11 +119,10 @@
                                :sound-files-extensions #{"wav"}
                                :image-files-extensions #{"png" "bmp"}
                                :log-load-assets? false})
-
      :gui-camera gui-camera
      :gui-viewport gui-viewport
-     :gdl.graphics.gui {:gui-viewport gui-viewport}
-
+     :gui-viewport-width  (.getWorldWidth  gui-viewport)
+     :gui-viewport-height (.getWorldHeight gui-viewport)
      :world-unit-scale world-unit-scale
      :world-camera world-camera
      :world-viewport world-viewport
@@ -153,6 +150,9 @@
   (swap! state assoc ::current-screen k)
   (lc/show (current-screen-component)))
 
+(defn- update-mouse-positions [state]
+  (assoc state :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport state)))))
+
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
@@ -165,11 +165,12 @@
       (swap! state update-map lc/dispose))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (fix-viewport-update @state)
-      (lc/render (current-screen-component) @state)
-      (lc/tick (current-screen-component)
-               @state
-               (* (.getDeltaTime Gdx/graphics) 1000)))
+      (let [context (update-mouse-positions @state)]
+        (fix-viewport-update context)
+        (lc/render (current-screen-component) context)
+        (lc/tick (current-screen-component)
+                 context
+                 (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
       (update-viewports @state w h))))
 
