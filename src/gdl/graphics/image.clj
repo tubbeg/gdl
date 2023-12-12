@@ -67,7 +67,8 @@
 (def world-unit-dimensions :world-unit-dimensions)
 
 (defn- assoc-dimensions [{:keys [texture scale] :as image} world-unit-scale]
-  {:pre [(or (number? scale)
+  {:pre [(number? world-unit-scale)
+         (or (number? scale)
              (and (vector? scale)
                   (number? (scale 0))
                   (number? (scale 1))))]}
