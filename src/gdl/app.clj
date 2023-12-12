@@ -134,7 +134,13 @@
      ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
      :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}))
 
-(def state (atom nil))
+(def ^:private state (atom nil))
+
+(defn- update-mouse-positions [context]
+  (assoc context :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport context)))))
+
+(defn current-context []
+  (update-mouse-positions @state))
 
 (defn- current-screen-component []
   (let [k (::current-screen @state)]
@@ -150,9 +156,6 @@
   (swap! state assoc ::current-screen k)
   (lc/show (current-screen-component)))
 
-(defn- update-mouse-positions [state]
-  (assoc state :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport state)))))
-
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
@@ -165,7 +168,7 @@
       (swap! state update-map lc/dispose))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (let [context (update-mouse-positions @state)]
+      (let [context (current-context)]
         (fix-viewport-update context)
         (lc/render (current-screen-component) context)
         (lc/tick (current-screen-component)
