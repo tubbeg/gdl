@@ -101,38 +101,35 @@
     (.dispose ^AssetManager manager)))
 
 (defn- default-components [{:keys [tile-size]}]
-  (let [batch (SpriteBatch.)
-        gui-camera (OrthographicCamera.)
-        gui-viewport (FitViewport. (.getWidth Gdx/graphics)
-                                   (.getHeight Gdx/graphics)
-                                   gui-camera)
-        world-unit-scale (/ (or tile-size 1))
-        world-camera (OrthographicCamera.)
-        world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
-                             height (* (.getHeight Gdx/graphics) world-unit-scale)
-                             y-down? false]
-                         (.setToOrtho world-camera y-down? width height)
-                         (FitViewport. width height world-camera))]
-    {:batch batch
-     :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
-                               :sound-files-extensions #{"wav"}
-                               :image-files-extensions #{"png" "bmp"}
-                               :log-load-assets? false})
-
-     :gui-camera gui-camera
-     :gui-viewport gui-viewport
-     :gui-viewport-width  (.getWorldWidth  gui-viewport)
-     :gui-viewport-height (.getWorldHeight gui-viewport)
-
-     :world-unit-scale world-unit-scale
-     :world-camera world-camera
-     :world-viewport world-viewport
-     :world-viewport-width  (.getWorldWidth  world-viewport)
-     :world-viewport-height (.getWorldHeight world-viewport)
-
-     :gdl.graphics.shape-drawer batch
-     ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-     :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}))
+  (let [batch (SpriteBatch.)]
+    (merge {:batch batch
+            :gdl.graphics.shape-drawer batch
+            :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
+                                      :sound-files-extensions #{"wav"}
+                                      :image-files-extensions #{"png" "bmp"}
+                                      :log-load-assets? false})
+            ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
+            :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}
+           (let [gui-camera (OrthographicCamera.)
+                 gui-viewport (FitViewport. (.getWidth Gdx/graphics)
+                                            (.getHeight Gdx/graphics)
+                                            gui-camera)]
+             {:gui-camera   gui-camera
+              :gui-viewport gui-viewport
+              :gui-viewport-width  (.getWorldWidth  gui-viewport)
+              :gui-viewport-height (.getWorldHeight gui-viewport)})
+           (let [world-camera (OrthographicCamera.)
+                 world-unit-scale (/ (or tile-size 1))
+                 world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
+                                      height (* (.getHeight Gdx/graphics) world-unit-scale)
+                                      y-down? false]
+                                  (.setToOrtho world-camera y-down? width height)
+                                  (FitViewport. width height world-camera))]
+             {:world-unit-scale world-unit-scale
+              :world-camera     world-camera
+              :world-viewport   world-viewport
+              :world-viewport-width  (.getWorldWidth  world-viewport)
+              :world-viewport-height (.getWorldHeight world-viewport)}))))
 
 (def ^:private state (atom nil))
 
