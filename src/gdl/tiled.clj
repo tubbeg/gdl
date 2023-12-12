@@ -1,6 +1,6 @@
 (ns gdl.tiled
-  (:require [gdl.graphics.world :as world])
-  (:import [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
+  (:import com.badlogic.gdx.graphics.OrthographicCamera
+           [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
            [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile
             TiledMapTileLayer TiledMapTileLayer$Cell]
            ; TODO move java sources & packages in tiled/...
@@ -113,7 +113,7 @@
 
 (defn render-map [{:keys [world-camera] :as context} tiled-map color-setter]
   (let [^MapRenderer map-renderer (cached-map-renderer context tiled-map color-setter)]
-    (world/update-camera-position)
+    (.update ^OrthographicCamera world-camera)
     (.setView map-renderer world-camera)
     (->> tiled-map
          layers

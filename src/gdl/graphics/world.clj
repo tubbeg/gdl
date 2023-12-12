@@ -29,19 +29,13 @@
 (defn viewport-width  [] (.getWorldWidth  viewport))
 (defn viewport-height [] (.getWorldHeight viewport))
 
-(def ^:private cam-posi (atom nil))
+(defn camera-position []
+  [(.x (.position camera))
+   (.y (.position camera))])
 
-(defn camera-position [] @cam-posi)
-
-(defn set-camera-position! [position]
-  (reset! cam-posi position))
-
-; TODO why not camera directly?? test...
-; because during render loop ?? it changes it again?
-(defn update-camera-position []
-  (set! (.x (.position camera)) (@cam-posi 0))
-  (set! (.y (.position camera)) (@cam-posi 1))
-  (.update camera))
+(defn set-camera-position! [[x y]]
+  (set! (.x (.position camera)) (float x))
+  (set! (.y (.position camera)) (float y)))
 
 (defn camera-frustum []
   (let [frustum-points (for [^Vector3 point (take 4 (.planePoints (.frustum camera)))
