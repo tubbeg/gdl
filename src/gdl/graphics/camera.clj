@@ -2,6 +2,10 @@
   (:import com.badlogic.gdx.graphics.OrthographicCamera
            com.badlogic.gdx.math.Vector3))
 
+(defn set-zoom! [^OrthographicCamera camera amount]
+  (set! (.zoom camera) amount)
+  (.update camera))
+
 (defn position [^OrthographicCamera camera]
   [(.x (.position camera))
    (.y (.position camera))])
