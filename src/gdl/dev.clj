@@ -32,6 +32,8 @@
 
 (require '[clj-commons.pretty.repl :as p])
 
+(declare ^:private refresh-result)
+
 (defn dev-loop []
   (println "start-app")
   (try (start-app)
@@ -44,7 +46,7 @@
     (when-not @app-start-failed
       (do
        (println "refresh")
-       (def refresh-result (refresh :after 'gdl.dev-loop/dev-loop))
+       (.bindRoot #'refresh-result (refresh :after 'gdl.dev-loop/dev-loop))
        (p/pretty-pst refresh-result)
        (println "error on refresh")))
     (wait!)
@@ -63,11 +65,13 @@
     (.deleteOnExit ^java.io.File port-file)
     (spit port-file port)))
 
+(declare ^:private nrepl-server)
+
 (defn -main [& [app-namespace app-start-fn]]
   (.bindRoot #'app-ns (symbol app-namespace))
   (.bindRoot #'app-fn (symbol (str app-namespace "/" app-start-fn)))
 
-  (defonce ^:private nrepl-server (start-server))
+  (.bindRoot #'nrepl-server (start-server))
   (save-port-file nrepl-server)
   ;(println "Started nrepl server on port" (:port nrepl-server))
 
