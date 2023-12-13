@@ -18,6 +18,7 @@
         [_ x y ex ey color])
   (with-line-width [_ width draw-fn]))
 
+; TODO move in protocol
 (defn grid [drawer leftx bottomy gridw gridh cellw cellh color]
   (let [w (* gridw cellw)
         h (* gridh cellh)

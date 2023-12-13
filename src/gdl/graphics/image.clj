@@ -19,13 +19,9 @@
 ; * -> I cache only dimensions & scale for my texture-regions
 ; * color & rotation applied on rendering
 
-
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth  texture)
    (.getRegionHeight texture)])
-
-(def pixel-dimensions :pixel-dimensions)
-(def world-unit-dimensions :world-unit-dimensions)
 
 (defn- assoc-dimensions [{:keys [texture scale] :as image} world-unit-scale]
   {:pre [(number? world-unit-scale)

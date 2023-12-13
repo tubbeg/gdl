@@ -67,7 +67,7 @@
   (image [_ {:keys [texture color] :as image} position]
     (draw-texture batch texture position (unit-dimensions unit-scale image) 0 color))
   (image [this image x y]
-    (image this image [x y]))
+    (draw/image this image [x y]))
   (rotated-centered-image [_ {:keys [texture color] :as image} rotation [x y]]
     (let [[w h] (unit-dimensions unit-scale image)]
       (draw-texture batch
@@ -103,19 +103,27 @@
   (filled-rectangle [_ x y w h color]
     (.setColor shape-drawer ^Color color)
     (.filledRectangle shape-drawer (float x) (float y) (float w) (float h)) )
-  (line [_ [x y] [ex ey] color]
-    (draw/line shape-drawer x y ex ey color))
+  (line [this [x y] [ex ey] color]
+    (draw/line this x y ex ey color))
   (line [_ x y ex ey color]
     (.setColor shape-drawer ^Color color)
     (.line shape-drawer (float x) (float y) (float ex) (float ey)))
-  (with-line-width [this width draw-fn]
+  (with-line-width [_ width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]
       (.setDefaultLineWidth shape-drawer (float (* width old-line-width)))
-      (draw-fn this)
+      (draw-fn)
       (.setDefaultLineWidth shape-drawer (float old-line-width)))))
+
+(defn- ->drawer [context]
+  (assert (:default-font context))
+  (-> context
+      (select-keys [:batch :default-font :shape-drawer])
+      (assoc :unit-scale 1)
+      map->Drawer))
 
 (defn render-with [{:keys [^Batch batch
                            shape-drawer
+                           drawer
                            gui-camera
                            world-camera
                            world-unit-scale]
@@ -128,14 +136,11 @@
         unit-scale (case gui-or-world
                      :gui 1
                      :world world-unit-scale)
-        drawer (-> context
-                   (select-keys [:batch :default-font :shape-drawer])
-                   (assoc :unit-scale unit-scale)
-                   map->Drawer)]
+        drawer (assoc drawer :unit-scale unit-scale)]
     (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (draw/with-line-width drawer unit-scale draw-fn)
+    (draw/with-line-width drawer unit-scale #(draw-fn drawer))
     (.end batch)))
 
 (defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
@@ -267,9 +272,9 @@
   (proxy [ApplicationAdapter] []
     (create []
       (reset! state
-              (let [context (update-map (default-components config) lc/create nil)]
-                (merge context
-                       (update-map modules lc/create context))))
+              (let [context (update-map (default-components config) lc/create nil)
+                    context (merge context (update-map modules lc/create context))]
+                (assoc context :drawer (->drawer context))))
       (set-screen first-screen))
     (dispose []
       (swap! state update-map lc/dispose))
