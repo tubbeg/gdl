@@ -1,4 +1,4 @@
-(ns gdl.dev-loop
+(ns gdl.dev
   (:require [clojure.java.io :as io]
             [nrepl.server :refer [start-server]]
             [clojure.tools.namespace.repl :refer [disable-reload!

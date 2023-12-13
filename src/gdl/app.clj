@@ -11,7 +11,7 @@
            com.badlogic.gdx.files.FileHandle
            (com.badlogic.gdx.graphics Color Texture OrthographicCamera Pixmap Pixmap$Format)
            (com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont TextureRegion)
-           (com.badlogic.gdx.utils Align ScreenUtils SharedLibraryLoader)
+           (com.badlogic.gdx.utils Align ScreenUtils)
            (com.badlogic.gdx.utils.viewport Viewport FitViewport)
            [com.badlogic.gdx.math Vector2 MathUtils]
            space.earlygrey.shapedrawer.ShapeDrawer))
@@ -315,8 +315,6 @@
       (update-viewports @state w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
-  #_(when SharedLibraryLoader/isMac
-      (mac-dock-icon/set-mac-os-dock-icon))
   ; https://github.com/trptr/java-wrapper/blob/39a0947f4e90857512c1999537d0de83d130c001/src/trptr/java_wrapper/locale.clj#L87
   ; cond->
   (let [config (doto (Lwjgl3ApplicationConfiguration.)
