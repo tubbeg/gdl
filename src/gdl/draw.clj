@@ -16,17 +16,5 @@
   (filled-rectangle [_ x y w h color])
   (line [_ start-position end-position color]
         [_ x y ex ey color])
+  (grid [drawer leftx bottomy gridw gridh cellw cellh color])
   (with-line-width [_ width draw-fn]))
-
-; TODO move in protocol
-(defn grid [drawer leftx bottomy gridw gridh cellw cellh color]
-  (let [w (* gridw cellw)
-        h (* gridh cellh)
-        topy (+ bottomy h)
-        rightx (+ leftx w)]
-    (doseq [idx (range (inc gridw))
-            :let [linex (+ leftx (* idx cellw))]]
-      (line drawer linex topy linex bottomy color))
-    (doseq [idx (range (inc gridh))
-            :let [liney (+ bottomy (* idx cellh))]]
-      (line drawer leftx liney rightx liney color))))

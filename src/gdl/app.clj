@@ -3,18 +3,17 @@
             [x.x :refer [defcomponent update-map]]
             [gdl.lc :as lc]
             [gdl.draw :as draw]
-            [gdl.graphics.viewport :as viewport]
             [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.files.FileHandle
-           (com.badlogic.gdx.utils Align ScreenUtils)
            (com.badlogic.gdx.graphics Color Texture OrthographicCamera Pixmap Pixmap$Format)
            (com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont TextureRegion)
-           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
-           com.badlogic.gdx.utils.SharedLibraryLoader
+           (com.badlogic.gdx.utils Align ScreenUtils SharedLibraryLoader)
            (com.badlogic.gdx.utils.viewport Viewport FitViewport)
+           [com.badlogic.gdx.math Vector2 MathUtils]
            space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn- degree->radians [degree]
@@ -108,6 +107,17 @@
   (line [_ x y ex ey color]
     (.setColor shape-drawer ^Color color)
     (.line shape-drawer (float x) (float y) (float ex) (float ey)))
+  (grid [this leftx bottomy gridw gridh cellw cellh color]
+    (let [w (* gridw cellw)
+          h (* gridh cellh)
+          topy (+ bottomy h)
+          rightx (+ leftx w)]
+      (doseq [idx (range (inc gridw))
+              :let [linex (+ leftx (* idx cellw))]]
+        (draw/line this linex topy linex bottomy color))
+      (doseq [idx (range (inc gridh))
+              :let [liney (+ bottomy (* idx cellh))]]
+        (draw/line this leftx liney rightx liney color))))
   (with-line-width [_ width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]
       (.setDefaultLineWidth shape-drawer (float (* width old-line-width)))
@@ -241,14 +251,29 @@
               :world-viewport-width  (.getWorldWidth  world-viewport)
               :world-viewport-height (.getWorldHeight world-viewport)}))))
 
-(def ^:private state (atom nil))
+(defn- clamp [value min max]
+  (MathUtils/clamp (float value) (float min) (float max)))
+
+; touch coordinates are y-down, while screen coordinates are y-up
+; so the clamping of y is reverse, but as black bars are equal it does not matter
+(defn- unproject-mouse-posi [^Viewport viewport]
+  (let [mouse-x (clamp (.getX Gdx/input)
+                       (.getLeftGutterWidth viewport)
+                       (.getRightGutterX viewport))
+        mouse-y (clamp (.getY Gdx/input)
+                       (.getTopGutterHeight viewport)
+                       (.getTopGutterY viewport))
+        coords (.unproject viewport (Vector2. mouse-x mouse-y))]
+    [(.x coords) (.y coords)]))
 
 (defn- update-mouse-positions [context]
   (assoc context
-         :gui-mouse-position (mapv int (viewport/unproject-mouse-posi (:gui-viewport context)))
+         :gui-mouse-position (mapv int (unproject-mouse-posi (:gui-viewport context)))
          ; TODO clamping only works for gui-viewport ? check. comment if true
          ; TODO ? "Can be negative coordinates, undefined cells."
-         :world-mouse-position (viewport/unproject-mouse-posi (:world-viewport context))))
+         :world-mouse-position (unproject-mouse-posi (:world-viewport context))))
+
+(def ^:private state (atom nil))
 
 (defn current-context []
   (update-mouse-positions @state))
