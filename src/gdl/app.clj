@@ -1,7 +1,7 @@
 (ns gdl.app
   (:require [clojure.string :as str]
             [x.x :refer [defcomponent update-map]]
-            [gdl.lc :as lc]
+            [gdl.lifecycle :as lc]
             [gdl.draw :as draw]
             [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)

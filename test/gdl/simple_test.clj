@@ -1,6 +1,6 @@
 (ns gdl.simple-test
   (:require [x.x :refer [defcomponent]]
-            [gdl.lc :as lc]
+            [gdl.lifecycle :as lc]
             [gdl.app :as app]
             [gdl.draw :as draw]
             [gdl.graphics.freetype :as freetype])
