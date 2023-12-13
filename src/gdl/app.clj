@@ -14,9 +14,11 @@
            com.badlogic.gdx.graphics.g2d.SpriteBatch
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.utils.SharedLibraryLoader
-           (com.badlogic.gdx.utils.viewport Viewport FitViewport)))
+           (com.badlogic.gdx.utils.viewport Viewport FitViewport)
+           space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn render-with [{:keys [^SpriteBatch batch
+                           drawer
                            gui-camera
                            world-camera
                            world-unit-scale]
@@ -29,13 +31,12 @@
         unit-scale (case gui-or-world
                      :gui 1
                      :world world-unit-scale)]
-    (shape-drawer/set-line-width unit-scale)
     (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (renderfn (assoc context :unit-scale unit-scale))
-    (.end batch)
-    (shape-drawer/set-line-width 1)))
+    (shape-drawer/with-line-width drawer unit-scale
+      (renderfn (assoc context :unit-scale unit-scale)))
+    (.end batch)))
 
 (defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
   (let [center-camera? true]
@@ -100,10 +101,16 @@
   (lc/dispose [_]
     (.dispose ^AssetManager manager)))
 
+(defcomponent :shape-drawer-texture texture
+  (lc/dispose [_]
+    (.dispose ^Texture texture)))
+
 (defn- default-components [{:keys [tile-size]}]
-  (let [batch (SpriteBatch.)]
+  (let [batch (SpriteBatch.)
+        shape-drawer-texture (shape-drawer/gen-drawer-texture)]
     (merge {:batch batch
-            :gdl.graphics.shape-drawer batch
+            :drawer (shape-drawer/->shape-drawer batch shape-drawer-texture)
+            :shape-drawer-texture shape-drawer-texture
             :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
                                       :sound-files-extensions #{"wav"}
                                       :image-files-extensions #{"png" "bmp"}
