@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [x.x :refer [defcomponent update-map]]
             [gdl.lifecycle :as lc]
-            [gdl.draw :as draw]
+            [gdl.graphics.draw :as draw]
             [gdl.scene2d.ui :as ui])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound

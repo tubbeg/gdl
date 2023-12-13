@@ -2,7 +2,7 @@
   (:require [x.x :refer [defcomponent]]
             [gdl.lifecycle :as lc]
             [gdl.app :as app]
-            [gdl.draw :as draw]
+            [gdl.graphics.draw :as draw]
             [gdl.graphics.freetype :as freetype])
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.Color
