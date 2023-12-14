@@ -264,7 +264,7 @@
          ; TODO ? "Can be negative coordinates, undefined cells."
          :world-mouse-position (unproject-mouse-posi (:world-viewport context))))
 
-(def ^:private state (atom nil))
+(def state (atom nil))
 
 (defn current-context []
   (update-mouse-positions @state))
