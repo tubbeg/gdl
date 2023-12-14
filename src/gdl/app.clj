@@ -3,7 +3,6 @@
 
   Sets up SpriteBatch, viewports for GUI and WORLD, and supplies lifecycle management."
   (:require [clojure.string :as str]
-            [x.x :refer [defcomponent update-map]]
             [gdl.lifecycle :as lc]
             [gdl.graphics.draw :as draw]
             gdl.scene2d.ui)
@@ -204,22 +203,6 @@
     (.finishLoading manager)
     manager))
 
-(defcomponent :batch batch
-  (lc/dispose [_]
-    (.dispose ^Batch batch)))
-
-(defcomponent :assets manager
-  (lc/dispose [_]
-    (.dispose ^AssetManager manager)))
-
-(defcomponent :shape-drawer-texture texture
-  (lc/dispose [_]
-    (.dispose ^Texture texture)))
-
-(defcomponent :context/scene2d.ui _
-  (lc/dispose [_]
-    (gdl.scene2d.ui/dispose!)))
-
 ; TODO ! all keywords add namespace ':context/'
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
@@ -273,6 +256,7 @@
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
+; maybe functions 'mouse-position' on 'view' ?
 (defn- update-mouse-positions [context]
   (assoc context
          :gui-mouse-position (mapv int (unproject-mouse-posi (:gui-viewport context)))
@@ -285,20 +269,27 @@
 (defn current-context []
   (update-mouse-positions @state))
 
-(defn- current-screen-component []
-  (let [k (::current-screen @state)]
-    [k (k @state)]))
+; TODO here not current-context .... should not do @state or get mouse-positions via function call
+; but then keep unprojecting ?
+(defn change-screen! [new-screen-key]
+  (let [{:keys [context/current-screen] :as context} @state]
+    (when-let [previous-screen (current-screen context)]
+      (lc/hide previous-screen))
+    (let [new-screen (new-screen-key context)]
+      (assert new-screen (str "Cannot find screen with key: " new-screen-key))
+      (swap! state assoc :context/current-screen new-screen)
+      (lc/show new-screen @state))))
 
-(defn current-screen-value []
-  ((::current-screen @state) @state))
-
-(defn set-screen [k]
-  (assert (contains? @state k) (str "Cannot find screen with key: " k " in state."))
-  (when (::current-screen @state)
-    (lc/hide (current-screen-component)))
-  (swap! state assoc ::current-screen k)
-  (lc/show (current-screen-component)
-           (current-context)))
+(defn- dispose-context [context]
+  (doseq [[k value] context]
+    (cond (extends? lc/Disposable (class value))
+          (do
+           (println "Disposing " k)
+           (lc/dispose value))
+          ((supers (class value)) com.badlogic.gdx.utils.Disposable)
+          (do
+           (println "Disposing " k)
+           (.dispose ^com.badlogic.gdx.utils.Disposable value)))))
 
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
@@ -307,18 +298,17 @@
               (let [context (default-components config)
                     context (merge context (modules context))]
                 (assoc context :drawer (->drawer context))))
-      (set-screen first-screen))
+      (change-screen! first-screen))
     (dispose []
-      (swap! state update-map lc/dispose))
+      (dispose-context @state))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (let [context (current-context)]
+      (let [{:keys [context/current-screen] :as context} (current-context)]
         (fix-viewport-update context)
-        (lc/render (current-screen-component) context)
-        (lc/tick (current-screen-component)
-                 context
-                 (* (.getDeltaTime Gdx/graphics) 1000))))
+        (lc/render current-screen context)
+        (lc/tick current-screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
+      ; TODO here also @state and not current-context ...
       (update-viewports @state w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]

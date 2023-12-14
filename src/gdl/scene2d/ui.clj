@@ -1,7 +1,8 @@
 (ns gdl.scene2d.ui
   "Widget constructors and helper functions for com.kotcrab.vis.ui
   See: https://github.com/kotcrab/vis-ui"
-  (:require [gdl.scene2d.actor :as actor])
+  (:require [gdl.lifecycle :as lc]
+            [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -12,7 +13,7 @@
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextField VisTable VisTextButton VisImageButton VisWindow VisLabel VisSplitPane VisCheckBox)))
 
-(declare ^Skin default-skin)
+(declare ^:private ^Skin default-skin)
 
 (defn initialize! []
   ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
@@ -23,12 +24,10 @@
   (when (VisUI/isLoaded)
     (VisUI/dispose))
   (VisUI/load #_VisUI$SkinScale/X2)
-  nil ; TODO return disposable object
-  )
-
-(defn dispose! []
-  (.dispose default-skin)
-  (VisUI/dispose))
+  (reify lc/Disposable
+    (dispose [_]
+      (.dispose default-skin)
+      (VisUI/dispose) )))
 
 (comment
  ; TODO set custom font with default skin - or set custom skin param
