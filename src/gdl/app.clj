@@ -271,13 +271,14 @@
 
 ; TODO here not current-context .... should not do @state or get mouse-positions via function call
 ; but then keep unprojecting ?
+; TODO TEST current logic of that screen will be continued ?
 (defn change-screen! [new-screen-key]
   (let [{:keys [context/current-screen] :as context} @state]
-    (when-let [previous-screen (current-screen context)]
+    (when-let [previous-screen (get context current-screen)]
       (lc/hide previous-screen))
     (let [new-screen (new-screen-key context)]
       (assert new-screen (str "Cannot find screen with key: " new-screen-key))
-      (swap! state assoc :context/current-screen new-screen)
+      (swap! state assoc :context/current-screen new-screen-key)
       (lc/show new-screen @state))))
 
 (defn- dispose-context [context]
@@ -296,6 +297,7 @@
     (create []
       (reset! state
               (let [context (default-components config)
+                    ; TODO safe-merge
                     context (merge context (modules context))]
                 (assoc context :drawer (->drawer context))))
       (change-screen! first-screen))
@@ -303,10 +305,11 @@
       (dispose-context @state))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (let [{:keys [context/current-screen] :as context} (current-context)]
+      (let [{:keys [context/current-screen] :as context} (current-context)
+            screen (current-screen context)]
         (fix-viewport-update context)
-        (lc/render current-screen context)
-        (lc/tick current-screen context (* (.getDeltaTime Gdx/graphics) 1000))))
+        (lc/render screen context)
+        (lc/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
       ; TODO here also @state and not current-context ...
       (update-viewports @state w h))))
