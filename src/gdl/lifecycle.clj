@@ -5,7 +5,6 @@
 
 ; TODO consistent last arg = context/game/state like in game.entity
 
-(defsystem create  [_ context])
 (defsystem dispose [_])
 
 ; screen/.*

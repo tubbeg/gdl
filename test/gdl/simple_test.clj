@@ -9,15 +9,10 @@
            com.badlogic.gdx.graphics.g2d.BitmapFont))
 
 (defcomponent :default-font font
-  (lc/create [_ _ctx]
-    (BitmapFont.))
   (lc/dispose [_]
     (.dispose ^BitmapFont font)))
 
-(defcomponent :screen {:keys [special-font default-font]}
-  (lc/create [_ _ctx]
-    {:special-font (freetype/generate (.internal Gdx/files "exocet/films.EXL_____.ttf")
-                                      16)})
+(defcomponent :screen {:keys [special-font]}
   (lc/dispose [_]
     (.dispose ^BitmapFont special-font))
   (lc/render [_ {:keys [gui-mouse-position world-mouse-position] :as context}]
@@ -39,11 +34,15 @@
                                      :text (str "exl-font\n" the-str)
                                      :x gx,:y gy,:h-align :left,:up? false}))))))
 
+(defn create-context [context]
+  {:default-font (BitmapFont.)
+   :screen {:special-font (freetype/generate (.internal Gdx/files "exocet/films.EXL_____.ttf")
+                                             16)}})
+
 (defn app []
   (app/start {:app {:title "gdl demo"
                     :width 800
                     :height 600
                     :full-screen? false}
-              :modules {:default-font nil
-                        :screen nil}
+              :modules create-context
               :first-screen :screen}))

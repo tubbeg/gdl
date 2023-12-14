@@ -6,7 +6,7 @@
             [x.x :refer [defcomponent update-map]]
             [gdl.lifecycle :as lc]
             [gdl.graphics.draw :as draw]
-            [gdl.scene2d.ui :as ui])
+            gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
@@ -216,6 +216,11 @@
   (lc/dispose [_]
     (.dispose ^Texture texture)))
 
+(defcomponent :context/scene2d.ui _
+  (lc/dispose [_]
+    (gdl.scene2d.ui/dispose!)))
+
+; TODO ! all keywords add namespace ':context/'
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     (merge {:batch batch
@@ -223,8 +228,7 @@
                                       :sound-files-extensions #{"wav"}
                                       :image-files-extensions #{"png" "bmp"}
                                       :log-load-assets? false})
-            ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-            :gdl.scene2d.ui (ui/skin (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))}
+            :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
            (let [texture (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                                         (.setColor Color/WHITE)
                                         (.drawPixel 0 0))
@@ -300,8 +304,8 @@
   (proxy [ApplicationAdapter] []
     (create []
       (reset! state
-              (let [context (update-map (default-components config) lc/create nil)
-                    context (merge context (update-map modules lc/create context))]
+              (let [context (default-components config)
+                    context (merge context (modules context))]
                 (assoc context :drawer (->drawer context))))
       (set-screen first-screen))
     (dispose []

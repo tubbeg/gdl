@@ -1,10 +1,9 @@
 (ns gdl.scene2d.ui
   "Widget constructors and helper functions for com.kotcrab.vis.ui
   See: https://github.com/kotcrab/vis-ui"
-  (:require [x.x :refer [defmodule]]
-            [gdl.lifecycle :as lc]
-            [gdl.scene2d.actor :as actor])
-  (:import com.badlogic.gdx.files.FileHandle
+  (:require [gdl.scene2d.actor :as actor])
+  (:import com.badlogic.gdx.Gdx
+           com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.graphics.g2d.TextureRegion
            com.badlogic.gdx.scenes.scene2d.Actor
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
@@ -15,21 +14,21 @@
 
 (declare ^Skin default-skin)
 
-(defmodule user-skin
-  (lc/create [_ _ctx]
-    (.bindRoot #'default-skin user-skin)
-    ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
-    ; => actually there is a deeper issue at play
-    ; we need to dispose ALL resources which were loaded already ...
-    (when (VisUI/isLoaded)
-      (VisUI/dispose))
-    (VisUI/load #_VisUI$SkinScale/X2))
-  (lc/dispose [_]
-    (.dispose default-skin)
-    (VisUI/dispose)))
+(defn initialize! []
+  ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
+  (.bindRoot #'default-skin (Skin. (.internal Gdx/files "scene2d.ui.skin/uiskin.json")))
+  ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
+  ; => actually there is a deeper issue at play
+  ; we need to dispose ALL resources which were loaded already ...
+  (when (VisUI/isLoaded)
+    (VisUI/dispose))
+  (VisUI/load #_VisUI$SkinScale/X2)
+  nil ; TODO return disposable object
+  )
 
-(defn skin [^FileHandle file]
-  (Skin. file))
+(defn dispose! []
+  (.dispose default-skin)
+  (VisUI/dispose))
 
 (comment
  ; TODO set custom font with default skin - or set custom skin param
