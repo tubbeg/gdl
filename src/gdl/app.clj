@@ -292,14 +292,17 @@
            (println "Disposing " k)
            (.dispose ^com.badlogic.gdx.utils.Disposable value)))))
 
+(defrecord Context [])
+
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
       (reset! state
-              (let [context (default-components config)
-                    ; TODO safe-merge
-                    context (merge context (modules context))]
-                (assoc context :drawer (->drawer context))))
+              (map->Context
+               (let [context (default-components config)
+                     ; TODO safe-merge
+                     context (merge context (modules context))]
+                 (assoc context :drawer (->drawer context)))))
       (change-screen! first-screen))
     (dispose []
       (dispose-context @state))
