@@ -156,9 +156,9 @@
     (.end batch)))
 
 (defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
-  (let [center-camera? true]
-    (.update ^Viewport gui-viewport   w h center-camera?)
-    (.update ^Viewport world-viewport w h center-camera?)))
+  (.update ^Viewport gui-viewport   w h true)
+  ; Do not center the camera on world-viewport. We set the position there manually.
+  (.update ^Viewport world-viewport w h false))
 
 (defn- fix-viewport-update
   "Sometimes the viewport update is not triggered."
