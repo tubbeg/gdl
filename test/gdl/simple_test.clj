@@ -1,6 +1,12 @@
 (ns gdl.simple-test
   (:require [gdl.app :as app]
-            [gdl.protocols :refer [draw-centered-image draw-circle draw-text generate-ttf create-image]]
+            gdl.default-context
+            [gdl.protocols :refer [draw-centered-image
+                                   draw-circle
+                                   draw-text
+                                   generate-ttf
+                                   create-image
+                                   render-in-gui-view]]
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 
@@ -27,21 +33,26 @@
                 :text (str "exl-font\n" the-str)
                 :x gx,:y gy,:h-align :left,:up? false})))
 
-(defn create-context [context]
-  {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
-                                        :size 16})
-   :logo (create-image context "logo.png")
-   :my-screen (reify gdl.screen/Screen
-                (show [_ _context])
-                (hide [_ _context])
-                (render [_ context]
-                  (app/render-view context :gui draw-test))
-                (tick [_ _context _delta]))})
+(defrecord Screen []
+  gdl.screen/Screen
+  (show [_ _context])
+  (hide [_ _context])
+  (render [_ context]
+    (render-in-gui-view context draw-test))
+  (tick [_ _context _delta]))
+
+(defn create-context []
+  (let [context (gdl.default-context/->Context)]
+    (merge context
+           {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
+                                                 :size 16})
+            :logo (create-image context "logo.png")
+            :my-screen (->Screen)})))
 
 (defn app []
   (app/start {:app {:title "gdl demo"
                     :width 800
                     :height 600
                     :full-screen? false}
-              :modules create-context
+              :context-fn create-context
               :first-screen :my-screen}))
