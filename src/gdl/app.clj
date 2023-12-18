@@ -1,11 +1,7 @@
 (ns gdl.app
-  "Main namespace for starting an app and changing the current screen.
-
-  Sets up SpriteBatch, viewports for GUI and WORLD, and supplies lifecycle management."
   (:require [clojure.string :as str]
             [gdl.screen :as screen]
             [gdl.protocols :refer [dispose]]
-            [gdl.graphics.draw :as draw]
             gdl.graphics.freetype
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
@@ -48,9 +44,9 @@
     (:pixel-dimensions image)
     (:world-unit-dimensions image)))
 
-(defrecord Drawer [batch unit-scale default-font ^ShapeDrawer shape-drawer]
-  draw/Drawer
-  (text [_ {:keys [font text x y h-align up?]}]
+(extend-type gdl.protocols.Context
+  gdl.protocols/TextDrawer
+  (draw-text [{:keys [default-font unit-scale batch]} {:keys [font text x y h-align up?]}]
     (let [^BitmapFont font (or font default-font)
           data (.getData font)
           old-scale (.scaleX data)]
@@ -67,11 +63,15 @@
                :right  Align/right)
              false) ; wrap false, no need target-width
       (.setScale data (float old-scale))))
-  (image [_ {:keys [texture color] :as image} position]
+
+  gdl.protocols/ImageDrawer
+  (draw-image [{:keys [batch unit-scale]} {:keys [texture color] :as image} position]
     (draw-texture batch texture position (unit-dimensions unit-scale image) 0 color))
-  (image [this image x y]
-    (draw/image this image [x y]))
-  (rotated-centered-image [_ {:keys [texture color] :as image} rotation [x y]]
+
+  (draw-image [this image x y]
+    (gdl.protocols/draw-image this image [x y]))
+
+  (draw-rotated-centered-image [{:keys [batch unit-scale]} {:keys [texture color] :as image} rotation [x y]]
     (let [[w h] (unit-dimensions unit-scale image)]
       (draw-texture batch
                     texture
@@ -80,64 +80,79 @@
                     [w h]
                     rotation
                     color)))
-  (centered-image [this image position]
-    (draw/rotated-centered-image this image 0 position))
-  (ellipse [_ [x y] radius-x radius-y color]
+
+  (draw-centered-image [this image position]
+    (gdl.protocols/draw-rotated-centered-image this image 0 position))
+
+  gdl.protocols/ShapeDrawer
+  (draw-ellipse [{:keys [^ShapeDrawer shape-drawer]} [x y] radius-x radius-y color]
     (.setColor shape-drawer ^Color color)
     (.ellipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)) )
-  (filled-ellipse [_ [x y] radius-x radius-y color]
+
+  (draw-filled-ellipse [{:keys [^ShapeDrawer shape-drawer]} [x y] radius-x radius-y color]
     (.setColor shape-drawer ^Color color)
     (.filledEllipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)))
-  (circle [_ [x y] radius color]
+
+  (draw-circle [{:keys [^ShapeDrawer shape-drawer]} [x y] radius color]
     (.setColor shape-drawer ^Color color)
     (.circle shape-drawer (float x) (float y) (float radius)))
-  (filled-circle [_ [x y] radius color]
+
+  (draw-filled-circle [{:keys [^ShapeDrawer shape-drawer]} [x y] radius color]
     (.setColor shape-drawer ^Color color)
     (.filledCircle shape-drawer (float x) (float y) (float radius)))
-  (arc [_ [centre-x centre-y] radius start-angle degree color]
+
+  (draw-arc [{:keys [^ShapeDrawer shape-drawer]} [centre-x centre-y] radius start-angle degree color]
     (.setColor shape-drawer ^Color color)
     (.arc shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
-  (sector [_ [centre-x centre-y] radius start-angle degree color]
+
+  (draw-sector [{:keys [^ShapeDrawer shape-drawer]} [centre-x centre-y] radius start-angle degree color]
     (.setColor shape-drawer ^Color color)
     (.sector shape-drawer centre-x centre-y radius start-angle (degree->radians degree)))
-  (rectangle [_ x y w h color]
+
+  (draw-rectangle [{:keys [^ShapeDrawer shape-drawer]} x y w h color]
     (.setColor shape-drawer ^Color color)
     (.rectangle shape-drawer x y w h) )
-  (filled-rectangle [_ x y w h color]
+
+  (draw-filled-rectangle [{:keys [^ShapeDrawer shape-drawer]} x y w h color]
     (.setColor shape-drawer ^Color color)
     (.filledRectangle shape-drawer (float x) (float y) (float w) (float h)) )
-  (line [this [x y] [ex ey] color]
-    (draw/line this x y ex ey color))
-  (line [_ x y ex ey color]
+
+  (draw-line [this [x y] [ex ey] color]
+    (gdl.protocols/draw-line this x y ex ey color))
+
+  (draw-line [{:keys [^ShapeDrawer shape-drawer]} x y ex ey color]
     (.setColor shape-drawer ^Color color)
     (.line shape-drawer (float x) (float y) (float ex) (float ey)))
-  (grid [this leftx bottomy gridw gridh cellw cellh color]
+
+  (draw-grid [this leftx bottomy gridw gridh cellw cellh color]
     (let [w (* gridw cellw)
           h (* gridh cellh)
           topy (+ bottomy h)
           rightx (+ leftx w)]
       (doseq [idx (range (inc gridw))
               :let [linex (+ leftx (* idx cellw))]]
-        (draw/line this linex topy linex bottomy color))
+        (gdl.protocols/draw-line this linex topy linex bottomy color))
       (doseq [idx (range (inc gridh))
               :let [liney (+ bottomy (* idx cellh))]]
-        (draw/line this leftx liney rightx liney color))))
-  (with-line-width [_ width draw-fn]
+        (gdl.protocols/draw-line this leftx liney rightx liney color))))
+
+  (with-shape-line-width [{:keys [^ShapeDrawer shape-drawer]} width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]
       (.setDefaultLineWidth shape-drawer (float (* width old-line-width)))
       (draw-fn)
       (.setDefaultLineWidth shape-drawer (float old-line-width)))))
 
-(defn- ->drawer [context]
-  (assert (:default-font context))
-  (-> context
-      (select-keys [:batch :default-font :shape-drawer])
-      (assoc :unit-scale 1)
-      map->Drawer))
-
+; TODO this is more like with-open or something ?
+; or binding a dynamic var ?
+; not a drawer function?
+; let the context draw ??
+; draw-text context foo
+; it also plays sounds and everything else ....
+; https://github.com/clojure/clojure/blob/clojure-1.11.1/src/clj/clojure/core.clj#L3832
+; try finally use ?
+; or just a do-macro which ends the batch after ?
 (defn render-view [{:keys [^Batch batch
                            shape-drawer
-                           drawer
                            gui-camera
                            world-camera
                            world-unit-scale]
@@ -150,11 +165,14 @@
         unit-scale (case gui-or-world
                      :gui 1
                      :world world-unit-scale)
-        drawer (assoc drawer :unit-scale unit-scale)]
+        context (assoc context :unit-scale unit-scale)]
     (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (draw/with-line-width drawer unit-scale #(draw-fn drawer))
+    (gdl.protocols/with-shape-line-width
+     context
+     unit-scale
+     #(draw-fn context))
     (.end batch)))
 
 (defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
@@ -213,6 +231,8 @@
                                       :sound-files-extensions #{"wav"}
                                       :image-files-extensions #{"png" "bmp"}
                                       :log-load-assets? false})
+            :unit-scale 1
+            :default-font (BitmapFont.) ; TODO does not draw world-unit-scale idk how possible, maybe setfontdata something
             :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
            (let [texture (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                                         (.setColor Color/WHITE)
@@ -297,11 +317,11 @@
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
+      ; TODO let completely the user do this
       (let [context (-> config
                         default-components
                         gdl.protocols/map->Context)
-            context (merge context (modules context)) ; TODO safe-merge ?
-            context (assoc context :drawer (->drawer context))] ; using user provided :default-font in drawer
+            context (merge context (modules context))]  ; TODO safe-merge ?
         (reset! state context))
       (change-screen! first-screen))
     (dispose []
