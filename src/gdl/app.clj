@@ -3,6 +3,7 @@
             [gdl.screen :as screen]
             [gdl.protocols :refer [dispose]]
             gdl.graphics.freetype
+            gdl.context.text-drawer
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
@@ -10,20 +11,14 @@
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.files.FileHandle
            (com.badlogic.gdx.graphics Color Texture OrthographicCamera Pixmap Pixmap$Format)
-           (com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont TextureRegion)
-           (com.badlogic.gdx.utils Align ScreenUtils)
+           (com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion)
+           (com.badlogic.gdx.utils ScreenUtils)
            (com.badlogic.gdx.utils.viewport Viewport FitViewport)
            [com.badlogic.gdx.math Vector2 MathUtils]
            space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn- degree->radians [degree]
   (* degree (/ (Math/PI) 180)))
-
-(defn- text-height [^BitmapFont font text]
-  (-> text
-      (str/split #"\n")
-      count
-      (* (.getLineHeight font))))
 
 (defn- draw-texture [^Batch batch texture [x y] [w h] rotation color]
   (if color (.setColor batch color))
@@ -45,25 +40,6 @@
     (:world-unit-dimensions image)))
 
 (extend-type gdl.protocols.Context
-  gdl.protocols/TextDrawer
-  (draw-text [{:keys [default-font unit-scale batch]} {:keys [font text x y h-align up?]}]
-    (let [^BitmapFont font (or font default-font)
-          data (.getData font)
-          old-scale (.scaleX data)]
-      (.setScale data (float (* old-scale unit-scale)))
-      (.draw font
-             batch
-             (str text)
-             (float x)
-             (float (+ y (if up? (text-height font text) 0)))
-             (float 0) ; target-width
-             (case (or h-align :center)
-               :center Align/center
-               :left   Align/left
-               :right  Align/right)
-             false) ; wrap false, no need target-width
-      (.setScale data (float old-scale))))
-
   gdl.protocols/ImageDrawer
   (draw-image [{:keys [batch unit-scale]} {:keys [texture color] :as image} position]
     (draw-texture batch texture position (unit-dimensions unit-scale image) 0 color))
@@ -142,15 +118,6 @@
       (draw-fn)
       (.setDefaultLineWidth shape-drawer (float old-line-width)))))
 
-; TODO this is more like with-open or something ?
-; or binding a dynamic var ?
-; not a drawer function?
-; let the context draw ??
-; draw-text context foo
-; it also plays sounds and everything else ....
-; https://github.com/clojure/clojure/blob/clojure-1.11.1/src/clj/clojure/core.clj#L3832
-; try finally use ?
-; or just a do-macro which ends the batch after ?
 (defn render-view [{:keys [^Batch batch
                            shape-drawer
                            gui-camera
@@ -169,10 +136,7 @@
     (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (gdl.protocols/with-shape-line-width
-     context
-     unit-scale
-     #(draw-fn context))
+    (gdl.protocols/with-shape-line-width context unit-scale #(draw-fn context))
     (.end batch)))
 
 (defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
@@ -227,13 +191,19 @@
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     (merge {:batch batch
+            :unit-scale 1
             :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
                                       :sound-files-extensions #{"wav"}
                                       :image-files-extensions #{"png" "bmp"}
                                       :log-load-assets? false})
-            :unit-scale 1
-            :default-font (BitmapFont.) ; TODO does not draw world-unit-scale idk how possible, maybe setfontdata something
             :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
+
+           (gdl.context.text-drawer/extend-and-create-context
+            gdl.protocols.Context)
+
+           ; separate ns -> loads shapedrawer protocol on context class (which I maybe pass there ? )
+           ; disposable -> only 1 new context component
+           ; also namespaced name ?
            (let [texture (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                                         (.setColor Color/WHITE)
                                         (.drawPixel 0 0))
@@ -242,6 +212,8 @@
                            texture)]
              {:shape-drawer (ShapeDrawer. batch (TextureRegion. texture 0 0 1 1))
               :shape-drawer-texture texture})
+
+           ; create views manually ...
            (let [gui-camera (OrthographicCamera.)
                  gui-viewport (FitViewport. (.getWidth Gdx/graphics)
                                             (.getHeight Gdx/graphics)
@@ -250,6 +222,8 @@
               :gui-viewport gui-viewport
               :gui-viewport-width  (.getWorldWidth  gui-viewport)
               :gui-viewport-height (.getWorldHeight gui-viewport)})
+
+           ; create views ....
            (let [world-camera (OrthographicCamera.)
                  world-unit-scale (/ (or tile-size 1))
                  world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
