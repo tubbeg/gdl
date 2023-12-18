@@ -1,29 +1,12 @@
 (ns gdl.app
   (:require [gdl.screen :as screen]
-            [gdl.protocols :refer [dispose]]
-            gdl.context.assets
-            gdl.context.image-drawer-creator
-            gdl.context.shape-drawer
-            gdl.context.text-drawer
-            gdl.context.ttf-generator
-            gdl.context.gui-world-views
-            gdl.scene2d.ui)
+            [gdl.protocols :refer [dispose]])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.graphics.Color
-           com.badlogic.gdx.graphics.g2d.SpriteBatch
            com.badlogic.gdx.utils.ScreenUtils))
 
-(defn- default-components [{:keys [tile-size]}]
-  (let [batch (SpriteBatch.)]
-    (merge {:batch batch
-            :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
-           (gdl.context.assets/->context-map)
-           (gdl.context.text-drawer/->context-map)
-           (gdl.context.shape-drawer/->context-map batch)
-           (gdl.context.gui-world-views/->context-map :tile-size tile-size))))
-
-(def state (atom nil)) ; TODO pass by user !
+(def state (atom nil))
 
 (defn current-context []
   (gdl.protocols/assoc-view-mouse-positions @state))
@@ -51,15 +34,10 @@
            (println "Disposing " k)
            (.dispose ^com.badlogic.gdx.utils.Disposable value)))))
 
-(defn- application-adapter [{:keys [modules first-screen] :as config}]
+(defn- application-adapter [{:keys [context-fn first-screen]}]
   (proxy [ApplicationAdapter] []
     (create []
-      ; TODO let completely the user do this
-      (let [context (-> config
-                        default-components
-                        gdl.protocols/map->Context)
-            context (merge context (modules context))]  ; TODO safe-merge ?
-        (reset! state context))
+      (reset! state (context-fn))
       (change-screen! first-screen))
     (dispose []
       (dispose-context @state))
