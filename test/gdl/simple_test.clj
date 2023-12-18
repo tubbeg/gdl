@@ -6,9 +6,11 @@
                                    draw-text
                                    generate-ttf
                                    create-image
-                                   render-in-gui-view]]
+                                   render-gui-view]]
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
+
+; TODO MOVE DEFAULT STUFF HERE CUSTOM
 
 ; [RED] not working with default font
 ; TODO rotate image with counter and maybe scale & color too ?!
@@ -38,7 +40,7 @@
   (show [_ _context])
   (hide [_ _context])
   (render [_ context]
-    (render-in-gui-view context draw-test))
+    (render-gui-view context draw-test))
   (tick [_ _context _delta]))
 
 (defn create-context []

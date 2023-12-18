@@ -4,7 +4,8 @@
   (:require gdl.protocols)
   (:import com.badlogic.gdx.Gdx
            [com.badlogic.gdx.graphics Texture$TextureFilter]
-           [com.badlogic.gdx.graphics.g2d BitmapFont]
+           ; TODO unused BitmapFont? for dispose ?
+           ;[com.badlogic.gdx.graphics.g2d BitmapFont]
            [com.badlogic.gdx.graphics.g2d.freetype
             FreeTypeFontGenerator
             FreeTypeFontGenerator$FreeTypeFontParameter]))

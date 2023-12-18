@@ -13,7 +13,7 @@
 (defn ->Context [& {:keys [tile-size]}]
   (gdl.protocols/map->Context
    (let [batch (SpriteBatch.)]
-     (merge {:batch batch
+     (merge {:batch batch ; TODO safe-merge ?
              :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
             (gdl.context.assets/->context-map)
             (gdl.context.text-drawer/->context-map)

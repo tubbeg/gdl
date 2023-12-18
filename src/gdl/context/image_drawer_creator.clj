@@ -5,7 +5,7 @@
 
 (defn- draw-texture [^Batch batch texture [x y] [w h] rotation color]
   (if color (.setColor batch color))
-  (.draw batch texture
+  (.draw batch texture ; TODO this is texture-region ?
          x
          y
          (/ w 2) ; rotation origin

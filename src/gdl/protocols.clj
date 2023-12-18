@@ -47,8 +47,8 @@
   (get-sprite [_ {:keys [tilew tileh] :as sheet} [x y]]))
 
 (defprotocol GuiWorldViews
-  (render-in-gui-view   [_ render-fn])
-  (render-in-world-view [_ render-fn])
+  (render-gui-view   [_ render-fn])
+  (render-world-view [_ render-fn])
   (update-viewports [_ w h])
   (fix-viewport-update [_])
   (assoc-view-mouse-positions [_])

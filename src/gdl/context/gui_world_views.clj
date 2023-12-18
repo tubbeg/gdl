@@ -1,3 +1,8 @@
+; TODO make 2 = gui-view & world-view ?
+; which has view interface ....
+; I don't need in my test world-view & I don't need scene2d.ui
+; => default-modules move to test
+; => tree structure
 (ns gdl.context.gui-world-views
   (:require gdl.protocols)
   (:import com.badlogic.gdx.Gdx
@@ -21,7 +26,7 @@
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
-(defn- render-in-view [{:keys [^Batch batch
+(defn- render-view [{:keys [^Batch batch
                         shape-drawer
                         gui-camera
                         world-camera
@@ -46,11 +51,11 @@
 
 (extend-type gdl.protocols.Context
   gdl.protocols/GuiWorldViews
-  (render-in-gui-view [this render-fn]
-    (render-in-view this :gui render-fn))
+  (render-gui-view [this render-fn]
+    (render-view this :gui render-fn))
 
-  (render-in-world-view [this render-fn]
-    (render-in-view this :world render-fn))
+  (render-world-view [this render-fn]
+    (render-view this :world render-fn))
 
   (update-viewports [{:keys [gui-viewport world-viewport]} w h]
     (.update ^Viewport gui-viewport   w h true)
