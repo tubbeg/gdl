@@ -1,7 +1,7 @@
 (ns gdl.app
-  (:require [clojure.string :as str]
-            [gdl.screen :as screen]
+  (:require [gdl.screen :as screen]
             [gdl.protocols :refer [dispose]]
+            gdl.context.assets
             gdl.context.image-drawer-creator
             gdl.context.shape-drawer
             gdl.context.text-drawer
@@ -9,68 +9,21 @@
             gdl.context.gui-world-views
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
-           com.badlogic.gdx.audio.Sound
-           com.badlogic.gdx.assets.AssetManager
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
-           com.badlogic.gdx.files.FileHandle
-           (com.badlogic.gdx.graphics Color Texture)
+           com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.graphics.g2d.SpriteBatch
            com.badlogic.gdx.utils.ScreenUtils))
-
-; I could do extend-type in a function (is possible?)
-; and call it explitly and also check if I have all the context ingredients necessary
-; ( but they are only needed at runtime? e.g. drawer ?)
-
-
-(defn- recursively-search-files [folder extensions]
-  (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))
-         result []]
-    (cond (nil? file) result
-          (.isDirectory file) (recur (concat remaining (.list file)) result)
-          (extensions (.extension file)) (recur remaining (conj result (str/replace-first (.path file) folder "")))
-          :else (recur remaining result))))
-
-(defn- load-assets [^AssetManager manager folder file-extensions ^Class klass log-load-assets?]
-  (doseq [file (recursively-search-files folder file-extensions)]
-    (when log-load-assets?
-      (println "load-assets" (str "[" (.getSimpleName klass) "] - [" file "]")))
-    (.load manager file klass)))
-
-(defn- load-all-assets [{:keys [folder
-                                log-load-assets?
-                                sound-files-extensions
-                                image-files-extensions]
-                         :as config}]
-  (doseq [k [:folder
-             :log-load-assets?
-             :sound-files-extensions
-             :image-files-extensions]]
-    (assert (contains? config k)
-            (str "config key(s) missing: " k)))
-  (let [manager (proxy [AssetManager clojure.lang.ILookup] []
-                  (valAt [file]
-                    (.get ^AssetManager this ^String file)))]
-    (load-assets manager folder sound-files-extensions Sound   log-load-assets?)
-    (load-assets manager folder image-files-extensions Texture log-load-assets?)
-    (.finishLoading manager)
-    manager))
-
-; TODO ! all keywords add namespace ':context/' or something else
 
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     (merge {:batch batch
-            :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
-                                      :sound-files-extensions #{"wav"}
-                                      :image-files-extensions #{"png" "bmp"}
-                                      :log-load-assets? false})
             :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
+           (gdl.context.assets/->context-map)
            (gdl.context.text-drawer/->context-map)
            (gdl.context.shape-drawer/->context-map batch)
            (gdl.context.gui-world-views/->context-map :tile-size tile-size))))
 
-
-(def state (atom nil)) ; TODO rename context?
+(def state (atom nil)) ; TODO pass by user !
 
 (defn current-context []
   (gdl.protocols/assoc-view-mouse-positions @state))

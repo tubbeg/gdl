@@ -1,6 +1,11 @@
 (ns gdl.protocols)
 
-(defrecord Context []) ; TODO pass specific class/record from user
+; TODO ! all keywords add namespace ':context/' or something else
+
+; call Context ns ? or put other protocols also ? e.g. counter / tick / etc/ ? might be intereseting
+; assert at creation / call extent-type only with function explicitly and assert have the required context-components available ?
+
+(defrecord Context [])
 
 ; could use with-open and closeable ? there is an article around for that
 (defprotocol Disposable
