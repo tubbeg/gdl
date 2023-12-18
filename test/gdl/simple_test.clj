@@ -29,11 +29,9 @@
 (deftype Screen []
   lc/Screen
   (lc/show [_ _ctx])
-  (lc/hide [_])
+  (lc/hide [_ _ctx])
   (lc/render [_ context]
-    (app/render-with context
-                     :gui
-                     #(draw-test % context)))
+    (app/render-view context :gui #(draw-test % context)))
   (lc/tick [_ _ctx _delta]))
 
 (defn create-context [context]

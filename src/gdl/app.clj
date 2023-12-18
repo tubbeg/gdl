@@ -133,7 +133,7 @@
       (assoc :unit-scale 1)
       map->Drawer))
 
-(defn render-with [{:keys [^Batch batch
+(defn render-view [{:keys [^Batch batch
                            shape-drawer
                            drawer
                            gui-camera
@@ -275,7 +275,7 @@
 (defn change-screen! [new-screen-key]
   (let [{:keys [context/current-screen] :as context} @state]
     (when-let [previous-screen (get context current-screen)]
-      (lc/hide previous-screen))
+      (lc/hide previous-screen context))
     (let [new-screen (new-screen-key context)]
       (assert new-screen (str "Cannot find screen with key: " new-screen-key))
       (swap! state assoc :context/current-screen new-screen-key)

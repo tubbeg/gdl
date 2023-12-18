@@ -3,9 +3,8 @@
 (defprotocol Disposable
   (dispose [_]))
 
-; TODO consistent last arg = context/game/state like in game.entity
 (defprotocol Screen
   (show   [_ context])
-  (hide   [_])
+  (hide   [_ context])
   (render [_ context])
   (tick   [_ context delta]))
