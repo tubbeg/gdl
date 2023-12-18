@@ -1,4 +1,4 @@
-(ns gdl.protocols)
+(ns gdl.protocols) ; == context
 
 ; TODO ! all keywords add namespace ':context/' or something else
 
@@ -26,14 +26,12 @@
   (draw-sector [_ center-position radius start-angle degree color])
   (draw-rectangle [_ x y w h color])
   (draw-filled-rectangle [_ x y w h color])
-  (draw-line [_ start-position end-position color]
-        [_ x y ex ey color])
+  (draw-line [_ start-position end-position color])
   (draw-grid [drawer leftx bottomy gridw gridh cellw cellh color])
   (with-shape-line-width [_ width draw-fn]))
 
 (defprotocol ImageDrawer
-  (draw-image [_ image x y]
-              [_ image position])
+  (draw-image [_ image position])
   (draw-centered-image [_ image position])
   (draw-rotated-centered-image [_ image rotation position]))
 

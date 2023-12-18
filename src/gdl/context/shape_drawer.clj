@@ -41,12 +41,9 @@
     (.setColor shape-drawer ^Color color)
     (.filledRectangle shape-drawer (float x) (float y) (float w) (float h)) )
 
-  (draw-line [this [x y] [ex ey] color]
-    (gdl.protocols/draw-line this x y ex ey color))
-
-  (draw-line [{:keys [^ShapeDrawer shape-drawer]} x y ex ey color]
+  (draw-line [{:keys [^ShapeDrawer shape-drawer]} [sx sy] [ex ey] color]
     (.setColor shape-drawer ^Color color)
-    (.line shape-drawer (float x) (float y) (float ex) (float ey)))
+    (.line shape-drawer (float sx) (float sy) (float ex) (float ey)))
 
   (draw-grid [this leftx bottomy gridw gridh cellw cellh color]
     (let [w (* gridw cellw)
@@ -55,10 +52,10 @@
           rightx (+ leftx w)]
       (doseq [idx (range (inc gridw))
               :let [linex (+ leftx (* idx cellw))]]
-        (gdl.protocols/draw-line this linex topy linex bottomy color))
+        (gdl.protocols/draw-line this [linex topy] [linex bottomy] color))
       (doseq [idx (range (inc gridh))
               :let [liney (+ bottomy (* idx cellh))]]
-        (gdl.protocols/draw-line this leftx liney rightx liney color))))
+        (gdl.protocols/draw-line this [leftx liney] [rightx liney] color))))
 
   (with-shape-line-width [{:keys [^ShapeDrawer shape-drawer]} width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]

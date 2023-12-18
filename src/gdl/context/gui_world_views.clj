@@ -27,27 +27,27 @@
     [(.x coords) (.y coords)]))
 
 (defn- render-view [{:keys [^Batch batch
-                        shape-drawer
-                        gui-camera
-                        world-camera
-                        world-unit-scale]
-                 :as context}
-                gui-or-world
-                draw-fn]
-    (let [^OrthographicCamera camera (case gui-or-world
-                                       :gui gui-camera
-                                       :world world-camera)
-          unit-scale (case gui-or-world
-                       :gui 1
-                       :world world-unit-scale)
-          context (assoc context :unit-scale unit-scale)]
-      (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
-      (.setProjectionMatrix batch (.combined camera))
-      (.begin batch)
-      (gdl.protocols/with-shape-line-width context
-                                           unit-scale
-                                           #(draw-fn context))
-      (.end batch)))
+                            shape-drawer
+                            gui-camera
+                            world-camera
+                            world-unit-scale]
+                     :as context}
+                    gui-or-world
+                    draw-fn]
+  (let [^OrthographicCamera camera (case gui-or-world
+                                     :gui gui-camera
+                                     :world world-camera)
+        unit-scale (case gui-or-world
+                     :gui 1
+                     :world world-unit-scale)
+        context (assoc context :unit-scale unit-scale)]
+    (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
+    (.setProjectionMatrix batch (.combined camera))
+    (.begin batch)
+    (gdl.protocols/with-shape-line-width context
+      unit-scale
+      #(draw-fn context))
+    (.end batch)))
 
 (extend-type gdl.protocols.Context
   gdl.protocols/GuiWorldViews

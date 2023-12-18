@@ -24,8 +24,6 @@
 
 (extend-type gdl.protocols.Context
   gdl.protocols/ImageDrawer
-  (draw-image [this image x y]
-    (gdl.protocols/draw-image this image [x y]))
   (draw-image [{:keys [batch unit-scale]}
                {:keys [texture color] :as image}
                position]
