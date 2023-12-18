@@ -13,8 +13,8 @@
   (draw-text [_ {:keys [font text x y h-align up?]}]))
 
 (defprotocol ImageDrawer
-  (draw-image [_ image position]
-              [_ image x y])
+  (draw-image [_ image x y]
+              [_ image position])
   (draw-centered-image [_ image position])
   (draw-rotated-centered-image [_ image rotation position]))
 

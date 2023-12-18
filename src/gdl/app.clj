@@ -4,6 +4,7 @@
             [gdl.protocols :refer [dispose]]
             gdl.graphics.freetype
             gdl.context.text-drawer
+            gdl.context.image-drawer
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
@@ -12,7 +13,7 @@
            com.badlogic.gdx.files.FileHandle
            (com.badlogic.gdx.graphics Color Texture OrthographicCamera Pixmap Pixmap$Format)
            (com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion)
-           (com.badlogic.gdx.utils ScreenUtils)
+           com.badlogic.gdx.utils.ScreenUtils
            (com.badlogic.gdx.utils.viewport Viewport FitViewport)
            [com.badlogic.gdx.math Vector2 MathUtils]
            space.earlygrey.shapedrawer.ShapeDrawer))
@@ -20,46 +21,7 @@
 (defn- degree->radians [degree]
   (* degree (/ (Math/PI) 180)))
 
-(defn- draw-texture [^Batch batch texture [x y] [w h] rotation color]
-  (if color (.setColor batch color))
-  (.draw batch texture
-         x
-         y
-         (/ w 2) ; rotation origin
-         (/ h 2)
-         w ; width height
-         h
-         1 ; scaling factor
-         1
-         rotation)
-  (if color (.setColor batch Color/WHITE)))
-
-(defn- unit-dimensions [unit-scale image]
-  (if (= unit-scale 1)
-    (:pixel-dimensions image)
-    (:world-unit-dimensions image)))
-
 (extend-type gdl.protocols.Context
-  gdl.protocols/ImageDrawer
-  (draw-image [{:keys [batch unit-scale]} {:keys [texture color] :as image} position]
-    (draw-texture batch texture position (unit-dimensions unit-scale image) 0 color))
-
-  (draw-image [this image x y]
-    (gdl.protocols/draw-image this image [x y]))
-
-  (draw-rotated-centered-image [{:keys [batch unit-scale]} {:keys [texture color] :as image} rotation [x y]]
-    (let [[w h] (unit-dimensions unit-scale image)]
-      (draw-texture batch
-                    texture
-                    [(- x (/ w 2))
-                     (- y (/ h 2))]
-                    [w h]
-                    rotation
-                    color)))
-
-  (draw-centered-image [this image position]
-    (gdl.protocols/draw-rotated-centered-image this image 0 position))
-
   gdl.protocols/ShapeDrawer
   (draw-ellipse [{:keys [^ShapeDrawer shape-drawer]} [x y] radius-x radius-y color]
     (.setColor shape-drawer ^Color color)
@@ -198,8 +160,7 @@
                                       :log-load-assets? false})
             :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
 
-           (gdl.context.text-drawer/extend-and-create-context
-            gdl.protocols.Context)
+           (gdl.context.text-drawer/->context-map)
 
            ; separate ns -> loads shapedrawer protocol on context class (which I maybe pass there ? )
            ; disposable -> only 1 new context component
