@@ -29,7 +29,7 @@ Add the following to your project.clj file:
 * [API docs](https://damn.github.io/gdl/)
 
 <p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/namespaces.png"/>
+  <img src="https://github.com/damn/gdx/blob/main/namespace.png"/>
 </p>
 
 # On Mac
