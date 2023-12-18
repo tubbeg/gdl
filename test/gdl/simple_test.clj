@@ -1,8 +1,7 @@
 (ns gdl.simple-test
   (:require [gdl.app :as app]
-            [gdl.protocols :refer [draw-centered-image draw-circle draw-text generate-ttf]]
-            gdl.screen
-            [gdl.graphics.image :as image])
+            [gdl.protocols :refer [draw-centered-image draw-circle draw-text generate-ttf create-image]]
+            gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 
 ; [RED] not working with default font
@@ -31,7 +30,7 @@
 (defn create-context [context]
   {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
                                         :size 16})
-   :logo (image/create context "logo.png")
+   :logo (create-image context "logo.png")
    :my-screen (reify gdl.screen/Screen
                 (show [_ _context])
                 (hide [_ _context])

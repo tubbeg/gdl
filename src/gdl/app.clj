@@ -4,7 +4,7 @@
             [gdl.protocols :refer [dispose]]
             gdl.graphics.freetype
             gdl.context.text-drawer
-            gdl.context.image-drawer
+            gdl.context.image-drawer-creator
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
