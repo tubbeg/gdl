@@ -5,7 +5,7 @@
             gdl.context.image-drawer-creator
             gdl.context.shape-drawer
             gdl.context.text-drawer
-            gdl.graphics.freetype
+            gdl.context.ttf-generator
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
