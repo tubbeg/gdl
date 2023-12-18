@@ -1,8 +1,8 @@
 (ns gdl.simple-test
-  (:require [gdl.lifecycle :as lc]
+  (:require [gdl.protocols :refer [generate-ttf]]
+            gdl.screen
             [gdl.app :as app]
-            [gdl.graphics.draw :as draw]
-            [gdl.graphics.freetype :as freetype])
+            [gdl.graphics.draw :as draw])
   (:import com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.graphics.g2d.BitmapFont))
 
@@ -26,17 +26,18 @@
                 :x gx,:y gy,:h-align :left,:up? false})))
 
 (deftype Screen []
-  lc/Screen
-  (lc/show [_ _ctx])
-  (lc/hide [_ _ctx])
-  (lc/render [_ context]
+  gdl.screen/Screen
+  (show [_ _ctx])
+  (hide [_ _ctx])
+  (render [_ context]
     (app/render-view context :gui #(draw-test % context)))
-  (lc/tick [_ _ctx _delta]))
+  (tick [_ _ctx _delta]))
 
 (defn create-context [context]
   {:default-font (BitmapFont.) ; TODO move this default font inside gdl.app
-   :special-font (freetype/generate :file "exocet/films.EXL_____.ttf"
-                                    :size 16)
+   :special-font (generate-ttf context
+                               {:file "exocet/films.EXL_____.ttf"
+                                :size 16})
    :my-screen (->Screen)})
 
 (defn app []

@@ -3,8 +3,10 @@
 
   Sets up SpriteBatch, viewports for GUI and WORLD, and supplies lifecycle management."
   (:require [clojure.string :as str]
-            [gdl.lifecycle :as lc]
+            [gdl.screen :as screen]
+            [gdl.protocols :refer [dispose]]
             [gdl.graphics.draw :as draw]
+            gdl.graphics.freetype
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
@@ -264,7 +266,7 @@
          ; TODO ? "Can be negative coordinates, undefined cells."
          :world-mouse-position (unproject-mouse-posi (:world-viewport context))))
 
-(def state (atom nil))
+(def state (atom nil)) ; TODO rename context?
 
 (defn current-context []
   (update-mouse-positions @state))
@@ -275,33 +277,32 @@
 (defn change-screen! [new-screen-key]
   (let [{:keys [context/current-screen] :as context} @state]
     (when-let [previous-screen (get context current-screen)]
-      (lc/hide previous-screen context))
+      (screen/hide previous-screen context))
     (let [new-screen (new-screen-key context)]
       (assert new-screen (str "Cannot find screen with key: " new-screen-key))
       (swap! state assoc :context/current-screen new-screen-key)
-      (lc/show new-screen @state))))
+      (screen/show new-screen @state))))
 
 (defn- dispose-context [context]
   (doseq [[k value] context]
-    (cond (extends? lc/Disposable (class value))
+    (cond (extends? gdl.protocols/Disposable (class value))
           (do
            (println "Disposing " k)
-           (lc/dispose value))
+           (dispose value))
           ((supers (class value)) com.badlogic.gdx.utils.Disposable)
           (do
            (println "Disposing " k)
            (.dispose ^com.badlogic.gdx.utils.Disposable value)))))
 
-(defrecord Context [])
-
 (defn- application-adapter [{:keys [modules first-screen] :as config}]
   (proxy [ApplicationAdapter] []
     (create []
-      (reset! state
-              (let [context (map->Context (default-components config))
-                    ; TODO safe-merge ?
-                    context (merge context (modules context))]
-                (assoc context :drawer (->drawer context))))
+      (let [context (-> config
+                        default-components
+                        gdl.protocols/map->Context)
+            context (merge context (modules context)) ; TODO safe-merge ?
+            context (assoc context :drawer (->drawer context))] ; using user provided :default-font in drawer
+        (reset! state context))
       (change-screen! first-screen))
     (dispose []
       (dispose-context @state))
@@ -310,8 +311,8 @@
       (let [{:keys [context/current-screen] :as context} (current-context)
             screen (current-screen context)]
         (fix-viewport-update context)
-        (lc/render screen context)
-        (lc/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
+        (screen/render screen context)
+        (screen/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
       ; TODO here also @state and not current-context ...
       (update-viewports @state w h))))

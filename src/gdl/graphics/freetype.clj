@@ -1,12 +1,13 @@
 (ns gdl.graphics.freetype
   "Convinience clojure constructor for the java
   com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator class."
-  (:import [com.badlogic.gdx.graphics Texture$TextureFilter]
+  (:require gdl.protocols)
+  (:import com.badlogic.gdx.Gdx
+           [com.badlogic.gdx.graphics Texture$TextureFilter]
            [com.badlogic.gdx.graphics.g2d BitmapFont]
            [com.badlogic.gdx.graphics.g2d.freetype
             FreeTypeFontGenerator
-            FreeTypeFontGenerator$FreeTypeFontParameter])
-  (:import com.badlogic.gdx.Gdx))
+            FreeTypeFontGenerator$FreeTypeFontParameter]))
 
 (def ^:private quality-scaling 2)
 
@@ -28,3 +29,8 @@
     (set! (.markupEnabled (.getData font)) true)
     (.setUseIntegerPositions font false) ; otherwise scaling to world-units (/ 1 48)px not visible
     font))
+
+(extend-type gdl.protocols.Context
+  gdl.protocols/TrueTypeFontGenerator
+  (generate-ttf [_ args]
+    (generate args)))
