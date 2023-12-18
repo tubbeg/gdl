@@ -40,3 +40,12 @@
                  "Coordinates are from original image, not scaled one.")
   (spritesheet [_ file tilew tileh])
   (get-sprite [_ {:keys [tilew tileh] :as sheet} [x y]]))
+
+(defprotocol GuiWorldViews
+  (render-in-gui-view   [_ render-fn])
+  (render-in-world-view [_ render-fn])
+  (update-viewports [_ w h])
+  (fix-viewport-update [_])
+  (assoc-view-mouse-positions [_])
+  (pixels->world-units [_ pixels]))
+

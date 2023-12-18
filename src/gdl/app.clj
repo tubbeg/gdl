@@ -6,53 +6,21 @@
             gdl.context.shape-drawer
             gdl.context.text-drawer
             gdl.context.ttf-generator
+            gdl.context.gui-world-views
             gdl.scene2d.ui)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            com.badlogic.gdx.audio.Sound
            com.badlogic.gdx.assets.AssetManager
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.files.FileHandle
-           (com.badlogic.gdx.graphics Color Texture OrthographicCamera)
-           (com.badlogic.gdx.graphics.g2d Batch SpriteBatch TextureRegion)
-           com.badlogic.gdx.utils.ScreenUtils
-           (com.badlogic.gdx.utils.viewport Viewport FitViewport)
-           [com.badlogic.gdx.math Vector2 MathUtils]))
+           (com.badlogic.gdx.graphics Color Texture)
+           com.badlogic.gdx.graphics.g2d.SpriteBatch
+           com.badlogic.gdx.utils.ScreenUtils))
 
-(defn render-view [{:keys [^Batch batch
-                           shape-drawer
-                           gui-camera
-                           world-camera
-                           world-unit-scale]
-                    :as context}
-                   gui-or-world
-                   draw-fn]
-  (let [^OrthographicCamera camera (case gui-or-world
-                                     :gui gui-camera
-                                     :world world-camera)
-        unit-scale (case gui-or-world
-                     :gui 1
-                     :world world-unit-scale)
-        context (assoc context :unit-scale unit-scale)]
-    (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
-    (.setProjectionMatrix batch (.combined camera))
-    (.begin batch)
-    (gdl.protocols/with-shape-line-width context unit-scale #(draw-fn context))
-    (.end batch)))
+; I could do extend-type in a function (is possible?)
+; and call it explitly and also check if I have all the context ingredients necessary
+; ( but they are only needed at runtime? e.g. drawer ?)
 
-(defn- update-viewports [{:keys [gui-viewport world-viewport]} w h]
-  (.update ^Viewport gui-viewport   w h true)
-  ; Do not center the camera on world-viewport. We set the position there manually.
-  (.update ^Viewport world-viewport w h false))
-
-(defn- fix-viewport-update
-  "Sometimes the viewport update is not triggered."
-  ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
-  [{:keys [^Viewport gui-viewport] :as context}]
-  (let [screen-width (.getWidth Gdx/graphics)
-        screen-height (.getHeight Gdx/graphics)]
-    (when-not (and (= (.getScreenWidth  gui-viewport) screen-width)
-                   (= (.getScreenHeight gui-viewport) screen-height))
-      (update-viewports context screen-width screen-height))))
 
 (defn- recursively-search-files [folder extensions]
   (loop [[^FileHandle file & remaining] (.list (.internal Gdx/files folder))
@@ -92,7 +60,6 @@
 (defn- default-components [{:keys [tile-size]}]
   (let [batch (SpriteBatch.)]
     (merge {:batch batch
-            :unit-scale 1
             :assets (load-all-assets {:folder "resources/" ; TODO these are classpath settings ?
                                       :sound-files-extensions #{"wav"}
                                       :image-files-extensions #{"png" "bmp"}
@@ -100,57 +67,13 @@
             :context/scene2d.ui (gdl.scene2d.ui/initialize!)}
            (gdl.context.text-drawer/->context-map)
            (gdl.context.shape-drawer/->context-map batch)
-           ; create views manually ...
-           (let [gui-camera (OrthographicCamera.)
-                 gui-viewport (FitViewport. (.getWidth Gdx/graphics)
-                                            (.getHeight Gdx/graphics)
-                                            gui-camera)]
-             {:gui-camera   gui-camera
-              :gui-viewport gui-viewport
-              :gui-viewport-width  (.getWorldWidth  gui-viewport)
-              :gui-viewport-height (.getWorldHeight gui-viewport)})
+           (gdl.context.gui-world-views/->context-map :tile-size tile-size))))
 
-           ; create views ....
-           (let [world-camera (OrthographicCamera.)
-                 world-unit-scale (/ (or tile-size 1))
-                 world-viewport (let [width  (* (.getWidth Gdx/graphics) world-unit-scale)
-                                      height (* (.getHeight Gdx/graphics) world-unit-scale)
-                                      y-down? false]
-                                  (.setToOrtho world-camera y-down? width height)
-                                  (FitViewport. width height world-camera))]
-             {:world-unit-scale world-unit-scale
-              :world-camera     world-camera
-              :world-viewport   world-viewport
-              :world-viewport-width  (.getWorldWidth  world-viewport)
-              :world-viewport-height (.getWorldHeight world-viewport)}))))
-
-(defn- clamp [value min max]
-  (MathUtils/clamp (float value) (float min) (float max)))
-
-; touch coordinates are y-down, while screen coordinates are y-up
-; so the clamping of y is reverse, but as black bars are equal it does not matter
-(defn- unproject-mouse-posi [^Viewport viewport]
-  (let [mouse-x (clamp (.getX Gdx/input)
-                       (.getLeftGutterWidth viewport)
-                       (.getRightGutterX viewport))
-        mouse-y (clamp (.getY Gdx/input)
-                       (.getTopGutterHeight viewport)
-                       (.getTopGutterY viewport))
-        coords (.unproject viewport (Vector2. mouse-x mouse-y))]
-    [(.x coords) (.y coords)]))
-
-; maybe functions 'mouse-position' on 'view' ?
-(defn- update-mouse-positions [context]
-  (assoc context
-         :gui-mouse-position (mapv int (unproject-mouse-posi (:gui-viewport context)))
-         ; TODO clamping only works for gui-viewport ? check. comment if true
-         ; TODO ? "Can be negative coordinates, undefined cells."
-         :world-mouse-position (unproject-mouse-posi (:world-viewport context))))
 
 (def state (atom nil)) ; TODO rename context?
 
 (defn current-context []
-  (update-mouse-positions @state))
+  (gdl.protocols/assoc-view-mouse-positions @state))
 
 ; TODO here not current-context .... should not do @state or get mouse-positions via function call
 ; but then keep unprojecting ?
@@ -191,12 +114,15 @@
       (ScreenUtils/clear Color/BLACK)
       (let [{:keys [context/current-screen] :as context} (current-context)
             screen (current-screen context)]
-        (fix-viewport-update context)
+
+        ; "Sometimes the viewport update is not triggered."
+        ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
+        (gdl.protocols/fix-viewport-update context)
         (screen/render screen context)
         (screen/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
       ; TODO here also @state and not current-context ...
-      (update-viewports @state w h))))
+      (gdl.protocols/update-viewports @state w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
   ; https://github.com/trptr/java-wrapper/blob/39a0947f4e90857512c1999537d0de83d130c001/src/trptr/java_wrapper/locale.clj#L87
@@ -212,6 +138,3 @@
 (defn start [config]
   (Lwjgl3Application. (application-adapter config)
                       (lwjgl3-configuration (:app config))))
-
-(defn pixels->world-units [{:keys [world-unit-scale]} pixels]
-  (* pixels world-unit-scale))
