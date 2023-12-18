@@ -3,8 +3,7 @@
             [gdl.app :as app]
             [gdl.graphics.draw :as draw]
             [gdl.graphics.freetype :as freetype])
-  (:import com.badlogic.gdx.Gdx
-           com.badlogic.gdx.graphics.Color
+  (:import com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.graphics.g2d.BitmapFont))
 
 (defn draw-test [drawer
@@ -36,7 +35,8 @@
 
 (defn create-context [context]
   {:default-font (BitmapFont.) ; TODO move this default font inside gdl.app
-   :special-font (freetype/generate (.internal Gdx/files "exocet/films.EXL_____.ttf") 16)
+   :special-font (freetype/generate :file "exocet/films.EXL_____.ttf"
+                                    :size 16)
    :my-screen (->Screen)})
 
 (defn app []

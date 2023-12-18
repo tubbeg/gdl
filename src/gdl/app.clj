@@ -298,11 +298,10 @@
   (proxy [ApplicationAdapter] []
     (create []
       (reset! state
-              (map->Context
-               (let [context (default-components config)
-                     ; TODO safe-merge
-                     context (merge context (modules context))]
-                 (assoc context :drawer (->drawer context)))))
+              (let [context (map->Context (default-components config))
+                    ; TODO safe-merge ?
+                    context (merge context (modules context))]
+                (assoc context :drawer (->drawer context))))
       (change-screen! first-screen))
     (dispose []
       (dispose-context @state))

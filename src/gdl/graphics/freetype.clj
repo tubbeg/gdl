@@ -5,7 +5,8 @@
            [com.badlogic.gdx.graphics.g2d BitmapFont]
            [com.badlogic.gdx.graphics.g2d.freetype
             FreeTypeFontGenerator
-            FreeTypeFontGenerator$FreeTypeFontParameter]))
+            FreeTypeFontGenerator$FreeTypeFontParameter])
+  (:import com.badlogic.gdx.Gdx))
 
 (def ^:private quality-scaling 2)
 
@@ -19,8 +20,8 @@
     (set! (.magFilter params) Texture$TextureFilter/Linear)
     params))
 
-(defn generate [ttf-file size] ; TODO use context, call file internal, size keyword param/.
-  (let [generator (-> ttf-file FreeTypeFontGenerator.)
+(defn generate [& {:keys [file size]}]
+  (let [generator (FreeTypeFontGenerator. (.internal Gdx/files file))
         font (.generateFont generator (->params size))]
     (.dispose generator)
     (.setScale (.getData font) (float (/ quality-scaling)))
