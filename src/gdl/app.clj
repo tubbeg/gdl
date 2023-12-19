@@ -9,13 +9,6 @@
            com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.utils.ScreenUtils))
 
-; TODO render to screen manager move
-; => this is just the design of having context atom , creating it @ create with graphics context of libgdx
-; and passing it to render as an argument
-; actually not bad, simple design reduced to its most utterly simple premise
-; screens, everything comes after
-; ApplicationView on-resize, before-render-hook is there thats it.
-
 (defn- ->application [{:keys [current-context create-context]}]
   (proxy [ApplicationAdapter] []
     (create []

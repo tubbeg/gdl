@@ -1,7 +1,6 @@
 (ns gdl.context.application-screens
   (:require [gdl.context :refer [current-screen]]
-            [gdl.screen :as screen]
-            ))
+            [gdl.screen :as screen]))
 
 (extend-type gdl.context.Context
   gdl.context/ApplicationScreens
