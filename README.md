@@ -6,16 +6,12 @@
 
 A clojure framework for building 2D games.
 
-# Installation
+# Hello World
 
-[![](https://jitpack.io/v/damn/gdl.svg)](https://jitpack.io/#damn/gdl)
+You can run the hello world example in this repository with:
 
-Add the following to your project.clj file:
-
-``` clojure
-:repositories [["jitpack" "https://jitpack.io"]]
-
-:dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
+```
+lein run -m gdl.hello-world
 ```
 
 # On Mac
@@ -26,15 +22,23 @@ You need to set this environment variable:
 export JVM_OPTS=-XstartOnFirstThread
 ```
 
-# Test
+# Installation
 
-Start the test with `lein dev`.
+[![](https://jitpack.io/v/damn/gdl.svg)](https://jitpack.io/#damn/gdl)
+
+Add the following to your project.clj file:
+
+```clojure
+:repositories [["jitpack" "https://jitpack.io"]]
+
+:dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
+```
+
+# [API Documentation](https://damn.github.io/gdl/)
 
 # Games made with GDL
 
 * [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest)
-
-# [API Documentation](https://damn.github.io/gdl/)
 
 # Namespace dependency graph
 
