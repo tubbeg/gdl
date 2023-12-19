@@ -1,6 +1,7 @@
 (ns gdl.app
   (:require [gdl.screen :as screen]
-            [gdl.context :refer [dispose]])
+            gdl.context
+            [gdl.disposable :refer [dispose]])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.graphics.Color
@@ -25,7 +26,7 @@
 
 (defn- dispose-context [context]
   (doseq [[k value] context]
-    (cond (extends? gdl.context/Disposable (class value))
+    (cond (extends? gdl.disposable/Disposable (class value))
           (do
            (println "Disposing " k)
            (dispose value))

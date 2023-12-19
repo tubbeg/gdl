@@ -2,9 +2,6 @@
 
 (defrecord Context [])
 
-(defprotocol Disposable
-  (dispose [_]))
-
 (defprotocol TrueTypeFontGenerator
   (generate-ttf [_ {:keys [file size]}]))
 
@@ -47,8 +44,7 @@
   ; TODO this doesnt need to be here does it?
   (update-viewports [_ w h])
   (fix-viewport-update [_])
-  (assoc-view-mouse-positions [_])
-  )
+  (assoc-view-mouse-positions [_]))
 
-
-; TODO add sound/stage/input
+; TODO add sound/stage/input/tiledmap loading/rendering
+; also UI widgets add -> they DO depend on visui-context OR default-font!!
