@@ -4,6 +4,7 @@
             gdl.context.image-drawer-creator
             [gdl.context.shape-drawer :as shape-drawer]
             [gdl.context.sprite-batch :as sprite-batch]
+            gdl.context.stage
             [gdl.context.text-drawer :as text-drawer]
             gdl.context.ttf-generator
             [gdl.context.vis-ui :as vis-ui]))

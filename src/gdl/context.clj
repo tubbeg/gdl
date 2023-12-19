@@ -61,3 +61,8 @@
 (defprotocol PropertyStore
   (get-property [_ id])
   (all-properties [_ type]))
+
+(defprotocol Stage
+  (->stage [_ actors])
+  (get-stage [_])
+  (mouse-on-stage-actor? [_]))
