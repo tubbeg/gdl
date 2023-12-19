@@ -2,13 +2,13 @@
   (:require [gdl.app :as app]
             gdl.default-context
             [gdl.context :refer [render-gui-view draw-text]]
-            gdl.screen))
+            [gdl.screen :refer [Screen]]))
 
 (defn draw-test [context]
   (draw-text context {:text "Hello World!" :x 400, :y 300}))
 
-(defrecord Screen []
-  gdl.screen/Screen
+(defrecord MyScreen []
+  Screen
   (show [_ _context])
   (hide [_ _context])
   (render [_ context]
@@ -17,7 +17,7 @@
 
 (defn create-context []
   (merge (gdl.default-context/->context)
-         {:my-screen (->Screen)}))
+         {:my-screen (->MyScreen)}))
 
 (defn -main []
   (app/start {:app {:title "Hello World"
