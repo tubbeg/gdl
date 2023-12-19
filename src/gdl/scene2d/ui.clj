@@ -1,8 +1,7 @@
 (ns gdl.scene2d.ui
   "Widget constructors and helper functions for com.kotcrab.vis.ui
   See: https://github.com/kotcrab/vis-ui"
-  (:require gdl.context
-            [gdl.scene2d.actor :as actor])
+  (:require [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.files.FileHandle
            com.badlogic.gdx.graphics.g2d.TextureRegion
            com.badlogic.gdx.scenes.scene2d.Actor

@@ -50,7 +50,9 @@
   (gui-mouse-position [_])
   (world-mouse-position [_])
 
-  ; use in gdl.app only TODO
+  ; use in gdl.app only TODO remove here what is only used once, its not really useful for the API
+  ; but that also means that I am linked to the default-context
+  ; that means I can just create it with app and pass world-unit-scale
   (update-viewports [_ w h])
   (fix-viewport-update [_]))
 
@@ -63,6 +65,11 @@
   (all-properties [_ type]))
 
 (defprotocol Stage
-  (->stage [_ actors])
-  (get-stage [_])
+  (->stage-screen [_ {:keys [stage sub-screen]}]
+                  "A screen with a stage as an input-processor which gets drawn and 'act'ed and disposed.
+                  The sub-screen is rendered and tick'ed before the stage.
+                  The stage is assoc'ed to the context at show and dissoc'ed at hide as :stage-screen/stage.
+
+                  Sub-screen is optional.")
+  (get-stage [_]) ; => TODO can assoc it to context now with stage-screen
   (mouse-on-stage-actor? [_]))

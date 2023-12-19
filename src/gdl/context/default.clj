@@ -1,4 +1,4 @@
-(ns gdl.default-context
+(ns gdl.context.default
   (:require [gdl.context.assets :as assets]
             [gdl.context.gui-world-views :as gui-world-views]
             gdl.context.image-drawer-creator
