@@ -5,7 +5,7 @@
            com.badlogic.gdx.scenes.scene2d.ui.Skin
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)))
 
-(defn load-and-create-context []
+(defn ->context [] ; TODO skin-scale arg
   ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
   (.bindRoot #'gdl.scene2d.ui/default-skin (Skin. (.internal Gdx/files "scene2d.ui.skin/uiskin.json")))
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.

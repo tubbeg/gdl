@@ -35,16 +35,12 @@
   (spritesheet [_ file tilew tileh])
   (get-sprite [_ {:keys [tilew tileh] :as sheet} [x y]]))
 
-; TODO make 2 views ? and 'View' protocol? idk
 (defprotocol GuiWorldViews
   (render-gui-view   [_ render-fn])
   (render-world-view [_ render-fn])
   (pixels->world-units [_ pixels])
 
-  ; TODO this doesnt need to be here does it?
+  ; use in gdl.app only
   (update-viewports [_ w h])
   (fix-viewport-update [_])
   (assoc-view-mouse-positions [_]))
-
-; TODO add sound/stage/input/tiledmap loading/rendering
-; also UI widgets add -> they DO depend on visui-context OR default-font!!

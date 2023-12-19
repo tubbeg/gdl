@@ -1,5 +1,5 @@
 (ns gdl.context.sprite-batch
   (:import com.badlogic.gdx.graphics.g2d.SpriteBatch))
 
-(defn ->context-map []
+(defn ->context []
   {:batch (SpriteBatch.)})

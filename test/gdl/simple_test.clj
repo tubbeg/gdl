@@ -10,11 +10,6 @@
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 
-; TODO MOVE DEFAULT STUFF HERE CUSTOM
-
-; [RED] not working with default font
-; TODO rotate image with counter and maybe scale & color too ?!
-
 (defn draw-test [{:keys [special-font
                          gui-mouse-position
                          world-mouse-position
