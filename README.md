@@ -2,15 +2,9 @@
   <img src="https://github.com/damn/gdx/blob/main/logo.png" width="250" height="105"/>
 </p>
 
-#  Details
+# What is GDL?
 
-Based on [libGDX](https://libgdx.com/).
-
-Supporting desktop backend and 2D graphics API only at the moment.
-
-Feedback appreciated.
-
-This library is the backend for a roguelike action RPG game I am developing.
+A clojure framework for building 2D games.
 
 # Installation
 
@@ -24,19 +18,9 @@ Add the following to your project.clj file:
 :dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
 ```
 
-# Documentation
-
-* [API docs](https://damn.github.io/gdl/)
-
-# Namespace dependency graph
-
-<p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/namespaces.png"/>
-</p>
-
 # On Mac
 
-You need to set this environment variable for the lwjgl3 backend to work on mac:
+You need to set this environment variable:
 
 ```
 export JVM_OPTS=-XstartOnFirstThread
@@ -50,14 +34,11 @@ Start the test with `lein dev`.
 
 * [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest)
 
-# Reloaded Workflow
+# [API Documentation](https://damn.github.io/gdl/)
 
-The command `lein dev` starts a __dev-loop__.
-When closing the app window all namespaces will be reloaded with `clojure.tools.namespace.repl/refresh-all`.
+# Namespace dependency graph
 
-There is also a function `gdl.dev/restart!` in case of errors on app-start or refresh, so there is no need to restart the JVM.
+<p align="center">
+  <img src="https://github.com/damn/gdx/blob/main/namespaces.png"/>
+</p>
 
-You can bind this on a key , here in VIM :
-``` vimscript
-nmap <F5> :Eval (do (in-ns 'gdl.dev)(restart!))
-```
