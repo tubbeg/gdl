@@ -1,28 +1,29 @@
 (ns gdl.app
   (:require [gdl.screen :as screen]
             gdl.context
-            [gdl.disposable :refer [dispose]])
+            gdl.disposable)
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.graphics.Color
            com.badlogic.gdx.utils.ScreenUtils))
 
-(def state (atom nil))
+(defn- current-screen [{:keys [context/current-screen] :as context}]
+  (get context current-screen))
 
-; TODO TEST current logic of that screen will be continued ?
-(defn change-screen!
+; TODO hide and show could also be functions returning and altering context?!
+(defn change-screen
   "Fetches the new screen from context via get.
   Calls screen/hide on the previous screen.
   Calls screen/show on the new screen and sets it as :context/current-screen
   Throws assertionerror when the context does not have a screen with new-screen-key."
-  [new-screen-key]
-  (let [{:keys [context/current-screen] :as context} @state]
-    (when-let [previous-screen (get context current-screen)]
-      (screen/hide previous-screen context))
-    (let [new-screen (new-screen-key context)]
-      (assert new-screen (str "Cannot find screen with key: " new-screen-key))
-      (swap! state assoc :context/current-screen new-screen-key)
-      (screen/show new-screen @state))))
+  [context new-screen-key]
+  (when-let [screen (current-screen context)]
+    (screen/hide screen context))
+  (let [screen (new-screen-key context)
+        _ (assert screen (str "Cannot find screen with key: " new-screen-key))
+        new-context (assoc context :context/current-screen new-screen-key)]
+    (screen/show screen new-context)
+    new-context))
 
 (extend-type com.badlogic.gdx.utils.Disposable
   gdl.disposable/Disposable
@@ -34,27 +35,27 @@
           :when (some #(extends? gdl.disposable/Disposable %)
                       (supers (class value)))]
     (println "Disposing " k)
-    (dispose value)))
+    (gdl.disposable/dispose value)))
 
-(defn- application-adapter [{:keys [context-fn first-screen]}]
+; TODO could adjust ApplicationAdapter to pass an object (context) and keep it
+; but how do I access it? and what state will it have at a point in time ? it should be an atom ...
+(defn- application-adapter [{:keys [current-context context-fn first-screen]}]
   (proxy [ApplicationAdapter] []
     (create []
-      (reset! state (context-fn))
-      (change-screen! first-screen))
+      (reset! current-context
+              (change-screen (context-fn) first-screen)))
     (dispose []
-      (dispose-context @state))
+      (dispose-context @current-context))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (let [{:keys [context/current-screen] :as context} @state
-            screen (current-screen context)] ; make a private function for getting current-screen
-
-        ; "Sometimes the viewport update is not triggered."
-        ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
+      (let [context @current-context
+            screen (current-screen context)]
         (gdl.context/fix-viewport-update context)
         (screen/render screen context)
+        ; TODO the big thing - tick could return a new context ...
         (screen/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
-      (gdl.context/update-viewports @state w h))))
+      (gdl.context/update-viewports @current-context w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
   ; https://github.com/trptr/java-wrapper/blob/39a0947f4e90857512c1999537d0de83d130c001/src/trptr/java_wrapper/locale.clj#L87

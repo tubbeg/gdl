@@ -19,10 +19,13 @@
   (merge (gdl.default-context/->context)
          {:my-screen (->MyScreen)}))
 
+(def current-context (atom nil))
+
 (defn -main []
   (app/start {:app {:title "Hello World"
                     :width 800
                     :height 600
                     :full-screen? false}
+              :current-context current-context
               :context-fn create-context
               :first-screen :my-screen}))

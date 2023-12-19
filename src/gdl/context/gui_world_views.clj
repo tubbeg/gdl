@@ -62,6 +62,8 @@
     ; Do not center the camera on world-viewport. We set the position there manually.
     (.update ^Viewport world-viewport w h false))
 
+  ; "Sometimes the viewport update is not triggered."
+  ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
   (fix-viewport-update
     [{:keys [^Viewport gui-viewport] :as context}]
     (let [screen-width  (.getWidth  Gdx/graphics)

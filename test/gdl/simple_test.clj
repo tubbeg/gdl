@@ -31,6 +31,8 @@
     (render-gui-view context draw-test))
   (tick [_ _context _delta]))
 
+(def current-context (atom nil))
+
 (defn create-context []
   (let [context (default-context/->context)]
     (merge context
@@ -44,5 +46,6 @@
                     :width 800
                     :height 600
                     :full-screen? false}
+              :current-context current-context
               :context-fn create-context
               :first-screen :my-screen}))
