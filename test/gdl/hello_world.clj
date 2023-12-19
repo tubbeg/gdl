@@ -1,7 +1,7 @@
 (ns gdl.hello-world
   (:require [gdl.app :as app]
             [gdl.default-context :as default-context]
-            [gdl.context :refer [render-gui-view draw-text change-screen]]
+            [gdl.context :refer [render-gui-view draw-text]]
             [gdl.screen :refer [Screen]]))
 
 (defn draw [context]
@@ -17,8 +17,7 @@
 
 (defn create-context []
   (-> (default-context/->context)
-      (assoc :my-screen (->MyScreen))
-      (change-screen :my-screen)))
+      (assoc :my-screen (->MyScreen))))
 
 (def current-context (atom nil))
 
@@ -28,4 +27,5 @@
                     :height 600
                     :full-screen? false}
               :current-context current-context
-              :create-context create-context}))
+              :create-context create-context
+              :first-screen :my-screen}))

@@ -1,7 +1,5 @@
 (ns gdl.default-context
-  (:require gdl.context.application-cleanup
-            gdl.context.application-screens
-            [gdl.context.assets :as assets]
+  (:require [gdl.context.assets :as assets]
             [gdl.context.gui-world-views :as gui-world-views]
             gdl.context.image-drawer-creator
             [gdl.context.shape-drawer :as shape-drawer]
