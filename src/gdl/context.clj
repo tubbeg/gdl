@@ -57,3 +57,7 @@
 (defprotocol SoundStore
   (play-sound! [_ file]
                "Sound is already loaded from file, this will perform only a lookup for the sound and play it." ))
+
+(defprotocol PropertyStore
+  (get-property [_ id])
+  (all-properties [_ type]))
