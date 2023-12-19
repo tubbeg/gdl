@@ -1,10 +1,10 @@
 (ns gdl.hello-world
   (:require [gdl.app :as app]
-            gdl.default-context
-            [gdl.context :refer [render-gui-view draw-text]]
+            [gdl.default-context :as default-context]
+            [gdl.context :refer [render-gui-view draw-text change-screen]]
             [gdl.screen :refer [Screen]]))
 
-(defn draw-test [context]
+(defn draw [context]
   (draw-text context {:text "Hello World!" :x 400, :y 300}))
 
 (defrecord MyScreen []
@@ -12,12 +12,13 @@
   (show [_ _context])
   (hide [_ _context])
   (render [_ context]
-    (render-gui-view context draw-test))
+    (render-gui-view context draw))
   (tick [_ _context _delta]))
 
 (defn create-context []
-  (merge (gdl.default-context/->context)
-         {:my-screen (->MyScreen)}))
+  (-> (default-context/->context)
+      (assoc :my-screen (->MyScreen))
+      (change-screen :my-screen)))
 
 (def current-context (atom nil))
 
@@ -27,5 +28,4 @@
                     :height 600
                     :full-screen? false}
               :current-context current-context
-              :context-fn create-context
-              :first-screen :my-screen}))
+              :create-context create-context}))

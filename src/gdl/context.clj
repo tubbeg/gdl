@@ -2,6 +2,17 @@
 
 (defrecord Context [])
 
+(defprotocol ApplicationCleanup
+  (dispose-all [_]))
+
+(defprotocol ApplicationScreens
+  (current-screen [_])
+  (change-screen [_ new-screen]
+                 "Calls screen/hide on the current-screen (if there is one).
+                 Throws AssertionError when the context does not have a new-screen.
+                 Calls screen/show on the new screen and
+                 returns the context with current-screen to new-screen."))
+
 (defprotocol TrueTypeFontGenerator
   (generate-ttf [_ {:keys [file size]}]))
 

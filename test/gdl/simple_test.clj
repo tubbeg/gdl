@@ -2,7 +2,7 @@
   (:require [gdl.app :as app]
             [gdl.default-context :as default-context]
             [gdl.context :refer [draw-centered-image draw-circle draw-text generate-ttf create-image render-gui-view
-                                 gui-mouse-position world-mouse-position]]
+                                 gui-mouse-position world-mouse-position change-screen]]
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 
@@ -35,11 +35,12 @@
 
 (defn create-context []
   (let [context (default-context/->context)]
-    (merge context
-           {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
-                                                 :size 16})
-            :logo (create-image context "logo.png")
-            :my-screen (->Screen)})))
+    (-> context
+        (merge {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
+                                                     :size 16})
+                :logo (create-image context "logo.png")
+                :my-screen (->Screen)})
+        (change-screen :my-screen))))
 
 (defn app []
   (app/start {:app {:title "gdl demo"
@@ -47,5 +48,4 @@
                     :height 600
                     :full-screen? false}
               :current-context current-context
-              :context-fn create-context
-              :first-screen :my-screen}))
+              :create-context create-context }))
