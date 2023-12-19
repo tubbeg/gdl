@@ -16,4 +16,4 @@
             (assets/->context)
             (text-drawer/->context)
             (shape-drawer/->context context)
-            (gui-world-views/->context :tile-size (or tile-size 1))))))
+            (gui-world-views/->context :tile-size tile-size)))))

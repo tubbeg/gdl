@@ -28,10 +28,7 @@ Add the following to your project.clj file:
 
 * [API docs](https://damn.github.io/gdl/)
 
-* namespace dependency graph:
-
-* TODO add to bash script generate the graph and also upload with codox.
-
+# Namespace dependency graph
 
 <p align="center">
   <img src="https://github.com/damn/gdx/blob/main/namespaces.png"/>
@@ -45,9 +42,12 @@ You need to set this environment variable for the lwjgl3 backend to work on mac:
 export JVM_OPTS=-XstartOnFirstThread
 ```
 
-# Examples
+# Test
 
-* [Simple Test](https://github.com/damn/gdl/blob/main/test/gdl/simple_test.clj)
+Start the test with `lein dev`.
+
+# Games made with GDL
+
 * [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest)
 
 # Reloaded Workflow
