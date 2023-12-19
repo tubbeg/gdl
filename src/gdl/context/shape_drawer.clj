@@ -63,7 +63,7 @@
       (draw-fn)
       (.setDefaultLineWidth shape-drawer (float old-line-width)))))
 
-(defn ->context-map [{:keys [batch]}]
+(defn ->context [{:keys [batch]}]
   (let [texture (let [pixmap (doto (Pixmap. 1 1 Pixmap$Format/RGBA8888)
                                (.setColor Color/WHITE)
                                (.drawPixel 0 0))

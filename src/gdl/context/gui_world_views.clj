@@ -80,7 +80,7 @@
   (pixels->world-units [{:keys [world-unit-scale]} pixels]
     (* pixels world-unit-scale)))
 
-(defn ->context-map [& {:keys [tile-size]}]
+(defn ->context [& {:keys [tile-size]}]
   (merge {:unit-scale 1} ;  TODO not here ? only used @ gui drawings without render-view in 2 widgets .... ? or part of gui
          (let [gui-camera (OrthographicCamera.)
                gui-viewport (FitViewport. (.getWidth  Gdx/graphics)

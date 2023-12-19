@@ -32,5 +32,5 @@
 
 ; TODO pass optionally default-font ?
 ; TODO is redundant ....
-(defn ->context-map []
+(defn ->context []
   {:default-font (BitmapFont.)}) ; TODO does not draw world-unit-scale idk how possible, maybe setfontdata something

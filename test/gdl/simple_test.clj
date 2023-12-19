@@ -1,12 +1,7 @@
 (ns gdl.simple-test
   (:require [gdl.app :as app]
-            gdl.default-context
-            [gdl.context :refer [draw-centered-image
-                                 draw-circle
-                                 draw-text
-                                 generate-ttf
-                                 create-image
-                                 render-gui-view]]
+            [gdl.default-context :as default-context]
+            [gdl.context :refer [draw-centered-image draw-circle draw-text generate-ttf create-image render-gui-view]]
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 
@@ -39,7 +34,7 @@
   (tick [_ _context _delta]))
 
 (defn create-context []
-  (let [context (gdl.default-context/->Context)]
+  (let [context (default-context/->Context)]
     (merge context
            {:special-font (generate-ttf context {:file "exocet/films.EXL_____.ttf"
                                                  :size 16})
