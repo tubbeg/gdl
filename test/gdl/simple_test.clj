@@ -1,6 +1,6 @@
 (ns gdl.simple-test
   (:require [gdl.app :as app]
-            [gdl.default-context :as default-context]
+            [gdl.context.default :as default-context]
             gdl.disposable
             [gdl.context :refer [draw-centered-image draw-circle draw-text generate-ttf create-image render-gui-view
                                  gui-mouse-position world-mouse-position]]

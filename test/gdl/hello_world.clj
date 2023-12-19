@@ -1,6 +1,6 @@
 (ns gdl.hello-world
   (:require [gdl.app :as app]
-            [gdl.default-context :as default-context]
+            [gdl.context.default :as default-context]
             [gdl.context :refer [render-gui-view draw-text]]
             [gdl.screen :refer [Screen]]))
 
