@@ -14,6 +14,8 @@ You can run the hello world example in this repository with:
 lein run -m gdl.hello-world
 ```
 
+https://github.com/damn/gdl/blob/5fcf0ddb3665fcf0791954ac0e8c38e52f992c39/test/gdl/hello_world.clj#L1-L28
+
 # On Mac
 
 You need to set this environment variable:
