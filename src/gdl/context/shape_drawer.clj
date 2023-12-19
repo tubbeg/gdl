@@ -1,5 +1,5 @@
 (ns gdl.context.shape-drawer
-  (:require gdl.protocols)
+  (:require gdl.context)
   (:import (com.badlogic.gdx.graphics Color Texture Pixmap Pixmap$Format)
            com.badlogic.gdx.graphics.g2d.TextureRegion
            space.earlygrey.shapedrawer.ShapeDrawer))
@@ -7,8 +7,8 @@
 (defn- degree->radians [degree]
   (* degree (/ (Math/PI) 180)))
 
-(extend-type gdl.protocols.Context
-  gdl.protocols/ShapeDrawer
+(extend-type gdl.context.Context
+  gdl.context/ShapeDrawer
   (draw-ellipse [{:keys [^ShapeDrawer shape-drawer]} [x y] radius-x radius-y color]
     (.setColor shape-drawer ^Color color)
     (.ellipse shape-drawer (float x) (float y) (float radius-x) (float radius-y)) )
@@ -52,10 +52,10 @@
           rightx (+ leftx w)]
       (doseq [idx (range (inc gridw))
               :let [linex (+ leftx (* idx cellw))]]
-        (gdl.protocols/draw-line this [linex topy] [linex bottomy] color))
+        (gdl.context/draw-line this [linex topy] [linex bottomy] color))
       (doseq [idx (range (inc gridh))
               :let [liney (+ bottomy (* idx cellh))]]
-        (gdl.protocols/draw-line this [leftx liney] [rightx liney] color))))
+        (gdl.context/draw-line this [leftx liney] [rightx liney] color))))
 
   (with-shape-line-width [{:keys [^ShapeDrawer shape-drawer]} width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]

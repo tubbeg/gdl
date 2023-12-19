@@ -1,7 +1,7 @@
 (ns gdl.scene2d.ui
   "Widget constructors and helper functions for com.kotcrab.vis.ui
   See: https://github.com/kotcrab/vis-ui"
-  (:require gdl.protocols
+  (:require gdl.context
             [gdl.scene2d.actor :as actor])
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.files.FileHandle
@@ -24,7 +24,7 @@
   (when (VisUI/isLoaded)
     (VisUI/dispose))
   (VisUI/load #_VisUI$SkinScale/X2)
-  (reify gdl.protocols/Disposable
+  (reify gdl.context/Disposable
     (dispose [_]
       (.dispose default-skin)
       (VisUI/dispose) )))

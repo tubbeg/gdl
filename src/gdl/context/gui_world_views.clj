@@ -4,7 +4,7 @@
 ; => default-modules move to test
 ; => tree structure
 (ns gdl.context.gui-world-views
-  (:require gdl.protocols)
+  (:require gdl.context)
   (:import com.badlogic.gdx.Gdx
            (com.badlogic.gdx.graphics Color OrthographicCamera)
            com.badlogic.gdx.graphics.g2d.Batch
@@ -44,13 +44,13 @@
     (.setColor batch Color/WHITE) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (gdl.protocols/with-shape-line-width context
+    (gdl.context/with-shape-line-width context
       unit-scale
       #(draw-fn context))
     (.end batch)))
 
-(extend-type gdl.protocols.Context
-  gdl.protocols/GuiWorldViews
+(extend-type gdl.context.Context
+  gdl.context/GuiWorldViews
   (render-gui-view [this render-fn]
     (render-view this :gui render-fn))
 
@@ -68,7 +68,7 @@
           screen-height (.getHeight Gdx/graphics)]
       (when-not (and (= (.getScreenWidth  gui-viewport) screen-width)
                      (= (.getScreenHeight gui-viewport) screen-height))
-        (gdl.protocols/update-viewports context screen-width screen-height))))
+        (gdl.context/update-viewports context screen-width screen-height))))
 
   (assoc-view-mouse-positions [context]
     (assoc context
@@ -81,7 +81,7 @@
     (* pixels world-unit-scale)))
 
 (defn ->context-map [& {:keys [tile-size]}]
-  (merge {:unit-scale 1}
+  (merge {:unit-scale 1} ;  TODO not here ? only used @ gui drawings without render-view in 2 widgets .... ? or part of gui
          (let [gui-camera (OrthographicCamera.)
                gui-viewport (FitViewport. (.getWidth  Gdx/graphics)
                                           (.getHeight Gdx/graphics)

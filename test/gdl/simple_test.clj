@@ -1,12 +1,12 @@
 (ns gdl.simple-test
   (:require [gdl.app :as app]
             gdl.default-context
-            [gdl.protocols :refer [draw-centered-image
-                                   draw-circle
-                                   draw-text
-                                   generate-ttf
-                                   create-image
-                                   render-gui-view]]
+            [gdl.context :refer [draw-centered-image
+                                 draw-circle
+                                 draw-text
+                                 generate-ttf
+                                 create-image
+                                 render-gui-view]]
             gdl.screen)
   (:import com.badlogic.gdx.graphics.Color))
 

@@ -1,13 +1,7 @@
-(ns gdl.protocols) ; == context
-
-; TODO ! all keywords add namespace ':context/' or something else
-
-; call Context ns ? or put other protocols also ? e.g. counter / tick / etc/ ? might be intereseting
-; assert at creation / call extent-type only with function explicitly and assert have the required context-components available ?
+(ns gdl.context)
 
 (defrecord Context [])
 
-; could use with-open and closeable ? there is an article around for that
 (defprotocol Disposable
   (dispose [_]))
 
@@ -44,11 +38,17 @@
   (spritesheet [_ file tilew tileh])
   (get-sprite [_ {:keys [tilew tileh] :as sheet} [x y]]))
 
+; TODO make 2 views ? and 'View' protocol? idk
 (defprotocol GuiWorldViews
   (render-gui-view   [_ render-fn])
   (render-world-view [_ render-fn])
+  (pixels->world-units [_ pixels])
+
+  ; TODO this doesnt need to be here does it?
   (update-viewports [_ w h])
   (fix-viewport-update [_])
   (assoc-view-mouse-positions [_])
-  (pixels->world-units [_ pixels]))
+  )
 
+
+; TODO add sound/stage/input

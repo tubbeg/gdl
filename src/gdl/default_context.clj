@@ -1,6 +1,6 @@
 (ns gdl.default-context
   (:require [gdl.screen :as screen]
-            [gdl.protocols :refer [dispose]]
+            [gdl.context :refer [dispose]]
             gdl.context.assets
             gdl.context.image-drawer-creator
             gdl.context.shape-drawer
@@ -11,7 +11,7 @@
   (:import com.badlogic.gdx.graphics.g2d.SpriteBatch))
 
 (defn ->Context [& {:keys [tile-size]}]
-  (gdl.protocols/map->Context
+  (gdl.context/map->Context
    (let [batch (SpriteBatch.)]
      (merge {:batch batch ; TODO safe-merge ?
              :context/scene2d.ui (gdl.scene2d.ui/initialize!)}

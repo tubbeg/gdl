@@ -1,6 +1,6 @@
 (ns gdl.context.assets
   (:require [clojure.string :as str]
-            gdl.protocols)
+            gdl.context)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.audio.Sound

@@ -1,5 +1,5 @@
 (ns gdl.context.image-drawer-creator
-  (:require gdl.protocols)
+  (:require gdl.context)
   (:import (com.badlogic.gdx.graphics Color Texture)
            (com.badlogic.gdx.graphics.g2d Batch TextureRegion)))
 
@@ -22,8 +22,8 @@
     (:pixel-dimensions image)
     (:world-unit-dimensions image)))
 
-(extend-type gdl.protocols.Context
-  gdl.protocols/ImageDrawer
+(extend-type gdl.context.Context
+  gdl.context/ImageDrawer
   (draw-image [{:keys [batch unit-scale]}
                {:keys [texture color] :as image}
                position]
@@ -40,7 +40,7 @@
                     color)))
 
   (draw-centered-image [this image position]
-    (gdl.protocols/draw-rotated-centered-image this image 0 position)))
+    (gdl.context/draw-rotated-centered-image this image 0 position)))
 
 (defn- texture-dimensions [^TextureRegion texture]
   [(.getRegionWidth  texture)
@@ -78,8 +78,8 @@
       (TextureRegion. texture (int x) (int y) (int w) (int h))
       (TextureRegion. texture))))
 
-(extend-type gdl.protocols.Context
-  gdl.protocols/ImageCreator
+(extend-type gdl.context.Context
+  gdl.context/ImageCreator
   (create-image [{:keys [assets world-unit-scale]} file]
     (assoc-dimensions (map->Image {:file file
                                    :scale 1 ; not used anymore as arg (or scale 1) because varargs protocol methods not possible, anyway refactor images
@@ -101,8 +101,8 @@
                       world-unit-scale))
 
   (spritesheet [context file tilew tileh]
-    (assoc (gdl.protocols/create-image context file) :tilew tilew :tileh tileh))
+    (assoc (gdl.context/create-image context file) :tilew tilew :tileh tileh))
 
   (get-sprite [context {:keys [tilew tileh] :as sheet} [x y]]
-    (gdl.protocols/get-sub-image context
+    (gdl.context/get-sub-image context
                                  (assoc sheet :sub-image-bounds [(* x tilew) (* y tileh) tilew tileh]))))
