@@ -24,16 +24,17 @@
       (swap! state assoc :context/current-screen new-screen-key)
       (screen/show new-screen @state))))
 
+(extend-type com.badlogic.gdx.utils.Disposable
+  gdl.disposable/Disposable
+  (dispose [this]
+    (.dispose this)))
+
 (defn- dispose-context [context]
-  (doseq [[k value] context]
-    (cond (extends? gdl.disposable/Disposable (class value))
-          (do
-           (println "Disposing " k)
-           (dispose value))
-          ((supers (class value)) com.badlogic.gdx.utils.Disposable)
-          (do
-           (println "Disposing " k)
-           (.dispose ^com.badlogic.gdx.utils.Disposable value)))))
+  (doseq [[k value] context
+          :when (some #(extends? gdl.disposable/Disposable %)
+                      (supers (class value)))]
+    (println "Disposing " k)
+    (dispose value)))
 
 (defn- application-adapter [{:keys [context-fn first-screen]}]
   (proxy [ApplicationAdapter] []
