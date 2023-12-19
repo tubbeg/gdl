@@ -5,6 +5,9 @@
            space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn- degree->radians [degree]
+  ; fn for this in libgdx?
+  ; degreesToRadians
+  ; multiply by this to convert from degrees to radians
   (* degree (/ (Math/PI) 180)))
 
 (extend-type gdl.context.Context

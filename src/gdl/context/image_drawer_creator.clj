@@ -17,6 +17,8 @@
          rotation)
   (if color (.setColor batch Color/WHITE)))
 
+; TODO just make in image map of unit-scales to dimensions for each view
+; and get by view key ?
 (defn- unit-dimensions [unit-scale image]
   (if (= unit-scale 1)
     (:pixel-dimensions image)
