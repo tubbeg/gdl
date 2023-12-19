@@ -34,7 +34,7 @@ Add the following to your project.clj file:
 
 
 <p align="center">
-  <img src="https://github.com/damn/gdx/blob/main/namespace.png"/>
+  <img src="https://github.com/damn/gdx/blob/main/namespaces.png"/>
 </p>
 
 # On Mac
