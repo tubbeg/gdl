@@ -2,9 +2,6 @@
 
 (defrecord Context [])
 
-(defprotocol ApplicationCleanup
-  (dispose-all [_]))
-
 (defprotocol ApplicationScreens
   (current-screen [_])
   (change-screen [_ new-screen]

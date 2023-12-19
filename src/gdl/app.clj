@@ -1,5 +1,6 @@
 (ns gdl.app
   (:require [gdl.screen :as screen]
+            gdl.disposable
             [gdl.context :refer [current-screen change-screen update-viewports fix-viewport-update]])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
@@ -34,9 +35,6 @@
       new-context)))
 
 (defn- ->application [{:keys [current-context create-context first-screen]}]
-  (assert current-context ":current-context key not supplied")
-  (assert create-context ":create-context key not supplied")
-  (assert first-screen ":first-screen key not supplied")
   (proxy [ApplicationAdapter] []
     (create []
       (reset! current-context (change-screen (create-context) first-screen)))
@@ -53,8 +51,6 @@
       (update-viewports @current-context w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
-  ; https://github.com/trptr/java-wrapper/blob/39a0947f4e90857512c1999537d0de83d130c001/src/trptr/java_wrapper/locale.clj#L87
-  ; cond->
   (let [config (doto (Lwjgl3ApplicationConfiguration.)
                  (.setTitle title)
                  (.setForegroundFPS (or fps 60)))]
@@ -64,15 +60,17 @@
     config))
 
 (defn start
-  "Starts a lwjgl3 application with configs
-  {:app {:keys [title width height full-screen? fps]}}
-  ; TODO fix fps limiting off by default
-  and :context-fn / :first-screen.
-  TODO describe the whole app-lifecycle
-  e.g. create , dispose, resize, render ... like in libgdx
-  => point to libgdx docs.
-  "
+  "Example for required keys:
+             {:app {:title \"gdl demo\"
+                    :width 800
+                    :height 600
+                    :full-screen? false}
+              :current-context current-context ; an atom
+              :create-context create-context ; function with no args creating the context
+              :first-screen :my-screen}"
   [config]
-  ; TODO assert create-context / current-context
+  (assert (:current-context config) ":current-context key not supplied")
+  (assert (:create-context config) ":create-context key not supplied")
+  (assert (:first-screen config) ":first-screen key not supplied")
   (Lwjgl3Application. (->application config)
                       (lwjgl3-configuration (:app config))))
