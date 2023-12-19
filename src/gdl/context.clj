@@ -39,11 +39,12 @@
   (render-gui-view   [_ render-fn])
   (render-world-view [_ render-fn])
   (pixels->world-units [_ pixels])
+  (gui-mouse-position [_])
+  (world-mouse-position [_])
 
-  ; use in gdl.app only
+  ; use in gdl.app only TODO
   (update-viewports [_ w h])
-  (fix-viewport-update [_])
-  (assoc-view-mouse-positions [_]))
+  (fix-viewport-update [_]))
 
 (defprotocol SoundStore
   (play-sound! [_ file]

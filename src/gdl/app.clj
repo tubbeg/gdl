@@ -9,13 +9,13 @@
 
 (def state (atom nil))
 
-(defn current-context []
-  (gdl.context/assoc-view-mouse-positions @state))
-
-; TODO here not current-context .... should not do @state or get mouse-positions via function call
-; but then keep unprojecting ?
 ; TODO TEST current logic of that screen will be continued ?
-(defn change-screen! [new-screen-key]
+(defn change-screen!
+  "Fetches the new screen from context via get.
+  Calls screen/hide on the previous screen.
+  Calls screen/show on the new screen and sets it as :context/current-screen
+  Throws assertionerror when the context does not have a screen with new-screen-key."
+  [new-screen-key]
   (let [{:keys [context/current-screen] :as context} @state]
     (when-let [previous-screen (get context current-screen)]
       (screen/hide previous-screen context))
@@ -44,8 +44,8 @@
       (dispose-context @state))
     (render []
       (ScreenUtils/clear Color/BLACK)
-      (let [{:keys [context/current-screen] :as context} (current-context)
-            screen (current-screen context)]
+      (let [{:keys [context/current-screen] :as context} @state
+            screen (current-screen context)] ; make a private function for getting current-screen
 
         ; "Sometimes the viewport update is not triggered."
         ; TODO (on mac osx, when resizing window, make bug report, fix it in libgdx?)
@@ -53,7 +53,6 @@
         (screen/render screen context)
         (screen/tick screen context (* (.getDeltaTime Gdx/graphics) 1000))))
     (resize [w h]
-      ; TODO here also @state and not current-context ...
       (gdl.context/update-viewports @state w h))))
 
 (defn- lwjgl3-configuration [{:keys [title width height full-screen? fps]}]
@@ -67,6 +66,11 @@
       (.setWindowedMode config width height))
     config))
 
-(defn start [config]
+(defn start
+  "Starts a lwjgl3 application with configs
+  {:app {:keys [title width height full-screen? fps]}}
+  ; TODO fix fps limiting off by default
+  and :context-fn / :first-screen."
+  [config]
   (Lwjgl3Application. (application-adapter config)
                       (lwjgl3-configuration (:app config))))
