@@ -3,6 +3,7 @@
                                          graphics
                                          [gui-world-views :as views]
                                          image-drawer-creator
+                                         input
                                          [shape-drawer :as shape-drawer]
                                          [sprite-batch :as sprite-batch]
                                          stage
@@ -16,6 +17,11 @@
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.utils.ScreenUtils))
+
+(extend-type gdl.context.Context
+  gdl.context/Application
+  (exit-app [_]
+    (.exit Gdx/app)))
 
 (defn- ->default-context [world-unit-scale]
   (let [context (sprite-batch/->context)]

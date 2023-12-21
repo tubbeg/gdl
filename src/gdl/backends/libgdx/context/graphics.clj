@@ -1,12 +1,15 @@
 (ns gdl.backends.libgdx.context.graphics
-  (:require [gdl.graphics.color :as color])
-  (:import com.badlogic.gdx.graphics.Color))
+  (:require gdl.context
+            [gdl.graphics.color :as color]
+            [gdl.backends.libgdx.utils.reflect :refer [bind-roots]])
+  (:import com.badlogic.gdx.Gdx
+           com.badlogic.gdx.graphics.Color))
 
-(do
-  (.bindRoot #'color/white  Color/WHITE)
-  (.bindRoot #'color/black  Color/BLACK)
-  (.bindRoot #'color/gray   Color/GRAY)
-  (.bindRoot #'color/yellow Color/YELLOW)
-  (.bindRoot #'color/red    Color/RED)
-  (.bindRoot #'color/green  Color/GREEN)
-  (.bindRoot #'color/orange Color/ORANGE))
+(extend-type gdl.context.Context
+  gdl.context/Graphics
+  (frames-per-second [_]
+    (.getFramesPerSecond Gdx/graphics)))
+
+(bind-roots "com.badlogic.gdx.graphics.Color"
+            'com.badlogic.gdx.graphics.Color
+            "gdl.graphics.color")
