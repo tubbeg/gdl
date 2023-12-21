@@ -48,28 +48,21 @@
   (render-world-view [_ render-fn])
   (pixels->world-units [_ pixels])
   (gui-mouse-position [_])
-  (world-mouse-position [_])
-
-  ; use in gdl.app only TODO remove here what is only used once, its not really useful for the API
-  ; but that also means that I am linked to the default-context
-  ; that means I can just create it with app and pass world-unit-scale
-  (update-viewports [_ w h])
-  (fix-viewport-update [_]))
+  (world-mouse-position [_]))
 
 (defprotocol SoundStore
   (play-sound! [_ file]
                "Sound is already loaded from file, this will perform only a lookup for the sound and play it." ))
 
-(defprotocol PropertyStore
-  (get-property [_ id])
-  (all-properties [_ type]))
-
 (defprotocol Stage
   (->stage-screen [_ {:keys [stage sub-screen]}]
                   "A screen with a stage as an input-processor which gets drawn and 'act'ed and disposed.
                   The sub-screen is rendered and tick'ed before the stage.
-                  The stage is assoc'ed to the context at show and dissoc'ed at hide as :stage-screen/stage.
-
                   Sub-screen is optional.")
-  (get-stage [_]) ; => TODO can assoc it to context now with stage-screen
+  (get-stage [_])
   (mouse-on-stage-actor? [_]))
+
+(defprotocol Widgets
+  (->text-button [_ text on-clicked])
+  (->check-box [_ text on-clicked checked?])
+  (->image-button [_ image on-clicked]))
