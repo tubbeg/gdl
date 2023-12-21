@@ -14,6 +14,7 @@
                  returns the context with current-screen set to new-screen."))
 
 (defprotocol Graphics
+  (delta-time [_])
   (frames-per-second [_]))
 
 (defprotocol Input
@@ -68,8 +69,8 @@
 
 (defprotocol Stage
   (->stage-screen [_ {:keys [stage sub-screen]}]
-                  "A screen with a stage as an input-processor which gets drawn and 'act'ed and disposed.
-                  The sub-screen is rendered and tick'ed before the stage.
+                  "A screen with a stage as an input-processor which gets drawn and 'act'ed after the given sub-screen.
+                  The stage will get disposed also.
                   Sub-screen is optional.")
   (get-stage [_])
   (mouse-on-stage-actor? [_]))
