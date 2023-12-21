@@ -1,5 +1,5 @@
 (ns gdl.simple-test
-  (:require [gdl.app :as app]
+  (:require [gdl.backends.libgdx.app :as app]
             [gdl.context :refer [draw-centered-image draw-circle draw-text generate-ttf create-image render-gui-view
                                  gui-mouse-position world-mouse-position]]
             gdl.screen)
