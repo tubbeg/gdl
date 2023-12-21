@@ -1,4 +1,4 @@
-(ns gdl.context.stage
+(ns gdl.backends.libgdx.context.stage
   (:require [gdl.context :refer [gui-mouse-position current-screen get-stage]]
             gdl.disposable
             [gdl.screen :as screen]
