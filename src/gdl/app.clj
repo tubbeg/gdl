@@ -8,9 +8,10 @@
             [gdl.context.text-drawer :as text-drawer]
             gdl.context.ttf-generator
             [gdl.context.vis-ui :as vis-ui]
+
             [gdl.screen :as screen]
             gdl.disposable
-            [gdl.context :refer [current-screen change-screen ]])
+            [gdl.context :refer [current-screen change-screen]])
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.graphics.Color
