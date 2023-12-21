@@ -14,8 +14,8 @@
                  returns the context with current-screen set to new-screen."))
 
 (defprotocol Graphics
-  (delta-time [_])
-  (frames-per-second [_]))
+  (delta-time [_] "the time span between the current frame and the last frame in seconds.")
+  (frames-per-second [_] "the average number of frames per second"))
 
 (defprotocol Input
   (button-pressed?      [_ button])
