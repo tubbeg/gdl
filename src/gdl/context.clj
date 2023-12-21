@@ -13,10 +13,6 @@
 (defprotocol TrueTypeFontGenerator
   (generate-ttf [_ {:keys [file size]}]))
 
-(defprotocol Graphics
-  (->color [_ r g b]
-           [_ r g b a]))
-
 (defprotocol TextDrawer
   (draw-text [_ {:keys [font text x y h-align up?]}]))
 

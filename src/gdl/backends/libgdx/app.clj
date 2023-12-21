@@ -1,6 +1,6 @@
 (ns gdl.backends.libgdx.app
   (:require (gdl.backends.libgdx.context [assets :as assets]
-                                         [color :as color-context]
+                                         graphics
                                          [gui-world-views :as views]
                                          image-drawer-creator
                                          [shape-drawer :as shape-drawer]
@@ -18,7 +18,6 @@
            com.badlogic.gdx.utils.ScreenUtils))
 
 (defn- ->default-context [world-unit-scale]
-  (color-context/load-color-vars!)
   (let [context (sprite-batch/->context)]
     (-> context
         (merge (shape-drawer/->context context) ; requires batch

@@ -11,8 +11,19 @@
   ; multiply by this to convert from degrees to radians
   (* degree (/ (Math/PI) 180)))
 
-(defn- set-color [^ShapeDrawer shape-drawer ^Color color]
-  (.setColor shape-drawer color))
+(defn- ->Color
+  ([r g b]
+   (->Color r g b 1))
+  ([r g b a]
+   (Color. (float r) (float g) (float b) (float a))))
+
+(defn ->color ^Color [color]
+  (if (= Color (class color))
+    color
+    (apply ->Color color)))
+
+(defn- set-color [^ShapeDrawer shape-drawer color]
+  (.setColor shape-drawer (->color color)))
 
 (extend-type gdl.context.Context
   gdl.context/ShapeDrawer
