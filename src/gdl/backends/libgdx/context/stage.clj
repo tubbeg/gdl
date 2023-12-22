@@ -32,9 +32,9 @@
     (let [stage (proxy [Stage clojure.lang.ILookup] [gui-viewport batch]
                   (valAt
                     ([id]
-                     (find-actor-with-id (.getRoot this) id))
+                     (find-actor-with-id (.getRoot ^Stage this) id))
                     ([id not-found]
-                     (or (find-actor-with-id (.getRoot this) id)
+                     (or (find-actor-with-id (.getRoot ^Stage this) id)
                          not-found))))]
       (doseq [actor actors]
         (.addActor stage actor))
