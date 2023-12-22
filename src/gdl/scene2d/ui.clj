@@ -49,18 +49,12 @@
   (-> (VisTable.)
       (set-opts opts)))
 
-#_(defn- add-window-close-button [^Window window]
-  (.add (.getTitleTable window)
-        (text-button "x" #(.setVisible window false)))
-  window)
-
 (defn window ^Window [& {:keys [title modal?] :as opts}]
   (-> (doto (VisWindow. ^String title)
-        (.setModal (boolean modal?)))
-      (set-opts opts)
-      #_add-window-close-button
-
-      ))
+        (.setModal (boolean modal?))
+        (.addCloseButton)
+        (.closeOnEscape))
+      (set-opts opts)))
 
 (defn label ^Label [text]
   (VisLabel. ^CharSequence text))

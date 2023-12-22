@@ -28,7 +28,8 @@
 (defn- find-actor-with-id [^Stage stage id]
   (let [actors (.getActors stage)
         ids (keep actor/id actors)]
-    (assert (apply distinct? ids)
+    (assert (or (empty? ids)
+                (apply distinct? ids))
             (str "Actor ids are not distinct: " (vec ids)))
     (first (filter #(= id (actor/id %))
                    actors))))
