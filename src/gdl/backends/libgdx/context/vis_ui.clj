@@ -57,7 +57,7 @@
 (defn- instant-show-tooltip-manager ^TooltipManager [textfn]
   (let [manager (proxy [TooltipManager] []
                   (enter [^Tooltip tooltip]
-                    (.setText ^Label (.getActor tooltip) ^String (textfn))
+                    (.setText ^Label (.getActor tooltip) ^String (textfn @current-context))
                     (.pack (.getContainer tooltip))
                     (let [^TooltipManager this this]
                       (proxy-super enter tooltip))))]
