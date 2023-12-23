@@ -16,7 +16,7 @@
 (defprotocol Graphics
   (delta-time [_] "the time span between the current frame and the last frame in seconds.")
   (frames-per-second [_] "the average number of frames per second")
-  (->cursor [_ file])
+  (->cursor [_ file] "needs to be disposed (add to main context level)")
   (set-cursor! [_ cursor]))
 
 (defprotocol Input
