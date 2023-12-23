@@ -5,23 +5,24 @@
             gdl.scene2d.ui)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.g2d.TextureRegion
-           (com.badlogic.gdx.scenes.scene2d.ui Skin Button)
+           com.badlogic.gdx.scenes.scene2d.Actor
+           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImageButton)))
 
-(defn ->context [] ; TODO skin-scale arg
-  ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-  (.bindRoot #'gdl.scene2d.ui/default-skin (Skin. (.internal Gdx/files "scene2d.ui.skin/uiskin.json")))
+(defn ->context []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
   ; => actually there is a deeper issue at play
   ; we need to dispose ALL resources which were loaded already ...
   (when (VisUI/isLoaded)
     (VisUI/dispose))
-  (VisUI/load #_VisUI$SkinScale/X2)
-  {:context/vis-ui (reify gdl.disposable/Disposable
+  (VisUI/load #_VisUI$SkinScale/X2) ; TODO skin-scale arg
+
+  ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
+  {:context.ui/default-skin (Skin. (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))
+   :context/vis-ui (reify gdl.disposable/Disposable
                      (dispose [_]
-                       (.dispose ^Skin gdl.scene2d.ui/default-skin)
                        (VisUI/dispose)))})
 
 (comment
@@ -48,6 +49,23 @@
       (on-clicked @current-context))))
 ; TODO this could do (swap! current-context on-clicked) ??
 ; => all change-screens could be done pure functions o.o / hide / enter 'pure' functions
+
+; TODO the tooltip manager sets my spritebatch color to 0.2 alpha for short time
+; TODO also the widget where the tooltip is attached is flickering after
+; the tooltip disappears
+; => write your own manager without animations/time
+(defn- instant-show-tooltip-manager ^TooltipManager [textfn]
+  (let [manager (proxy [TooltipManager] []
+                  (enter [^Tooltip tooltip]
+                    (.setText ^Label (.getActor tooltip) ^String (textfn))
+                    (.pack (.getContainer tooltip))
+                    (let [^TooltipManager this this]
+                      (proxy-super enter tooltip))))]
+    (set! (.initialTime manager) 0)
+    (set! (.resetTime   manager) 0)
+    (set! (.animations  manager) false)
+    (.hideAll manager)
+    manager))
 
 (extend-type gdl.context.Context
   gdl.context/Widgets
@@ -82,4 +100,10 @@
   (->image-button [context image on-clicked]
     (let [button (VisImageButton. (TextureRegionDrawable. ^TextureRegion (:texture image)))]
       (.addListener button (->change-listener context on-clicked))
-      button)))
+      button))
+
+  ; TODO VisToolTip
+  ; https://github.com/kotcrab/vis-ui/wiki/Tooltips
+  (->text-tooltip ^TextTooltip [{:keys [context.ui/default-skin]} textfn]
+    (TextTooltip. "" (instant-show-tooltip-manager textfn) ^Skin default-skin))
+  )

@@ -2,13 +2,12 @@
   "Widget constructors and helper functions for com.kotcrab.vis.ui
   See: https://github.com/kotcrab/vis-ui"
   (:require [gdl.scene2d.actor :as actor])
-  (:import com.badlogic.gdx.files.FileHandle
-           com.badlogic.gdx.graphics.g2d.TextureRegion
+  (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Actor Group)
            (com.badlogic.gdx.scenes.scene2d.utils TextureRegionDrawable Drawable)
-           (com.badlogic.gdx.scenes.scene2d.ui Skin Cell Table WidgetGroup Window
+           (com.badlogic.gdx.scenes.scene2d.ui Cell Table WidgetGroup Window
             Label TooltipManager Tooltip TextTooltip TextField SplitPane Stack Image)
-           (com.kotcrab.vis.ui.widget VisTextField VisTable VisWindow VisLabel VisSplitPane )))
+           (com.kotcrab.vis.ui.widget VisTextField VisTable VisWindow VisLabel VisSplitPane)))
 
 (defn set-cell-opts [^Cell cell opts]
   (doseq [[option arg] opts]
@@ -73,30 +72,6 @@
 (defn text-field ^VisTextField [^String text & opts]
   (-> (VisTextField. text)
       (set-opts opts)))
-
-; TODO the tooltip manager sets my spritebatch color to 0.2 alpha for short time
-; TODO also the widget where the tooltip is attached is flickering after
-; the tooltip disappears
-; => write your own manager without animations/time
-(defn- instant-show-tooltip-manager ^TooltipManager [textfn]
-  (let [manager (proxy [TooltipManager] []
-                  (enter [^Tooltip tooltip]
-                    (.setText ^Label (.getActor tooltip) ^String (textfn))
-                    (.pack (.getContainer tooltip))
-                    (let [^TooltipManager this this]
-                      (proxy-super enter tooltip))))]
-    (set! (.initialTime manager) 0)
-    (set! (.resetTime   manager) 0)
-    (set! (.animations  manager) false)
-    (.hideAll manager)
-    manager))
-
-(declare default-skin)
-
-; TODO VisToolTip
-; https://github.com/kotcrab/vis-ui/wiki/Tooltips
-(defn text-tooltip ^TextTooltip [textfn]
-  (TextTooltip. "" (instant-show-tooltip-manager textfn) ^Skin default-skin))
 
 ; TODO is not decendend of SplitPane anymore => check all type hints here
 (defn split-pane ^VisSplitPane [& {:keys [^Actor first-widget

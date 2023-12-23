@@ -83,4 +83,6 @@
   (->actor [_ {:keys [draw act]}])
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?])
-  (->image-button [_ image on-clicked]))
+  (->image-button [_ image on-clicked])
+  (->text-tooltip [_ textfn])
+  )
