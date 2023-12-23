@@ -27,7 +27,11 @@
   (generate-ttf [_ {:keys [file size]}]))
 
 (defprotocol TextDrawer
-  (draw-text [_ {:keys [font text x y h-align up?]}]))
+  (draw-text [_ {:keys [x y text font h-align up? scale]}]
+             "font, h-align, up? and scale are optional.
+             h-align one of: :center, :left, :right. Default :center.
+             up? renders the font over y, otherwise under.
+             scale will multiply the drawn text size with the scale."))
 
 (defprotocol ShapeDrawer
   (draw-ellipse [_ position radius-x radius-y color])
