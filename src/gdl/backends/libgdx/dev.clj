@@ -60,7 +60,6 @@
   (try (start-app)
        (catch Throwable t
          (p/pretty-pst t)
-         (println "app-start-failed") ; TODO FIXME says app-start-failed even if errors later not during start-app
          (reset! app-start-failed true)))
   (loop []
     (when-not @app-start-failed
