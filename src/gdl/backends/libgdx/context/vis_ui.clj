@@ -1,5 +1,6 @@
 (ns gdl.backends.libgdx.context.vis-ui
-  (:require gdl.context
+  (:require [gdl.app :refer [current-context]]
+            gdl.context
             gdl.disposable
             gdl.scene2d.ui)
   (:import com.badlogic.gdx.Gdx
@@ -41,7 +42,7 @@
 
 ; TODO add Actor/Widget, also using current-context & tooltips
 
-(defn- ->change-listener [{:keys [gdl.app/current-context]} on-clicked]
+(defn- ->change-listener [_ on-clicked]
   (proxy [ChangeListener] []
     (changed [event actor] ; TODO pass also event / actor as event/event event/actor or something
       (on-clicked @current-context))))
@@ -50,6 +51,15 @@
 
 (extend-type gdl.context.Context
   gdl.context/Widgets
+  (->actor [_ {:keys [draw act]}]
+    (proxy [Actor] []
+      (draw [_batch _parent-alpha]
+        (when draw
+          (draw @current-context)))
+      (act [delta]
+        (when act
+          (act @current-context)))))
+
   ; ^TextButton
   (->text-button [context text on-clicked]
     (let [button (VisTextButton. ^String text)]
