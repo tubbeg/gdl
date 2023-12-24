@@ -79,17 +79,31 @@
                   "A screen with a stage as an input-processor which gets drawn and 'act'ed after the given sub-screen.
                   The stage will get disposed also.
                   Sub-screen is optional.")
-  (get-stage [_])
+  (get-stage [_] "Stage implements clojure.lang.ILookup (get) on actor id.")
   (mouse-on-stage-actor? [_]))
 
+; TODO
+; actor-opts
+; table-opts
+; widget-group-opts
 (defprotocol Widgets
   (->actor [_ {:keys [draw act]}])
-  (->group [_])
+  (->group [_] "Implements clojure.lang.ILookup (get) on actor id.")
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?])
   (->image-button [_ image on-clicked])
   (->text-tooltip [_ textfn])
-  (->table [_ opts])
+  (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.
+                    Extra opts: :modal?
+
+                    https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
+A group that sizes and positions children using table constraints.
+
+Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
+
+By default, Actor.getTouchable() is Touchable.childrenOnly.
+
+The preferred and minimum sizes are that of the children laid out in columns and rows.")
   (->window [_ {:keys [title modal?] :as opts}])
   (->label [_ text])
   (->text-field [_ text opts])
@@ -99,5 +113,5 @@
   (->stack [_])
   (->image-widget [_ drawable opts])
   (->texture-region-drawable [_ texture-region])
-  (->horizontal-group [_])
-  (->button-group [_]))
+  (->horizontal-group [_] "Implements clojure.lang.ILookup (get) on actor id.")
+  (->button-group [_ {:keys [max-check-count min-check-count]}]))

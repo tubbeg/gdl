@@ -14,5 +14,6 @@
   (get-y [_])
   (width [_])
   (height [_])
-  (set-touchable! [_ touchable]
-                 ":children-only, :disabled or :enabled."))
+  (set-touchable! [_ touchable] ":children-only, :disabled or :enabled.")
+  (add-listener! [_ listener] "Add a listener to receive events that hit this actor.")
+  (remove! [_] "Removes this actor from its parent, if it has a parent."))

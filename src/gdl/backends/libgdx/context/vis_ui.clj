@@ -4,14 +4,14 @@
             gdl.disposable
             [gdl.scene2d.actor :as actor]
             gdl.scene2d.group
+            gdl.scene2d.ui.button-group
             gdl.scene2d.ui.label
             [gdl.scene2d.ui.table :refer [add-rows]]
             gdl.scene2d.ui.cell)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
-           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack Image
-                                               ButtonGroup HorizontalGroup)
+           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack Image ButtonGroup HorizontalGroup)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane)))
@@ -104,6 +104,15 @@
           (text-button "x" #(.setVisible window false)))
     window)
 
+(defn- find-actor-with-id [^Group group id]
+  (let [actors (.getChildren group)
+        ids (keep actor/id actors)]
+    (assert (or (empty? ids)
+                (apply distinct? ids)) ; TODO could check @ add
+            (str "Actor ids are not distinct: " (vec ids)))
+    (first (filter #(= id (actor/id %))
+                   actors))))
+
 (extend-type gdl.context.Context
   gdl.context/Widgets
   (->actor [_ {:keys [draw act]}]
@@ -115,9 +124,27 @@
         (when act
           (act @current-context)))))
 
-  (->group [_] (Group.))
-  (->horizontal-group [_] (HorizontalGroup.))
-  (->button-group [_] (ButtonGroup.))
+  (->group [_]
+    (proxy [Group clojure.lang.ILookup] []
+      (valAt
+        ([id]
+         (find-actor-with-id this id))
+        ([id not-found]
+         (or (find-actor-with-id this id) not-found)))))
+
+  (->horizontal-group [_]
+    (proxy [HorizontalGroup clojure.lang.ILookup] []
+      (valAt
+        ([id]
+         (find-actor-with-id this id))
+        ([id not-found]
+         (or (find-actor-with-id this id) not-found)))))
+
+  (->button-group [_ {:keys [max-check-count min-check-count]}]
+    (let [button-group (ButtonGroup.)]
+      (.setMaxCheckCount button-group max-check-count)
+      (.setMinCheckCount button-group min-check-count)
+      button-group))
 
   ; ^TextButton
   (->text-button [context text on-clicked]
@@ -206,27 +233,29 @@
               (set-cell-opts (dissoc props-or-actor :actor)))
           (.add table ^Actor props-or-actor)))
       (.row table))
-    table))
+    table)
+
+  #_(add! [table actor]
+    (.add table ^Actor actor)))
 
 (extend-type Label
   gdl.scene2d.ui.label/Label
   (set-text! [^Label label ^CharSequence text]
     (.setText label text)))
 
-; => extend them with ilookup your groups
 (extend-type Group
   gdl.scene2d.group/Group
   (children [group]
     (seq (.getChildren group)))
 
+  (clear-children! [group]
+    (.clearChildren group))
+
   (find-actor-with-id [^Group group id]
-    (let [actors (.getChildren group)
-          ids (keep actor/id actors)]
-      (assert (or (empty? ids)
-                  (apply distinct? ids))
-              (str "Actor ids are not distinct: " (vec ids)))
-      (first (filter #(= id (actor/id %))
-                     actors)))))
+    (find-actor-with-id group id))
+
+  (add-actor! [group actor]
+    (.addActor group actor)))
 
 (extend-type Actor
   gdl.scene2d.actor/Actor
@@ -247,8 +276,23 @@
   (get-y [actor] (.getX actor))
   (width [actor] (.getWidth actor))
   (height [actor] (.getHeight actor))
-  (set-touchable! [^Actor actor touchable]
+  (set-touchable! [actor touchable]
     (.setTouchable actor (case touchable
                            :children-only Touchable/childrenOnly
                            :disabled      Touchable/disabled
-                           :enabled       Touchable/enabled))))
+                           :enabled       Touchable/enabled)))
+  (add-listener! [actor listener]
+    (.addListener actor listener))
+  (remove! [actor]
+    (.remove actor)))
+
+(extend-type ButtonGroup
+  gdl.scene2d.ui.button-group/ButtonGroup
+  (clear! [button-group]
+    (.clear button-group))
+  (add! [button-group button]
+    (.add button-group ^Button button))
+  (checked [button-group]
+    (.getChecked button-group))
+  (remove! [button-group button]
+    (.remove button-group ^Button button)))
