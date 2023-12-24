@@ -2,6 +2,7 @@
 
 (defprotocol Actor
   (id [_])
+  ; TODO make as opts
   (set-id! [_ id])
   (visible? [_])
   (set-visible! [_ bool])
@@ -14,6 +15,8 @@
   (get-y [_])
   (width [_])
   (height [_])
+  ; TODO make as opts
   (set-touchable! [_ touchable] ":children-only, :disabled or :enabled.")
+  ; TODO make as opts
   (add-listener! [_ listener] "Add a listener to receive events that hit this actor.")
   (remove! [_] "Removes this actor from its parent, if it has a parent."))

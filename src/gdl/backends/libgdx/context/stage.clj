@@ -3,7 +3,7 @@
             gdl.disposable
             [gdl.screen :as screen]
             [gdl.scene2d.actor :as actor]
-            [gdl.scene2d.group :refer [find-actor-with-id]])
+            [gdl.scene2d.group :refer [find-actor-with-id] :as group])
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.scenes.scene2d.Stage))
 
@@ -44,3 +44,17 @@
   (mouse-on-stage-actor? [context]
     (let [[x y] (gui-mouse-position context)]
       (.hit ^Stage (get-stage context) x y true))))
+
+(extend-type Stage
+  gdl.scene2d.group/Group
+  (children [stage]
+    (group/children (.getRoot stage)))
+
+  (clear-children! [stage]
+    (group/clear-children! (.getRoot stage)))
+
+  (find-actor-with-id [stage id]
+    (group/find-actor-with-id (.getRoot stage) id))
+
+  (add-actor! [stage actor]
+    (group/add-actor! (.getRoot stage) actor)))

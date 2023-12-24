@@ -6,6 +6,5 @@
                      Elements are actors or a map of
                      {:actor :expand? :bottom?  :colspan int :pad :pad-bottom}. Only :actor is required.")
 
-  ; maybe remove, unused yet
-  #_(add! [_ actor] "Adds a new cell to the table with the specified actor.")
-  )
+  (add! [_ actor] "Adds a new cell to the table with the specified actor.")
+  (add-separator! [_]))

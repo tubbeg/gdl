@@ -7,7 +7,8 @@
             gdl.scene2d.ui.button-group
             gdl.scene2d.ui.label
             [gdl.scene2d.ui.table :refer [add-rows]]
-            gdl.scene2d.ui.cell)
+            gdl.scene2d.ui.cell
+            gdl.scene2d.ui.widget-group)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
@@ -176,7 +177,12 @@
     (TextTooltip. "" (instant-show-tooltip-manager textfn) ^Skin default-skin))
 
   (->table ^Table [_ opts]
-    (-> (VisTable.)
+    (-> (proxy [VisTable clojure.lang.ILookup] []
+          (valAt
+            ([id]
+             (find-actor-with-id this id))
+            ([id not-found]
+             (or (find-actor-with-id this id) not-found))))
         (set-opts opts)))
 
   (->window ^Window [_ {:keys [title modal?] :as opts}]
@@ -203,8 +209,13 @@
     (-> (VisSplitPane. first-widget second-widget vertical?)
         (set-actor-opts opts)))
 
-  (->stack [_]
-    (Stack.))
+  (->stack [_ actors]
+    (proxy [Stack clojure.lang.ILookup] [(into-array Actor actors)]
+      (valAt
+        ([id]
+         (find-actor-with-id this id))
+        ([id not-found]
+         (or (find-actor-with-id this id) not-found)))))
 
   ; TODO VisImage, check other widgets too replacements ?
   (->image-widget ^Image [_ ^Drawable drawable opts]
@@ -235,8 +246,11 @@
       (.row table))
     table)
 
-  #_(add! [table actor]
-    (.add table ^Actor actor)))
+  (add! [table actor]
+    (.add table ^Actor actor))
+
+  (add-separator! [table]
+    (.addSeparator table)))
 
 (extend-type Label
   gdl.scene2d.ui.label/Label
@@ -265,7 +279,7 @@
   (set-visible! [actor bool] (.setVisible actor bool))
   (toggle-visible! [^Actor actor]
     (.setVisible actor (not (.isVisible actor))))
-  (set-position [actor x y] (.setPosition actor x y))
+  (set-position! [actor x y] (.setPosition actor x y))
   (set-center! [^Actor actor x y]
     (.setPosition actor
                   (- x (/ (.getWidth actor) 2))
@@ -296,3 +310,8 @@
     (.getChecked button-group))
   (remove! [button-group button]
     (.remove button-group ^Button button)))
+
+(extend-type WidgetGroup
+  gdl.scene2d.ui.widget-group/WidgetGroup
+  (pack! [group]
+    (.pack group)))
