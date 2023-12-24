@@ -8,14 +8,15 @@
             gdl.scene2d.ui.label
             [gdl.scene2d.ui.table :refer [add-rows]]
             gdl.scene2d.ui.cell
-            gdl.scene2d.ui.widget-group)
+            gdl.scene2d.ui.widget-group
+            gdl.backends.libgdx.context.image-drawer-creator)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
-           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack Image ButtonGroup HorizontalGroup)
+           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
-           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane)))
+           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane)))
 
 (defn ->context []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
@@ -113,6 +114,15 @@
             (str "Actor ids are not distinct: " (vec ids)))
     (first (filter #(= id (actor/id %))
                    actors))))
+
+(defmulti ^:private ->vis-image type)
+
+(defmethod ->vis-image Drawable [^Drawable drawable]
+  (VisImage. drawable))
+
+(defmethod ->vis-image gdl.backends.libgdx.context.image_drawer_creator.Image
+  [{:keys [^TextureRegion texture]}]
+  (VisImage. texture))
 
 (extend-type gdl.context.Context
   gdl.context/Widgets
@@ -217,9 +227,8 @@
         ([id not-found]
          (or (find-actor-with-id this id) not-found)))))
 
-  ; TODO VisImage, check other widgets too replacements ?
-  (->image-widget ^Image [_ ^Drawable drawable opts]
-    (-> (Image. drawable)
+  (->image-widget [_ object opts]
+    (-> (->vis-image object)
         (set-opts opts)))
 
   ; => maybe with VisImage not necessary anymore?
