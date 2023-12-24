@@ -21,7 +21,10 @@
                 0))
 
   (set-cursor! [_ cursor]
-    (.setCursor Gdx/graphics cursor)))
+    (.setCursor Gdx/graphics cursor))
+
+  (->color [_ r g b a]
+    (Color. (float r) (float g) (float b) (float a))))
 
 (bind-roots "com.badlogic.gdx.graphics.Color"
             'com.badlogic.gdx.graphics.Color

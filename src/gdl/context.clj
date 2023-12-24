@@ -17,7 +17,8 @@
   (delta-time [_] "the time span between the current frame and the last frame in seconds.")
   (frames-per-second [_] "the average number of frames per second")
   (->cursor [_ file] "needs to be disposed (add to main context level)")
-  (set-cursor! [_ cursor]))
+  (set-cursor! [_ cursor])
+  (->color [_ r g b a]))
 
 (defprotocol Input
   (button-pressed?      [_ button])
@@ -83,8 +84,20 @@
 
 (defprotocol Widgets
   (->actor [_ {:keys [draw act]}])
+  (->group [_])
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?])
   (->image-button [_ image on-clicked])
   (->text-tooltip [_ textfn])
-  )
+  (->table [_ opts])
+  (->window [_ {:keys [title modal?] :as opts}])
+  (->label [_ text])
+  (->text-field [_ text opts])
+  (->split-pane [_ {:keys [first-widget
+                           second-widget
+                           vertical?] :as opts}])
+  (->stack [_])
+  (->image-widget [_ drawable opts])
+  (->texture-region-drawable [_ texture-region])
+  (->horizontal-group [_])
+  (->button-group [_]))
