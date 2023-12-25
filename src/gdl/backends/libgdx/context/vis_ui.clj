@@ -82,7 +82,7 @@
       :pad-bottom (.padBottom cell (float arg)))))
 
 (defn- set-widget-group-opts [^WidgetGroup widget-group {:keys [fill-parent? pack?]}]
-  (.setFillParent widget-group (boolean fill-parent?))
+  (.setFillParent widget-group (boolean fill-parent?)) ; <- actor? TODO
   (when pack?
     (.pack widget-group))
   widget-group)
@@ -307,7 +307,9 @@
   (add-listener! [actor listener]
     (.addListener actor listener))
   (remove! [actor]
-    (.remove actor)))
+    (.remove actor))
+  (parent [actor]
+    (.getParent actor)))
 
 (extend-type ButtonGroup
   gdl.scene2d.ui.button-group/ButtonGroup

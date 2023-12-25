@@ -19,4 +19,5 @@
   (set-touchable! [_ touchable] ":children-only, :disabled or :enabled.")
   ; TODO make as opts
   (add-listener! [_ listener] "Add a listener to receive events that hit this actor.")
-  (remove! [_] "Removes this actor from its parent, if it has a parent."))
+  (remove! [_] "Removes this actor from its parent, if it has a parent.")
+  (parent [_] "Returns the parent actor, or null if not in a group."))
