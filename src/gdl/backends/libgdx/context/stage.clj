@@ -22,9 +22,12 @@
     (when sub-screen (screen/hide sub-screen context)))
 
   (render [_ context]
+    ; stage act first so user screen calls change-screen -> is the end of frame
+    ; otherwise would need render-after-stage
+    ; or on change-screen the stage of the current screen would still .act
+    (.act stage (delta-time context))
     (when sub-screen (screen/render sub-screen context))
-    (.draw stage)
-    (.act stage (delta-time context))))
+    (.draw stage)))
 
 (extend-type gdl.context.Context
   gdl.context/Stage
