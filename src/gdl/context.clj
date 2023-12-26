@@ -14,9 +14,12 @@
                  returns the context with current-screen set to new-screen."))
 
 (defprotocol Graphics
-  (delta-time [_] "the time span between the current frame and the last frame in seconds.")
-  (frames-per-second [_] "the average number of frames per second")
-  (->cursor [_ file] "needs to be disposed (add to main context level)")
+  (delta-time [_]
+              "the time span between the current frame and the last frame in seconds.")
+  (frames-per-second [_]
+                     "the average number of frames per second")
+  (->cursor [_ file hotspot-x hotspot-y]
+            "needs to be disposed (add to main context level)")
   (set-cursor! [_ cursor])
   (->color [_ r g b a]))
 

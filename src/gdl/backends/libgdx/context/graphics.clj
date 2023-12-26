@@ -14,11 +14,11 @@
     (.getFramesPerSecond Gdx/graphics))
 
   ; https://libgdx.com/wiki/input/cursor-visibility-and-catching
-  (->cursor [_ file]
+  (->cursor [_ file hotspot-x hotspot-y]
     (.newCursor Gdx/graphics
                 (Pixmap. (.internal Gdx/files file))
-                0
-                0))
+                hotspot-x
+                hotspot-y))
 
   (set-cursor! [_ cursor]
     (.setCursor Gdx/graphics cursor))
