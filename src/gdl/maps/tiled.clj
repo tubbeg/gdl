@@ -7,14 +7,6 @@
            ; TODO move java sources & packages in tiled/...
            [gdl OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
-(defn load-map
-  "Requires OpenGL context (texture generation)."
-  [file]
-  (.load (TmxMapLoader.) file))
-
-(defn dispose [^TiledMap tiled-map]
-  (.dispose tiled-map))
-
 ; TODO this is actually get-properties for no reflection
 
 ; TODO add interface HasMapProperties !!! then can just call that !

@@ -19,7 +19,7 @@
   (frames-per-second [_]
                      "the average number of frames per second")
   (->cursor [_ file hotspot-x hotspot-y]
-            "needs to be disposed (add to main context level)")
+            "Takes care of disposing the cursor at application exit.")
   (set-cursor! [_ cursor])
   (->color [_ r g b a]))
 
@@ -133,3 +133,6 @@ The preferred and minimum sizes are that of the children laid out in columns and
   (->texture-region-drawable [_ texture-region])
   (->horizontal-group [_] "Implements clojure.lang.ILookup (get) on actor id.")
   (->button-group [_ {:keys [max-check-count min-check-count]}]))
+
+(defprotocol TiledMapLoader
+  (->tiled-map [_ file] "Needs to be disposed."))
