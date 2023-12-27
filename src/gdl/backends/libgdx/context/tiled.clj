@@ -36,7 +36,3 @@
            (map (partial tiled/layer-index tiled-map))
            int-array
            (.render map-renderer)))))
-
-
-
-
