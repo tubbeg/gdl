@@ -135,4 +135,10 @@ The preferred and minimum sizes are that of the children laid out in columns and
   (->button-group [_ {:keys [max-check-count min-check-count]}]))
 
 (defprotocol TiledMapLoader
-  (->tiled-map [_ file] "Needs to be disposed."))
+  (->tiled-map [_ file] "Needs to be disposed.")
+  (render-tiled-map [_ tiled-map color-setter]
+                    "Renders tiled-map using world-view at world-camera position and with world-unit-scale.
+                    Color-setter is a gdl.ColorSetter which is called for every tile-corner to set the color.
+                    Can be used for lights & shadows.
+                    The map-renderers are created and cached internally.
+                    Renders only visible layers."))
