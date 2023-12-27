@@ -195,14 +195,12 @@
              (or (find-actor-with-id this id) not-found))))
         (set-opts opts)))
 
-  (->window ^Window [_ {:keys [title modal?] :as opts}]
-    (-> (doto (VisWindow. ^String title)
-          (.setModal (boolean modal?))
-          ; closes nicely fades out, but removes from stage! not invisible
-          ; add option for property-editor to add add-close-button?/close-on-escape?
-          ;(.addCloseButton)
-          ;(.closeOnEscape)
-          )
+  (->window ^Window [_ {:keys [title modal? close-button? center?] :as opts}]
+    (-> (let [window (doto (VisWindow. ^String title true) ; true = showWindowBorder
+                       (.setModal (boolean modal?)))]
+          (when close-button? (.addCloseButton window))
+          (when center? (.centerWindow window))
+          window)
         (set-opts opts)))
 
   (->label ^Label [_ text]
