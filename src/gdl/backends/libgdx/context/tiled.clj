@@ -3,8 +3,7 @@
             [gdl.maps.tiled :as tiled])
   (:import com.badlogic.gdx.graphics.OrthographicCamera
            [com.badlogic.gdx.maps MapRenderer MapLayer MapLayers MapProperties]
-           [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile TiledMapTileLayer
-            TiledMapTileLayer$Cell]
+           [com.badlogic.gdx.maps.tiled TmxMapLoader TiledMap TiledMapTile TiledMapTileLayer TiledMapTileLayer$Cell]
            [gdl OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
 ; OrthogonalTiledMapRenderer extends BatchTiledMapRenderer

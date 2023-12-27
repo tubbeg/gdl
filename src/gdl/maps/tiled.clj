@@ -23,13 +23,13 @@
   (cell-at [_ layer position] "Layer can be keyword or layer object.
                               Position vector [x y].
                               If the layer is part of tiledmap, returns the TiledMapTileLayer$Cell at position.")
-  (property-value [tiled-map layer position property-key]
+  (property-value [_ layer position property-key]
                   "Returns the property value of the tile at the cell in layer.
                   If there is no cell at this position in the layer returns :no-cell.
                   If the property value is undefined returns :undefined.
                   Layer is keyword or layer object.")
   (map-positions [_] "Returns a sequence of all [x y] positions in the tiledmap.")
-  (positions-with-property [tiled-map layer property-key]
+  (positions-with-property [_ layer property-key]
                            "If the layer (keyword or layer object) does not exist returns nil.
                            Otherwise returns a sequence of [[x y] value] for all tiles who have property-key."))
 
