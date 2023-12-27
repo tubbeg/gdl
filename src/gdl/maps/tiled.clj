@@ -46,7 +46,7 @@
     (when-not (= -1 idx)
       idx)))
 
-(defn- get-layer [tiled-map layer-name]
+(defn get-layer [tiled-map layer-name]
   (.get (layers tiled-map) ^String layer-name))
 
 (defn remove-layer! [tiled-map layer]
