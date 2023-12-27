@@ -259,7 +259,7 @@
     (.add table ^Actor actor))
 
   (add-separator! [table]
-    (.addSeparator table)))
+    (.addSeparator ^VisTable table)))
 
 (extend-type Label
   gdl.scene2d.ui.label/Label
@@ -282,14 +282,16 @@
 
 (extend-type Actor
   gdl.scene2d.actor/Actor
-  (id [^Actor actor] (.getUserObject actor))
-  (set-id! [^Actor actor id] (.setUserObject actor id))
+  (id [actor] (.getUserObject actor))
+  (set-id! [actor id] (.setUserObject actor id))
+  (set-name! [actor name] (.setName actor name))
+  (actor-name [actor] (.getName actor))
   (visible? [actor] (.isVisible actor))
   (set-visible! [actor bool] (.setVisible actor bool))
-  (toggle-visible! [^Actor actor]
+  (toggle-visible! [actor]
     (.setVisible actor (not (.isVisible actor))))
   (set-position! [actor x y] (.setPosition actor x y))
-  (set-center! [^Actor actor x y]
+  (set-center! [actor x y]
     (.setPosition actor
                   (- x (/ (.getWidth actor) 2))
                   (- y (/ (.getHeight actor) 2))))

@@ -4,6 +4,8 @@
   (id [_])
   ; TODO make as opts
   (set-id! [_ id])
+  (set-name! [actor name])
+  (actor-name [actor])
   (visible? [_])
   (set-visible! [_ bool])
   (toggle-visible! [_])
