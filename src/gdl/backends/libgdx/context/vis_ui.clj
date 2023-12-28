@@ -14,6 +14,7 @@
             gdl.backends.libgdx.context.image-drawer-creator)
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.graphics.g2d.TextureRegion
+           (com.badlogic.gdx.utils Align Scaling)
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
            (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
@@ -75,12 +76,19 @@
     (.hideAll manager)
     manager))
 
+; listeners? for tooltip? but we have soon new tooltip so wait.
+; position ?
 (defn- set-actor-opts [actor {:keys [id name visible? touchable] :as opts}]
   (when id   (actor/set-id!   actor id))
   (when name (actor/set-name! actor name))
   (when (contains? opts :visible?)  (actor/set-visible! actor visible?))
   (when touchable (actor/set-touchable! actor touchable))
   actor)
+
+; add opts
+; image-button
+; group (also elements)
+; stack
 
 ; TODO docstrings for this !
 (defn- set-cell-opts [^Cell cell opts]
@@ -240,17 +248,14 @@
         ([id not-found]
          (or (find-actor-with-id this id) not-found)))))
 
-  (->image-widget [_ object opts]
-    (-> (->vis-image object)
+  ; TODO widget also make, for fill parent
+  (->image-widget [_ object {:keys [scaling align fill-parent?] :as opts}]
+    (-> (let [image (->vis-image object)]
+          (when (= :center align) (.setAlign image Align/center))
+          (when (= :fill scaling) (.setScaling image Scaling/fill))
+          (when fill-parent? (.setFillParent image true))
+          image)
         (set-opts opts)))
-
-  #_(comment
-    {:fill-parent? true
-     :scaling :fill
-     :align :center}
-    (.setScaling image com.badlogic.gdx.utils.Scaling/fill)
-    (.setAlign image com.badlogic.gdx.utils.Align/center)
-    (.setFillParent image true))
 
   ; => maybe with VisImage not necessary anymore?
   (->texture-region-drawable ^TextureRegionDrawable [_ ^TextureRegion texture]
