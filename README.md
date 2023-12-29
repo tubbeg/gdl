@@ -29,13 +29,15 @@ __Libgdx__ supports android and ios too, but I have not used those backends yet.
 * Checking for Mouse/Key input
 * Drawing geometric shapes
 * Playing sounds
-* [Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for [UI widgets](https://github.com/kotcrab/vis-ui)
+* [Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for UI widgets using [vis-ui](https://github.com/kotcrab/vis-ui)
 * Loading truetype fonts & drawing text
 * Loading [tiled](https://www.mapeditor.org/) `.tmx` maps and drawing them with lights&shadows in `world-unit-scale`
 
 # Updating the context
 
-At the moment `render` does not return a new context object, as I am using `atom`s for my entities and state. This proved to be quite useful and I am not sure it is possible to remove those `atom`s as they are used as references and save the lookup by entity `:id`.
+At the moment `render` does not return a new context object, as I am using `atom`s for my entities and state in the RPG project. 
+This proved to be quite useful and I am not sure it is possible to remove those `atom`s as they are used as references and save the lookup by entity `:id`.
+TODO: Still it might be useful for smaller projects to be able to just return a new `context` at the end of `render`. 
 
 # Hello World
 
