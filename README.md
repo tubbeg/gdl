@@ -9,7 +9,9 @@ GDL is a functional 2D game engine built around the idea of a __context__ object
 As you can see in the hello-world example below we call `create-context` once on app start and then it gets passed every frame to the `render` function.
 
 The context object is is a clojure record ([gdl.context.Context](https://github.com/damn/gdl/blob/main/src/gdl/context.clj#L3)) which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html). 
-It is available in `gdl.app/current-context` for developer debuggings and is used by the UI callback functions.
+
+The current context is stored in an `atom` in [`gdl.app/current-context`](https://github.com/damn/gdl/blob/main/src/gdl/app.clj#L4). 
+It is not suggested to access the state other than for debugging. It is __only__ used by UI callbacks, for changing the screen and passed to the application `render`
 
 GDL is basically a clojure API over the revalant/2D parts [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
 But you can easily extend the API for more libgdx features. 
