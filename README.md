@@ -52,7 +52,11 @@ export JVM_OPTS=-XstartOnFirstThread
 
 In [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest) I have defined more [game-specific context protocols](https://github.com/damn/Cyber-Dungeon-Quest/blob/master/src/cdq/context.clj). 
 
-There is an example in [context.mouseover-entity](https://github.com/damn/Cyber-Dungeon-Quest/blob/master/src/context/mouseover_entity.clj) how to extend the context with your own protocols. Basically you call `extend-type gdl.context.Context` with your protocols.
+There is an example in [context.mouseover-entity](https://github.com/damn/Cyber-Dungeon-Quest/blob/master/src/context/mouseover_entity.clj) how to extend the context with your own protocols. 
+
+Basically you call `extend-type gdl.context.Context` with your protocols and merge the necessary context-data at app start with the existing default-context.
+
+By using namespaced keywords like `:context/mouseover-entity` and clojure's map destructuring it becomes quite __simple&easy__ to manage all the data in one object.
 
 
 # Installation
