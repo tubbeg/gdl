@@ -14,7 +14,7 @@ It is available in `gdl.app/current-context` for developer debuggings and is use
 GDL is basically a clojure API over the revalant/2D parts [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
 But you can easily extend the API for more libgdx features. 
 
-At the moment the `context` needs to contain `atom`s for your state/entities and is not getting replaced by the return value of `render`. This is done because the UI-scenegraph used is still mutating objects and using callbacks with query `gdl.app/current-context`.
+At the moment the `context` needs to contain `atom`s for your state/entities and is not getting replaced by the return value of `render`. This is done because the UI-scenegraph used is still mutating objects and using callbacks which query `gdl.app/current-context`.
 
 You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
 
