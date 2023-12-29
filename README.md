@@ -48,6 +48,13 @@ You need to set this environment variable:
 export JVM_OPTS=-XstartOnFirstThread
 ```
 
+# Extending the `Context` for your game
+
+In [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest) I have defined more [game-specific context protocols](https://github.com/damn/Cyber-Dungeon-Quest/blob/master/src/cdq/context.clj). 
+
+There is an example in [context.mouseover-entity](https://github.com/damn/Cyber-Dungeon-Quest/blob/master/src/context/mouseover_entity.clj) how to extend the context with your own protocols. Basically you call `extend-type gdl.context.Context` with your protocols.
+
+
 # Installation
 
 [![](https://jitpack.io/v/damn/gdl.svg)](https://jitpack.io/#damn/gdl)
