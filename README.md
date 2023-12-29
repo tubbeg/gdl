@@ -11,7 +11,7 @@ As you can see in the hello-world example below we call `create-context` once on
 The context is a clojure record which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html). 
 It is available in `gdl.app/current-context` for developer debuggings and is used by the UI callback functions.
 
-The `render` function is __not__ returning an updated context, at the moment I am still using `atom`s inside the context in my game and for little pieces of state.
+The `render` function is __not__ returning an updated context, at the moment I am still using `atom`s inside the context in my game for entities and for little pieces of state.
 
 GDL is basically a clojure API over the revalant/2D parts [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
 But you can easily extend the API for more libgdx features. 
