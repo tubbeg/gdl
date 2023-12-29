@@ -8,13 +8,11 @@ GDL is a functional 2D game engine built around the idea of a __context__ object
 
 As you can see in the hello-world example below we call `create-context` once on app start and then it gets passed every frame to the `render` function.
 
-The context is a clojure record which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html). 
+The context object is is a clojure record ([gdl.context.Context](https://github.com/damn/gdl/blob/main/src/gdl/context.clj#L3)) which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html). 
 It is available in `gdl.app/current-context` for developer debuggings and is used by the UI callback functions.
 
 GDL is basically a clojure API over the revalant/2D parts [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
 But you can easily extend the API for more libgdx features. 
-
-At the moment the `context` needs to contain `atom`s for your state/entities and is not getting replaced by the return value of `render`. This is done because the UI-scenegraph used is still mutating objects and using callbacks which query `gdl.app/current-context`.
 
 You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
 
@@ -32,6 +30,10 @@ __Libgdx__ supports android and ios too, but I have not used those backends yet.
 * [Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for [UI widgets](https://github.com/kotcrab/vis-ui)
 * Loading truetype fonts & drawing text
 * Loading [tiled](https://www.mapeditor.org/) `.tmx` maps and drawing them with lights&shadows in `world-unit-scale`
+
+# Updating the context
+
+At the moment `render` does not return a new context object, as I am using `atom`s for my entities and state. This proved to be quite useful and I am not sure it is possible to remove those `atom`s as they are used as references and save the lookup by entity `:id`.
 
 # Hello World
 
