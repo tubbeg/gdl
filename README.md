@@ -4,7 +4,30 @@
 
 # What is GDL?
 
-A clojure framework for building 2D games.
+GDL is a functional 2D game engine built around the idea of a __context__ object which holds the current state of the application.
+
+As you can see in the hello-world example below we call `create-context` once on app start and then it gets passed every frame to the `render` function.
+
+The context is a clojure record which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html).
+
+GDL is basically an API over [libgdx](https://libgdx.com/). This makes it easily extendable, as not all features of libgdx are in the API yet. (GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project)
+
+You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
+
+Also __libgdx__ supports also android and ios, but this is not yet implemented in GDL, but available.
+
+## Features
+
+* Change screens (different separate applications 'screens' like main-menu, options-menu, etc )
+* Loading/setting cursors
+* Having a GUI-view and a World-view (with a `world-unit-scale`, which means you can draw and reason about your game world at world-coordinates and not pixel-coordinates)
+* Load and draw images
+* Checking for Mouse/Key input
+* Drawing geometric shapes
+* Playing sounds
+* [Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for [UI widgets](https://github.com/kotcrab/vis-ui)
+* Loading truetype fonts & drawing text
+* Loading [tiled](https://www.mapeditor.org/) `.tmx` maps and drawing them with lights&shadows in `world-unit-scale`
 
 # Hello World
 
