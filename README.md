@@ -4,7 +4,7 @@
 
 # What is GDL?
 
-The __vision__ of GDL is to be a __Game Development Language__ to make it __utterly simple__ to write games!
+The __vision__ of GDL is to be a __Game Development Language__ to make it _utterly simple_ to write games!
 
 GDL is a functional 2D game engine built around the idea of a __context__ object which holds the current state of the application.
 
