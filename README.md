@@ -13,7 +13,7 @@ The context object is is a clojure record ([gdl.context.Context](https://github.
 The current context is stored in an `atom` in [`gdl.app/current-context`](https://github.com/damn/gdl/blob/main/src/gdl/app.clj#L4). 
 It is not suggested to access the state other than for debugging. It is __only__ used by UI callbacks, for changing the screen and passed to the application `render`.
 
-GDL is basically a clojure API over the 2D parts of [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
+GDL is basically a clojure API over the 2D parts of of [libgdx](https://libgdx.com/), as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. 
 But you can easily extend the API for more libgdx features. 
 
 You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
