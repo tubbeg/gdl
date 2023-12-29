@@ -4,6 +4,8 @@
 
 # What is GDL?
 
+The __vision__ of GDL is to be a __Game Development Language__ to make it __utterly simple__ to write games!
+
 GDL is a functional 2D game engine built around the idea of a __context__ object which holds the current state of the application.
 
 As you can see in the hello-world example below we call `create-context` once on app start and then it gets passed every frame to the `render` function.
