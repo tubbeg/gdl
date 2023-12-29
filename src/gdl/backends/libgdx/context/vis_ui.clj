@@ -78,11 +78,13 @@
 
 ; listeners? for tooltip? but we have soon new tooltip so wait.
 ; position ?
-(defn- set-actor-opts [actor {:keys [id name visible? touchable] :as opts}]
+(defn- set-actor-opts [actor {:keys [id name visible? touchable center-position position] :as opts}]
   (when id   (actor/set-id!   actor id))
   (when name (actor/set-name! actor name))
   (when (contains? opts :visible?)  (actor/set-visible! actor visible?))
   (when touchable (actor/set-touchable! actor touchable))
+  (when-let [[x y] center-position] (actor/set-center!   actor x y))
+  (when-let [[x y] position]        (actor/set-position! actor x y))
   actor)
 
 ; add opts
