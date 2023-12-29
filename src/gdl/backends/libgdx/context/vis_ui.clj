@@ -154,7 +154,7 @@
       (draw [_batch _parent-alpha]
         (when draw
           (draw @current-context)))
-      (act [delta]
+      (act [_delta]
         (when act
           (act @current-context)))))
 
