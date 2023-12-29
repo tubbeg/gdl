@@ -10,7 +10,8 @@ As you can see in the hello-world example below we call `create-context` once on
 
 The context is a clojure record which implements certain protocols, as defined in [gdl.context](https://damn.github.io/gdl/gdl.context.html).
 
-GDL is basically an API over [libgdx](https://libgdx.com/). This makes it easily extendable, as not all features of libgdx are in the API yet. (GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project)
+GDL is basically an API over [libgdx](https://libgdx.com/). 
+Not all features of libgdx are in the API yet, as GDL evolved as an engine for [Cyber Dungeon Quest](https://github.com/damn/Cyber-Dungeon-Quest), an action RPG project. But you can easily extend the API for more libgdx features. 
 
 You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
 
