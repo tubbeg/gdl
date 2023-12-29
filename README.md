@@ -84,6 +84,8 @@ Add the following to your project.clj file:
 :dependencies [[com.github.damn/gdl "main-SNAPSHOT"]]
 ```
 
+__Note: the jitpack for `main-SNAPSHOT` seems not to be working at the moment, use the latest commit hash!__
+
 # [API Documentation](https://damn.github.io/gdl/)
 
 # Games made with GDL
