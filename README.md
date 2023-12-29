@@ -14,7 +14,7 @@ GDL is basically an API over [libgdx](https://libgdx.com/). This makes it easily
 
 You have full access to all libgdx under the hood and can do direct java interop anytime or acccess the OpenGL context, etc.
 
-__Libgdx__ supports a android and ios too, but I have not used those backends yet.
+__Libgdx__ supports android and ios too, but I have not used those backends yet.
 
 ## Features
 
