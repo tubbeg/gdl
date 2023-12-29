@@ -17,7 +17,7 @@ You have full access to all libgdx under the hood and can do direct java interop
 
 __Libgdx__ supports android and ios too, but I have not used those backends yet.
 
-## Features
+## [Context API](https://damn.github.io/gdl/gdl.context.html).
 
 * Change screens (different separate applications 'screens' like main-menu, options-menu, etc )
 * Loading/setting cursors
