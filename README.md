@@ -24,16 +24,16 @@ __Libgdx__ supports android and ios too, but I have not used those backends yet.
 
 ## [Context API](https://damn.github.io/gdl/gdl.context.html)
 
-* Change screens (different separate applications 'screens' like main-menu, options-menu, etc )
-* Loading/setting cursors
-* Having a GUI-view and a World-view (with a `world-unit-scale`, which means you can draw and reason about your game world at world-coordinates and not pixel-coordinates)
-* Load and draw images
-* Checking for Mouse/Key input
-* Drawing geometric shapes
-* Playing sounds
-* [Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for UI widgets using [vis-ui](https://github.com/kotcrab/vis-ui)
-* Loading truetype fonts & drawing text
-* Loading [tiled](https://www.mapeditor.org/) `.tmx` maps and drawing them with lights&shadows in `world-unit-scale`
+* 📺 Change screens (different separate applications 'screens' like main-menu, options-menu, etc )
+* 🖱️ Loading/setting cursors
+* 🌎 Having a GUI-view and a World-view (with a `world-unit-scale`, which means you can draw and reason about your game world at world-coordinates and not pixel-coordinates)
+* 🎆Load and draw images 
+* 🎮Checking for Mouse/Key input
+* 📐Drawing geometric shapes
+* 🔈Playing sounds
+* ☑️[Scene graph](https://libgdx.com/wiki/graphics/2d/scene2d/scene2d) for UI widgets using [vis-ui](https://github.com/kotcrab/vis-ui)
+* 🔤Loading truetype fonts & drawing text
+* 🗺️Loading [tiled](https://www.mapeditor.org/) `.tmx` maps and drawing them with lights&shadows in `world-unit-scale`
 
 # Updating the context
 
