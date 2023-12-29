@@ -41,6 +41,7 @@ The following things can be all called on the `context` object.
 
 At the moment `render` does not return a new context object, as I am using `atom`s for my entities and state in the RPG project. 
 This proved to be quite useful and I am not sure it is possible to remove those `atom`s as they are used as references and save the lookup by entity `:id`.
+
 TODO: Still it might be useful for smaller projects to be able to just return a new `context` at the end of `render`. 
 
 # Hello World
@@ -70,9 +71,6 @@ There is an example in [context.mouseover-entity](https://github.com/damn/Cyber-
 Basically you call `extend-type gdl.context.Context` with your protocols and merge the necessary context-data at app start with the existing default-context.
 
 By using namespaced keywords like `:context/mouseover-entity` and clojure's map destructuring it becomes quite __simple&easy__ to manage all the data in one object.
-
-The context returned by `render` will NOT update the original context. I am using `atoms` for my game entities, so it's not just one huge map but can use 
-
 
 # Installation
 
