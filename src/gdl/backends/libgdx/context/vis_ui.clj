@@ -16,7 +16,7 @@
            com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.utils Align Scaling)
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
-           (com.badlogic.gdx.scenes.scene2d.ui Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
+           (com.badlogic.gdx.scenes.scene2d.ui Image Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane)))
@@ -250,7 +250,7 @@
 
   ; TODO widget also make, for fill parent
   (->image-widget [_ object {:keys [scaling align fill-parent?] :as opts}]
-    (-> (let [image (->vis-image object)]
+    (-> (let [^Image image (->vis-image object)]
           (when (= :center align) (.setAlign image Align/center))
           (when (= :fill scaling) (.setScaling image Scaling/fill))
           (when fill-parent? (.setFillParent image true))
