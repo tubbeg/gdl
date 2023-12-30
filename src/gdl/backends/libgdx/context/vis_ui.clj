@@ -9,6 +9,7 @@
             gdl.scene2d.ui.label
             [gdl.scene2d.ui.table :refer [add-rows]]
             gdl.scene2d.ui.cell
+            gdl.scene2d.ui.text-field
             gdl.scene2d.ui.widget-group
             gdl.scene2d.ui.window
             gdl.backends.libgdx.context.image-drawer-creator)
@@ -220,11 +221,17 @@
              (or (find-actor-with-id this id) not-found))))
         (set-opts opts)))
 
-  (->window ^Window [_ {:keys [title modal? close-button? center?] :as opts}]
-    (-> (let [window (doto (VisWindow. ^String title true) ; true = showWindowBorder
+  (->window ^Window [_ {:keys [title modal? close-button? center? close-on-escape?] :as opts}]
+    (-> (let [window (doto (proxy [VisWindow clojure.lang.ILookup] [^String title true] ; true = showWindowBorder
+                             (valAt
+                               ([id]
+                                (find-actor-with-id this id))
+                               ([id not-found]
+                                (or (find-actor-with-id this id) not-found))))
                        (.setModal (boolean modal?)))]
-          (when close-button? (.addCloseButton window))
-          (when center? (.centerWindow window))
+          (when close-button?    (.addCloseButton window))
+          (when center?          (.centerWindow   window))
+          (when close-on-escape? (.closeOnEscape  window))
           window)
         (set-opts opts)))
 
@@ -293,6 +300,11 @@
   gdl.scene2d.ui.label/Label
   (set-text! [^Label label ^CharSequence text]
     (.setText label text)))
+
+(extend-type VisTextField
+  gdl.scene2d.ui.text-field/TextField
+  (text [text-field]
+    (.getText text-field)))
 
 (extend-type Group
   gdl.scene2d.group/Group
