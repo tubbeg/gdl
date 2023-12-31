@@ -97,10 +97,15 @@
 (defn- set-cell-opts [^Cell cell opts]
   (doseq [[option arg] opts]
     (case option
+      :fill-x?    (.fillX     cell)
+      :fill-y?    (.fillY     cell)
       :expand?    (.expand    cell)
+      :expand-x?  (.expandX   cell)
+      :expand-y?  (.expandY   cell)
       :bottom?    (.bottom    cell)
       :colspan    (.colspan   cell (int arg))
       :pad        (.pad       cell (float arg))
+      :pad-top    (.padTop    cell (float arg))
       :pad-bottom (.padBottom cell (float arg)))))
 
 (comment
@@ -119,7 +124,6 @@
 (defn- set-table-opts [^Table table {:keys [rows cell-defaults]}]
   (set-cell-opts (.defaults table) cell-defaults)
   (add-rows table rows))
-
 
 (defn- set-opts [actor opts]
   (set-actor-opts actor opts)
