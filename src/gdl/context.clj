@@ -142,3 +142,8 @@ The preferred and minimum sizes are that of the children laid out in columns and
                     Can be used for lights & shadows.
                     The map-renderers are created and cached internally.
                     Renders only visible layers."))
+
+(defprotocol Assets
+  (cached-texture [_ file])
+  (all-sound-files   [_])
+  (all-texture-files [_]))
