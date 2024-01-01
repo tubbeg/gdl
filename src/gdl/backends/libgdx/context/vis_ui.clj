@@ -194,12 +194,16 @@
   ; TODO give directly texture-region
   ; TODO check how to make toggle-able ? with hotkeys for actionbar trigger ?
   ; ^VisImageButton
-  (->image-button [context image on-clicked]
-    (let [drawable (TextureRegionDrawable. ^TextureRegion (:texture image))
-          button (VisImageButton. drawable)]
-      ;(.setMinSize drawable (float 96) (float 96))
-      (.addListener button (->change-listener context on-clicked))
-      button))
+  (->image-button
+    ([context image on-clicked]
+     (gdl.context/->image-button context image on-clicked {}))
+    ([context image on-clicked {:keys [dimensions]}]
+     (let [drawable (TextureRegionDrawable. ^TextureRegion (:texture image))
+           button (VisImageButton. drawable)]
+       (when-let [[w h] dimensions]
+         (.setMinSize drawable (float w) (float h)))
+       (.addListener button (->change-listener context on-clicked))
+       button)))
 
   (->table ^Table [_ opts]
     (-> (proxy [VisTable clojure.lang.ILookup] []
