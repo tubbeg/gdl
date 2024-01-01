@@ -6,7 +6,7 @@
             gdl.scene2d.group
             gdl.scene2d.ui.button
             gdl.scene2d.ui.button-group
-            [gdl.scene2d.ui.label :refer [set-text!]]
+            gdl.scene2d.ui.label
             [gdl.scene2d.ui.table :refer [add-rows]]
             gdl.scene2d.ui.cell
             gdl.scene2d.ui.text-field
@@ -338,7 +338,7 @@
                       (let [^Tooltip this this
                             text (tooltip-text @current-context)]
                         (when-not (= (str (.getText ^VisLabel (.getContent this))) text)
-                          (set-text! this ^String text))
+                          (.setText this ^String text))
                         (proxy-super draw batch parent-alpha))))]
       (.setAlignment label Align/center)
       (.setTarget  tooltip ^Actor actor)
