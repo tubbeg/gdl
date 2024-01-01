@@ -95,7 +95,6 @@
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?])
   (->image-button [_ image on-clicked])
-  (->text-tooltip [_ textfn])
   (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.
 Extra opts: :modal?
 

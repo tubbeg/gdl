@@ -6,21 +6,20 @@
             gdl.scene2d.group
             gdl.scene2d.ui.button
             gdl.scene2d.ui.button-group
-            gdl.scene2d.ui.label
+            [gdl.scene2d.ui.label :refer [set-text!]]
             [gdl.scene2d.ui.table :refer [add-rows]]
             gdl.scene2d.ui.cell
             gdl.scene2d.ui.text-field
             gdl.scene2d.ui.widget-group
             gdl.scene2d.ui.window
             gdl.backends.libgdx.context.image-drawer-creator)
-  (:import com.badlogic.gdx.Gdx
-           com.badlogic.gdx.graphics.g2d.TextureRegion
+  (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.utils Align Scaling)
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
-           (com.badlogic.gdx.scenes.scene2d.ui Image Skin Button TooltipManager Tooltip TextTooltip Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
+           (com.badlogic.gdx.scenes.scene2d.ui Image Button Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
-           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane)))
+           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
 
 (defn ->context []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
@@ -30,10 +29,7 @@
     (VisUI/dispose))
   (VisUI/load #_VisUI$SkinScale/X2) ; TODO skin-scale arg
   ; X2 everything too big .. need to change viewports for macbook ..
-
-  ; this is the gdx default skin  - copied from libgdx project, check not included in libgdx jar somewhere?
-  {:context.ui/default-skin (Skin. (.internal Gdx/files "scene2d.ui.skin/uiskin.json"))
-   :context/vis-ui (reify gdl.disposable/Disposable
+  {:context/vis-ui (reify gdl.disposable/Disposable
                      (dispose [_]
                        (VisUI/dispose)))})
 
@@ -60,25 +56,7 @@
     (changed [event actor]
       (on-clicked @current-context))))
 
-; TODO the tooltip manager sets my spritebatch color to 0.2 alpha for short time
-; TODO also the widget where the tooltip is attached is flickering after
-; the tooltip disappears
-; => write your own manager without animations/time
-(defn- instant-show-tooltip-manager ^TooltipManager [textfn]
-  (let [manager (proxy [TooltipManager] []
-                  (enter [^Tooltip tooltip]
-                    (.setText ^Label (.getActor tooltip) ^String (textfn @current-context))
-                    (.pack (.getContainer tooltip))
-                    (let [^TooltipManager this this]
-                      (proxy-super enter tooltip))))]
-    (set! (.initialTime manager) 0)
-    (set! (.resetTime   manager) 0)
-    (set! (.animations  manager) false)
-    (.hideAll manager)
-    manager))
-
-; listeners? for tooltip? but we have soon new tooltip so wait.
-; position ?
+; candidate for opts: :tooltip
 (defn- set-actor-opts [actor {:keys [id name visible? touchable center-position position] :as opts}]
   (when id   (actor/set-id!   actor id))
   (when name (actor/set-name! actor name))
@@ -213,11 +191,6 @@
       (.addListener button (->change-listener context on-clicked))
       button))
 
-  ; TODO VisToolTip
-  ; https://github.com/kotcrab/vis-ui/wiki/Tooltips
-  (->text-tooltip ^TextTooltip [{:keys [context.ui/default-skin]} textfn]
-    (TextTooltip. "" (instant-show-tooltip-manager textfn) ^Skin default-skin))
-
   (->table ^Table [_ opts]
     (-> (proxy [VisTable clojure.lang.ILookup] []
           (valAt
@@ -241,7 +214,7 @@
           window)
         (set-opts opts)))
 
-  (->label ^Label [_ text]
+  (->label [_ text]
     (VisLabel. ^CharSequence text))
 
   (->text-field ^VisTextField [_ ^String text opts]
@@ -357,7 +330,21 @@
   (remove! [actor]
     (.remove actor))
   (parent [actor]
-    (.getParent actor)))
+    (.getParent actor))
+  (add-tooltip! [actor tooltip-text]
+    (let [label (VisLabel. "")
+          tooltip (proxy [Tooltip] []
+                    (draw [batch parent-alpha] ; can not use fadeIn, it is private not getting called.
+                      (let [^Tooltip this this
+                            text (tooltip-text @current-context)]
+                        (when-not (= (str (.getText ^VisLabel (.getContent this))) text)
+                          (set-text! this ^String text))
+                        (proxy-super draw batch parent-alpha))))]
+      (.setAlignment label Align/center)
+      (.setTarget  tooltip ^Actor actor)
+      (.setContent tooltip ^Actor label)))
+  (remove-tooltip! [actor]
+    (Tooltip/removeTooltip actor)))
 
 (extend-type ButtonGroup
   gdl.scene2d.ui.button-group/ButtonGroup
