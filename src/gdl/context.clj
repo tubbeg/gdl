@@ -96,7 +96,7 @@
   (->check-box [_ text on-clicked checked?])
   (->image-button [_ image on-clicked])
   (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.
-Extra opts: :modal?
+Extra opts: :modal? ; TODO NO MODAL TABLE?
 
 Implements clojure.lang.ILookup (get) on actor id.
 
@@ -131,6 +131,7 @@ The preferred and minimum sizes are that of the children laid out in columns and
   (->image-widget [_ object opts] "Takes either an image or drawable. Opts are :scaling, :align and actor opts.")
   (->texture-region-drawable [_ texture-region])
   (->horizontal-group [_] "Implements clojure.lang.ILookup (get) on actor id.")
+  (->vertical-group [_ actors] "Implements clojure.lang.ILookup (get) on actor id.")
   (->button-group [_ {:keys [max-check-count min-check-count]}]))
 
 (defprotocol TiledMapLoader

@@ -3,7 +3,7 @@
             gdl.context
             gdl.disposable
             [gdl.scene2d.actor :as actor]
-            gdl.scene2d.group
+            [gdl.scene2d.group :refer [add-actor!]]
             gdl.scene2d.ui.button
             gdl.scene2d.ui.button-group
             gdl.scene2d.ui.label
@@ -16,7 +16,7 @@
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.utils Align Scaling)
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
-           (com.badlogic.gdx.scenes.scene2d.ui Image Button Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup Window)
+           (com.badlogic.gdx.scenes.scene2d.ui Image Button Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup VerticalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
@@ -54,7 +54,7 @@
 (defn- ->change-listener [_ on-clicked]
   (proxy [ChangeListener] []
     (changed [event actor]
-      (on-clicked @current-context))))
+      (on-clicked (assoc @current-context :actor actor)))))
 
 ; candidate for opts: :tooltip
 (defn- set-actor-opts [actor {:keys [id name visible? touchable center-position position] :as opts}]
@@ -158,6 +158,16 @@
          (find-actor-with-id this id))
         ([id not-found]
          (or (find-actor-with-id this id) not-found)))))
+
+  (->vertical-group [_ actors]
+    (let [group (proxy [VerticalGroup clojure.lang.ILookup] []
+                  (valAt
+                    ([id]
+                     (find-actor-with-id this id))
+                    ([id not-found]
+                     (or (find-actor-with-id this id) not-found))))]
+      (run! #(add-actor! group %) actors)
+      group))
 
   (->button-group [_ {:keys [max-check-count min-check-count]}]
     (let [button-group (ButtonGroup.)]
