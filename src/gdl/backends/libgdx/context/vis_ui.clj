@@ -207,7 +207,9 @@
   ; TODO check how to make toggle-able ? with hotkeys for actionbar trigger ?
   ; ^VisImageButton
   (->image-button [context image on-clicked]
-    (let [button (VisImageButton. (TextureRegionDrawable. ^TextureRegion (:texture image)))]
+    (let [drawable (TextureRegionDrawable. ^TextureRegion (:texture image))
+          button (VisImageButton. drawable)]
+      ;(.setMinSize drawable (float 96) (float 96))
       (.addListener button (->change-listener context on-clicked))
       button))
 
