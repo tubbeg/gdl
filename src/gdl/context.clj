@@ -93,7 +93,8 @@
   (->actor [_ {:keys [draw act]}])
   (->group [_] "Implements clojure.lang.ILookup (get) on actor id.")
   (->text-button [_ text on-clicked])
-  (->check-box [_ text on-clicked checked?])
+  (->check-box [_ text on-clicked checked?] "on-clicked is a fn of one arg, taking the current isChecked state")
+  (->select-box [_ {:keys [items selected]}])
   (->image-button [_ image on-clicked]
                   [_ image on-clicked {:keys [dimensions]}])
   (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.

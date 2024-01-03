@@ -19,7 +19,7 @@
            (com.badlogic.gdx.scenes.scene2d.ui Image Button Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup VerticalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
-           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
+           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisSelectBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
 
 (defn ->context []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
@@ -175,13 +175,11 @@
       (.setMinCheckCount button-group min-check-count)
       button-group))
 
-  ; ^TextButton
   (->text-button [context text on-clicked]
     (let [button (VisTextButton. ^String text)]
       (.addListener button (->change-listener context on-clicked))
       button))
 
-  ; ^CheckBox
   (->check-box [context text on-clicked checked?]
     (let [^Button button (VisCheckBox. ^String text)]
       (.setChecked button checked?)
@@ -191,9 +189,13 @@
                         (on-clicked (.isChecked actor)))))
       button))
 
+  (->select-box [_ {:keys [items selected]}]
+    (doto (VisSelectBox.)
+      (.setItems (into-array items))
+      (.setSelected selected)))
+
   ; TODO give directly texture-region
   ; TODO check how to make toggle-able ? with hotkeys for actionbar trigger ?
-  ; ^VisImageButton
   (->image-button
     ([context image on-clicked]
      (gdl.context/->image-button context image on-clicked {}))
