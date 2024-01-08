@@ -2,7 +2,7 @@
   (:require [gdl.app :refer [current-context]]
             gdl.context
             gdl.disposable
-            [gdl.scene2d.actor :as actor]
+            [gdl.scene2d.actor :as actor :refer [parent]]
             [gdl.scene2d.group :refer [add-actor!]]
             gdl.scene2d.ui.button
             gdl.scene2d.ui.button-group
@@ -347,18 +347,22 @@
     (.remove actor))
   (parent [actor]
     (.getParent actor))
+
   (add-tooltip! [actor tooltip-text]
     (let [label (VisLabel. "")
           tooltip (proxy [Tooltip] []
-                    (draw [batch parent-alpha] ; can not use fadeIn, it is private not getting called.
-                      (let [^Tooltip this this
-                            text (tooltip-text @current-context)]
-                        (when-not (= (str (.getText ^VisLabel (.getContent this))) text)
-                          (.setText this ^String text))
-                        (proxy-super draw batch parent-alpha))))]
+                    ; hooking into getWidth because at
+                    ; https://github.com/kotcrab/vis-ui/blob/master/ui/src/main/java/com/kotcrab/vis/ui/widget/Tooltip.java#L271
+                    ; when tooltip position gets calculated we setText (which calls pack) before that
+                    ; so that the size is correct for the newly calculated text.
+                    (getWidth []
+                      (let [^Tooltip this this]
+                        (.setText this (str (tooltip-text @current-context)))
+                        (proxy-super getWidth))))]
       (.setAlignment label Align/center)
       (.setTarget  tooltip ^Actor actor)
       (.setContent tooltip ^Actor label)))
+
   (remove-tooltip! [actor]
     (Tooltip/removeTooltip actor)))
 
@@ -385,14 +389,14 @@
   gdl.scene2d.ui.button/Actor
   (button? [actor]
     (or (button-class? actor)
-        (and (actor/parent actor)
-             (button-class? (actor/parent actor))))))
+        (and (parent actor)
+             (button-class? (parent actor))))))
 
 (extend-type Actor
   gdl.scene2d.ui.window/Actor
   (window-title-bar? [actor]
     (when (instance? Label actor)
-      (when-let [prnt (actor/parent actor)]
-        (when-let [prnt (actor/parent prnt)]
+      (when-let [prnt (parent actor)]
+        (when-let [prnt (parent prnt)]
           (and (instance? VisWindow prnt)
                (= (.getTitleLabel ^Window prnt) actor)))))))
