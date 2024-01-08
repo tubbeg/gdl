@@ -357,7 +357,8 @@
                     ; so that the size is correct for the newly calculated text.
                     (getWidth []
                       (let [^Tooltip this this]
-                        (.setText this (str (tooltip-text @current-context)))
+                        (when-let [ctx @current-context]  ; initial tooltip creation when app context is getting built.
+                          (.setText this (str (tooltip-text ctx))))
                         (proxy-super getWidth))))]
       (.setAlignment label Align/center)
       (.setTarget  tooltip ^Actor actor)
