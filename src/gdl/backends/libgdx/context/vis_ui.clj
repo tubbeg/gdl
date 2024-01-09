@@ -21,36 +21,36 @@
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
            (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisSelectBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
 
-(defn ->context []
+(defn- check-cleanup-visui! []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
   ; => actually there is a deeper issue at play
   ; we need to dispose ALL resources which were loaded already ...
   (when (VisUI/isLoaded)
-    (VisUI/dispose))
-  (VisUI/load #_VisUI$SkinScale/X2) ; TODO skin-scale arg
-  ; X2 everything too big .. need to change viewports for macbook ..
-  {:context/vis-ui (reify gdl.disposable/Disposable
-                     (dispose [_]
-                       (VisUI/dispose)))})
+    (VisUI/dispose)))
 
-(comment
- ; TODO set custom font with default skin - or set custom skin param
- ; https://stackoverflow.com/questions/45523878/libgdx-skin-not-updating-when-changing-font-programmatically
- (let [empty-skin (Skin.)]
-   (.add skin "font" my-font)
-   ; skin.addRegion(new TextureAtlas(Gdx.files.internal("mySkin.atlas")));
-   ; skin.load(Gdx.files.internal("mySkin.json"));
-   ; TODO will this overload 'default-font' ?
-   ; => I need to pass my custom skin to gdl.ui !
-   ; then, in your JSON file you can reference “font”
-   ;
-   ; {
-   ;   font: font
-   ; }
-   ))
+(defn- font-enable-markup! []
+  (-> (com.kotcrab.vis.ui.VisUI/getSkin)
+      (.getFont "default-font")
+      .getData
+      .markupEnabled
+      (set! true)))
 
-; this could do (swap! current-context on-clicked)
-; & enter/hide pure & render returning a context also...
+(defn- set-tooltip-config! []
+  (set! Tooltip/DEFAULT_APPEAR_DELAY_TIME (float 0))
+  ;(set! Tooltip/DEFAULT_FADE_TIME (float 0.3))
+  ;Controls whether to fade out tooltip when mouse was moved. (default false)
+  ;(set! Tooltip/MOUSE_MOVED_FADEOUT true)
+  )
+
+(defn ->context []
+  (check-cleanup-visui!)
+  (VisUI/load)
+  (font-enable-markup!)
+  (set-tooltip-config!)
+  {::disposable (reify gdl.disposable/Disposable
+                  (dispose [_]
+                    (VisUI/dispose)))})
+
 (defn- ->change-listener [_ on-clicked]
   (proxy [ChangeListener] []
     (changed [event actor]
