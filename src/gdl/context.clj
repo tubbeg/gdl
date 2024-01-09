@@ -99,18 +99,18 @@
   (->image-button [_ image on-clicked]
                   [_ image on-clicked {:keys [dimensions]}])
   (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.
-Extra opts: :modal? ; TODO NO MODAL TABLE?
+                    Extra opts: :modal? ; TODO NO MODAL TABLE?
 
-Implements clojure.lang.ILookup (get) on actor id.
+                    Implements clojure.lang.ILookup (get) on actor id.
 
-https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
-A group that sizes and positions children using table constraints.
+                    https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
+                    A group that sizes and positions children using table constraints.
 
-Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
+                    Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
 
-By default, Actor.getTouchable() is Touchable.childrenOnly.
+                    By default, Actor.getTouchable() is Touchable.childrenOnly.
 
-The preferred and minimum sizes are that of the children laid out in columns and rows.")
+                    The preferred and minimum sizes are that of the children laid out in columns and rows.")
   (->window [_ {:keys [title modal? close-button? center?] :as opts}])
   (->label [_ text])
   (->text-field [_ text opts])
@@ -119,23 +119,24 @@ The preferred and minimum sizes are that of the children laid out in columns and
                            vertical?] :as opts}])
   (->stack [_ actors]"A stack is a container that sizes its children to its size and positions them at 0,0 on top of each other.
 
-The preferred and min size of the stack is the largest preferred and min size of any children. The max size of the stack is the smallest max size of any children.
+                     The preferred and min size of the stack is the largest preferred and min size of any children. The max size of the stack is the smallest max size of any children.
 
-Implements clojure.lang.ILookup (get) on actor id.
+                     Implements clojure.lang.ILookup (get) on actor id.
 
-https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
-A group that sizes and positions children using table constraints.
+                     https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
+                     A group that sizes and positions children using table constraints.
 
-Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
+                     Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
 
-By default, Actor.getTouchable() is Touchable.childrenOnly.
+                     By default, Actor.getTouchable() is Touchable.childrenOnly.
 
-The preferred and minimum sizes are that of the children laid out in columns and rows. ")
+                     The preferred and minimum sizes are that of the children laid out in columns and rows. ")
   (->image-widget [_ object opts] "Takes either an image or drawable. Opts are :scaling, :align and actor opts.")
   (->texture-region-drawable [_ texture-region])
   (->horizontal-group [_] "Implements clojure.lang.ILookup (get) on actor id.")
   (->vertical-group [_ actors] "Implements clojure.lang.ILookup (get) on actor id.")
-  (->button-group [_ {:keys [max-check-count min-check-count]}]))
+  (->button-group [_ {:keys [max-check-count min-check-count]}])
+  (->scroll-pane [_ actor]))
 
 (defprotocol TiledMapLoader
   (->tiled-map [_ file] "Needs to be disposed.")

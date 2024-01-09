@@ -19,7 +19,7 @@
            (com.badlogic.gdx.scenes.scene2d.ui Image Button Label Table Cell WidgetGroup Stack ButtonGroup HorizontalGroup VerticalGroup Window)
            (com.badlogic.gdx.scenes.scene2d.utils ChangeListener TextureRegionDrawable Drawable)
            (com.kotcrab.vis.ui VisUI VisUI$SkinScale)
-           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisSelectBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip)))
+           (com.kotcrab.vis.ui.widget VisTextButton VisCheckBox VisSelectBox VisImage VisImageButton VisTextField VisWindow VisTable VisLabel VisSplitPane Tooltip VisScrollPane)))
 
 (defn- check-cleanup-visui! []
   ; app crashes during startup before VisUI/dispose and we do clojure.tools.namespace.refresh-> gui elements not showing.
@@ -263,7 +263,13 @@
 
   ; => maybe with VisImage not necessary anymore?
   (->texture-region-drawable ^TextureRegionDrawable [_ ^TextureRegion texture]
-    (TextureRegionDrawable. texture)))
+    (TextureRegionDrawable. texture))
+
+  (->scroll-pane [_ actor]
+    (let [scroll-pane (VisScrollPane. actor)]
+      (.setFlickScroll scroll-pane false)
+      (.setFadeScrollBars scroll-pane false)
+      scroll-pane)))
 
 (extend-type Cell
   gdl.scene2d.ui.cell/Cell
