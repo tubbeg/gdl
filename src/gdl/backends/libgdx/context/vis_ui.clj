@@ -286,10 +286,7 @@
     table)
 
   (add! [table actor]
-    (.add table ^Actor actor))
-
-  (add-separator! [table]
-    (.addSeparator ^VisTable table)))
+    (.add table ^Actor actor)))
 
 (extend-type Label
   gdl.scene2d.ui.label/Label
