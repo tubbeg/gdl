@@ -10,7 +10,7 @@
             [gdl.scene2d.ui.table :refer [add-rows!]]
             gdl.scene2d.ui.cell
             gdl.scene2d.ui.text-field
-            gdl.scene2d.ui.widget-group
+            [gdl.scene2d.ui.widget-group :refer [pack!]]
             gdl.scene2d.ui.window
             gdl.backends.libgdx.context.image-drawer-creator)
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -96,7 +96,7 @@
 (defn- set-widget-group-opts [^WidgetGroup widget-group {:keys [fill-parent? pack?]}]
   (.setFillParent widget-group (boolean fill-parent?)) ; <- actor? TODO
   (when pack?
-    (.pack widget-group))
+    (pack! widget-group))
   widget-group)
 
 (defn- set-table-opts [^Table table {:keys [rows cell-defaults]}]
@@ -374,11 +374,11 @@
     (if-let [p (parent actor)]
       (if (instance? Window p)
         p
-        (find-ancestor-window p))
+        (actor/find-ancestor-window p))
       (throw (Error. (str "Actor has no parent window " actor)))))
 
   (pack-ancestor-window! [actor]
-    (pack! (find-ancestor-window actor))))
+    (pack! (actor/find-ancestor-window actor))))
 
 (extend-type ButtonGroup
   gdl.scene2d.ui.button-group/ButtonGroup
