@@ -29,7 +29,7 @@
     (VisUI/dispose)))
 
 (defn- font-enable-markup! []
-  (-> (com.kotcrab.vis.ui.VisUI/getSkin)
+  (-> (VisUI/getSkin)
       (.getFont "default-font")
       .getData
       .markupEnabled
@@ -84,7 +84,9 @@
       :colspan    (.colspan   cell (int arg))
       :pad        (.pad       cell (float arg))
       :pad-top    (.padTop    cell (float arg))
-      :pad-bottom (.padBottom cell (float arg)))))
+      :pad-bottom (.padBottom cell (float arg))
+      :width      (.width     cell (float arg))
+      :height     (.height    cell (float arg)))))
 
 (comment
  ; fill parent & pack is from Widget TODO
