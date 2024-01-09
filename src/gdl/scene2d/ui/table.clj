@@ -9,7 +9,7 @@
 
   (add! [_ actor] "Adds a new cell to the table with the specified actor."))
 
-(defn- ->horizontal-separator-cell [colspan]
+(defn ->horizontal-separator-cell [colspan]
   {:actor (Separator. "default")
    :pad-top 2
    :pad-bottom 2
@@ -17,7 +17,7 @@
    :fill-x? true
    :expand-x? true})
 
-(defn- ->vertical-separator-cell []
+(defn ->vertical-separator-cell []
   {:actor (Separator. "vertical")
    :pad-top 2
    :pad-bottom 2

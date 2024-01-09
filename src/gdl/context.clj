@@ -83,7 +83,8 @@
                   The stage will get disposed also.
                   Sub-screen is optional.")
   (get-stage [_] "Stage implements clojure.lang.ILookup (get) on actor id.")
-  (mouse-on-stage-actor? [_]))
+  (mouse-on-stage-actor? [_])
+  (add-to-stage! [_ actor]))
 
 ; TODO
 ; actor-opts

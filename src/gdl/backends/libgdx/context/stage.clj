@@ -42,11 +42,18 @@
       (doseq [actor actors]
         (.addActor stage actor))
       (->StageScreen stage sub-screen)))
+
   (get-stage [context]
     (:stage (current-screen context)))
+
   (mouse-on-stage-actor? [context]
     (let [[x y] (gui-mouse-position context)]
-      (.hit ^Stage (get-stage context) x y true))))
+      (.hit ^Stage (get-stage context) x y true)))
+
+  (add-to-stage! [ctx actor]
+    (-> ctx
+        get-stage
+        (group/add-actor! actor))))
 
 (extend-type Stage
   gdl.scene2d.group/Group
