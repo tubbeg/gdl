@@ -7,7 +7,7 @@
             gdl.scene2d.ui.button
             gdl.scene2d.ui.button-group
             gdl.scene2d.ui.label
-            [gdl.scene2d.ui.table :refer [add-rows]]
+            [gdl.scene2d.ui.table :refer [add-rows!]]
             gdl.scene2d.ui.cell
             gdl.scene2d.ui.text-field
             gdl.scene2d.ui.widget-group
@@ -101,7 +101,7 @@
 
 (defn- set-table-opts [^Table table {:keys [rows cell-defaults]}]
   (set-cell-opts (.defaults table) cell-defaults)
-  (add-rows table rows))
+  (add-rows! table rows))
 
 (defn- set-opts [actor opts]
   (set-actor-opts actor opts)
@@ -275,7 +275,7 @@
   (cells [table]
     (.getCells table))
 
-  (add-rows [table rows]
+  (add-rows! [table rows]
     (doseq [row rows]
       (doseq [props-or-actor row]
         (if (map? props-or-actor)
