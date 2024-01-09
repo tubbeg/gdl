@@ -362,7 +362,17 @@
       (.setContent tooltip ^Actor label)))
 
   (remove-tooltip! [actor]
-    (Tooltip/removeTooltip actor)))
+    (Tooltip/removeTooltip actor))
+
+  (find-ancestor-window [actor]
+    (if-let [p (parent actor)]
+      (if (instance? Window p)
+        p
+        (find-ancestor-window p))
+      (throw (Error. (str "Actor has no parent window " actor)))))
+
+  (pack-ancestor-window! [actor]
+    (pack! (find-ancestor-window actor))))
 
 (extend-type ButtonGroup
   gdl.scene2d.ui.button-group/ButtonGroup
