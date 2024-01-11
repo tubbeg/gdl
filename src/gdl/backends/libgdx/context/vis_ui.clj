@@ -361,7 +361,8 @@
     (.getParent actor))
 
   (add-tooltip! [actor tooltip-text]
-    (let [label (VisLabel. "")
+    (let [text? (string? tooltip-text)
+          label (VisLabel. (if text? tooltip-text ""))
           tooltip (proxy [Tooltip] []
                     ; hooking into getWidth because at
                     ; https://github.com/kotcrab/vis-ui/blob/master/ui/src/main/java/com/kotcrab/vis/ui/widget/Tooltip.java#L271
@@ -369,8 +370,9 @@
                     ; so that the size is correct for the newly calculated text.
                     (getWidth []
                       (let [^Tooltip this this]
-                        (when-let [ctx @current-context]  ; initial tooltip creation when app context is getting built.
-                          (.setText this (str (tooltip-text ctx))))
+                        (when-not text?
+                          (when-let [ctx @current-context]  ; initial tooltip creation when app context is getting built.
+                            (.setText this (str (tooltip-text ctx)))))
                         (proxy-super getWidth))))]
       (.setAlignment label Align/center)
       (.setTarget  tooltip ^Actor actor)
