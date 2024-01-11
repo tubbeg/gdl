@@ -86,7 +86,9 @@
       :pad-top    (.padTop    cell (float arg))
       :pad-bottom (.padBottom cell (float arg))
       :width      (.width     cell (float arg))
-      :height     (.height    cell (float arg)))))
+      :height     (.height    cell (float arg))
+      :right?     (.right     cell)
+      :left?      (.left      cell))))
 
 (comment
  ; fill parent & pack is from Widget TODO
@@ -153,13 +155,16 @@
         ([id not-found]
          (or (find-actor-with-id this id) not-found)))))
 
-  (->horizontal-group [_]
-    (proxy [HorizontalGroup clojure.lang.ILookup] []
-      (valAt
-        ([id]
-         (find-actor-with-id this id))
-        ([id not-found]
-         (or (find-actor-with-id this id) not-found)))))
+  (->horizontal-group [_ {:keys [space pad]}]
+    (let [group (proxy [HorizontalGroup clojure.lang.ILookup] []
+                  (valAt
+                    ([id]
+                     (find-actor-with-id this id))
+                    ([id not-found]
+                     (or (find-actor-with-id this id) not-found))))]
+      (when space (.space group (float space)))
+      (when pad   (.pad   group (float pad)))
+      group))
 
   (->vertical-group [_ actors]
     (let [group (proxy [VerticalGroup clojure.lang.ILookup] []

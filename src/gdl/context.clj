@@ -86,55 +86,26 @@
   (mouse-on-stage-actor? [_])
   (add-to-stage! [_ actor]))
 
-; TODO
-; actor-opts
-; table-opts
-; widget-group-opts
 (defprotocol Widgets
   (->actor [_ {:keys [draw act]}])
-  (->group [_] "Implements clojure.lang.ILookup (get) on actor id.")
+  (->group [_])
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?] "on-clicked is a fn of one arg, taking the current isChecked state")
   (->select-box [_ {:keys [items selected]}])
   (->image-button [_ image on-clicked]
                   [_ image on-clicked {:keys [dimensions]}])
-  (->table [_ opts] ":rows like gdl.scene2d.ui.table/add-rows.
-                    Extra opts: :modal? ; TODO NO MODAL TABLE?
-
-                    Implements clojure.lang.ILookup (get) on actor id.
-
-                    https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
-                    A group that sizes and positions children using table constraints.
-
-                    Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
-
-                    By default, Actor.getTouchable() is Touchable.childrenOnly.
-
-                    The preferred and minimum sizes are that of the children laid out in columns and rows.")
+  (->table [_ opts])
   (->window [_ {:keys [title modal? close-button? center?] :as opts}])
   (->label [_ text])
   (->text-field [_ text opts])
   (->split-pane [_ {:keys [first-widget
                            second-widget
                            vertical?] :as opts}])
-  (->stack [_ actors]"A stack is a container that sizes its children to its size and positions them at 0,0 on top of each other.
-
-                     The preferred and min size of the stack is the largest preferred and min size of any children. The max size of the stack is the smallest max size of any children.
-
-                     Implements clojure.lang.ILookup (get) on actor id.
-
-                     https://javadoc.io/static/com.badlogicgames.gdx/gdx/1.12.1/com/badlogic/gdx/scenes/scene2d/ui/Table.html
-                     A group that sizes and positions children using table constraints.
-
-                     Children added with add(Actor...) (and similar methods returning a Cell) are laid out in rows and columns. Other children may be added with Group.addActor(Actor) (and similar methods) but are not laid out automatically and don't affect the preferred or minimum sizes.
-
-                     By default, Actor.getTouchable() is Touchable.childrenOnly.
-
-                     The preferred and minimum sizes are that of the children laid out in columns and rows. ")
+  (->stack [_ actors])
   (->image-widget [_ object opts] "Takes either an image or drawable. Opts are :scaling, :align and actor opts.")
   (->texture-region-drawable [_ texture-region])
-  (->horizontal-group [_] "Implements clojure.lang.ILookup (get) on actor id.")
-  (->vertical-group [_ actors] "Implements clojure.lang.ILookup (get) on actor id.")
+  (->horizontal-group [_ {:keys [space pad]}])
+  (->vertical-group [_ actors])
   (->button-group [_ {:keys [max-check-count min-check-count]}])
   (->scroll-pane [_ actor]))
 
