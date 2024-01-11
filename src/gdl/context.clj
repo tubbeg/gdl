@@ -88,7 +88,7 @@
 
 (defprotocol Widgets
   (->actor [_ {:keys [draw act]}])
-  (->group [_])
+  (->group [_ {:keys [actors] :as opts}])
   (->text-button [_ text on-clicked])
   (->check-box [_ text on-clicked checked?] "on-clicked is a fn of one arg, taking the current isChecked state")
   (->select-box [_ {:keys [items selected]}])

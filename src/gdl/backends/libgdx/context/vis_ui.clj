@@ -147,13 +147,15 @@
         (when act
           (act @current-context)))))
 
-  (->group [_]
-    (proxy [Group clojure.lang.ILookup] []
-      (valAt
-        ([id]
-         (find-actor-with-id this id))
-        ([id not-found]
-         (or (find-actor-with-id this id) not-found)))))
+  (->group [_ {:keys [actors] :as opts}]
+    (let [group (proxy [Group clojure.lang.ILookup] []
+                  (valAt
+                    ([id]
+                     (find-actor-with-id this id))
+                    ([id not-found]
+                     (or (find-actor-with-id this id) not-found))))]
+      (run! #(add-actor! group %) actors)
+      (set-opts group opts)))
 
   (->horizontal-group [_ {:keys [space pad]}]
     (let [group (proxy [HorizontalGroup clojure.lang.ILookup] []
@@ -223,7 +225,7 @@
              (or (find-actor-with-id this id) not-found))))
         (set-opts opts)))
 
-  (->window ^Window [_ {:keys [title modal? close-button? center? close-on-escape?] :as opts}]
+  (->window [_ {:keys [title modal? close-button? center? close-on-escape?] :as opts}]
     (-> (let [window (doto (proxy [VisWindow clojure.lang.ILookup] [^String title true] ; true = showWindowBorder
                              (valAt
                                ([id]
@@ -240,14 +242,14 @@
   (->label [_ text]
     (VisLabel. ^CharSequence text))
 
-  (->text-field ^VisTextField [_ ^String text opts]
+  (->text-field [_ ^String text opts]
     (-> (VisTextField. text)
         (set-opts opts)))
 
   ; TODO is not decendend of SplitPane anymore => check all type hints here
-  (->split-pane ^VisSplitPane [_ {:keys [^Actor first-widget
-                                         ^Actor second-widget
-                                         ^Boolean vertical?] :as opts}]
+  (->split-pane [_ {:keys [^Actor first-widget
+                           ^Actor second-widget
+                           ^Boolean vertical?] :as opts}]
     (-> (VisSplitPane. first-widget second-widget vertical?)
         (set-actor-opts opts)))
 
@@ -269,7 +271,7 @@
         (set-opts opts)))
 
   ; => maybe with VisImage not necessary anymore?
-  (->texture-region-drawable ^TextureRegionDrawable [_ ^TextureRegion texture]
+  (->texture-region-drawable [_ ^TextureRegion texture]
     (TextureRegionDrawable. texture))
 
   (->scroll-pane [_ actor]
