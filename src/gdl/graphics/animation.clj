@@ -18,7 +18,7 @@
   (restart [this]
     (assoc this :cnt 0))
   (stopped? [_]
-    (and (not looping?) (= cnt maxcnt)))
+    (and (not looping?) (>= cnt maxcnt)))
   (current-frame [this]
     (frames (min (int (/ (float cnt) (float frame-duration)))
                  (dec (count frames))))))
