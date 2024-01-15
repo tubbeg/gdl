@@ -7,7 +7,7 @@
            space.earlygrey.shapedrawer.ShapeDrawer))
 
 (defn- degree->radians [degree]
-  (* degree MathUtils/degreesToRadians))
+  (* (float degree) MathUtils/degreesToRadians))
 
 (defn- ->Color
   ([r g b]
@@ -62,20 +62,20 @@
     (.line shape-drawer (float sx) (float sy) (float ex) (float ey)))
 
   (draw-grid [this leftx bottomy gridw gridh cellw cellh color]
-    (let [w (* gridw cellw)
-          h (* gridh cellh)
-          topy (+ bottomy h)
-          rightx (+ leftx w)]
-      (doseq [idx (range (inc gridw))
-              :let [linex (+ leftx (* idx cellw))]]
+    (let [w (* (float gridw) (float cellw))
+          h (* (float gridh) (float cellh))
+          topy (+ (float bottomy) (float h))
+          rightx (+ (float leftx) (float w))]
+      (doseq [idx (range (inc (float gridw)))
+              :let [linex (+ (float leftx) (* (float idx) (float cellw)))]]
         (gdl.context/draw-line this [linex topy] [linex bottomy] color))
-      (doseq [idx (range (inc gridh))
-              :let [liney (+ bottomy (* idx cellh))]]
+      (doseq [idx (range (inc (float gridh)))
+              :let [liney (+ (float bottomy) (* (float idx) (float cellh)))]]
         (gdl.context/draw-line this [leftx liney] [rightx liney] color))))
 
   (with-shape-line-width [{:keys [^ShapeDrawer shape-drawer]} width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]
-      (.setDefaultLineWidth shape-drawer (float (* width old-line-width)))
+      (.setDefaultLineWidth shape-drawer (float (* (float width) old-line-width)))
       (draw-fn)
       (.setDefaultLineWidth shape-drawer (float old-line-width)))))
 

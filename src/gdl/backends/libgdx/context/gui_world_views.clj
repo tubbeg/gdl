@@ -81,7 +81,7 @@
     (unproject-mouse-posi world-viewport))
 
   (pixels->world-units [{:keys [world-unit-scale]} pixels]
-    (* pixels world-unit-scale)))
+    (* (int pixels) (float world-unit-scale))))
 
 (defn ->context [world-unit-scale]
   {:pre [(number? world-unit-scale)]}
@@ -98,7 +98,7 @@
                                     y-down? false]
                                 (.setToOrtho world-camera y-down? width height)
                                 (FitViewport. width height world-camera))]
-           {:world-unit-scale world-unit-scale
+           {:world-unit-scale (float world-unit-scale)
             :world-camera     world-camera
             :world-viewport   world-viewport
             :world-viewport-width  (.getWorldWidth  world-viewport)

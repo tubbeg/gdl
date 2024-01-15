@@ -9,8 +9,8 @@
   (.draw batch texture ; TODO this is texture-region ?
          x
          y
-         (/ w 2) ; rotation origin
-         (/ h 2)
+         (/ (float w) 2) ; rotation origin
+         (/ (float h) 2)
          w ; width height
          h
          1 ; scaling factor
@@ -36,8 +36,8 @@
     (let [[w h] (unit-dimensions unit-scale image)]
       (draw-texture batch
                     texture
-                    [(- x (/ w 2))
-                     (- y (/ h 2))]
+                    [(- (float x) (/ (float w) 2))
+                     (- (float y) (/ (float h) 2))]
                     [w h]
                     rotation
                     color)))
@@ -56,11 +56,11 @@
                   (number? (scale 0))
                   (number? (scale 1))))]}
   (let [pixel-dimensions (if (number? scale)
-                           (mapv (partial * scale) (texture-dimensions texture))
+                           (mapv (comp float (partial * scale)) (texture-dimensions texture))
                            scale)]
     (assoc image
            :pixel-dimensions pixel-dimensions
-           :world-unit-dimensions (mapv (partial * world-unit-scale) pixel-dimensions))))
+           :world-unit-dimensions (mapv (comp float (partial * world-unit-scale)) pixel-dimensions))))
 
 ; (.getTextureData (.getTexture (:texture (first (:frames (:animation @(game.db/get-entity 1)))))))
 ; can remove :file @ Image because its in texture-data
