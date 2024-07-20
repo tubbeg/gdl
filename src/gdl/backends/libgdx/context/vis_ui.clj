@@ -11,8 +11,7 @@
             gdl.scene2d.ui.cell
             gdl.scene2d.ui.text-field
             [gdl.scene2d.ui.widget-group :refer [pack!]]
-            gdl.scene2d.ui.window
-            gdl.backends.libgdx.context.image-drawer-creator)
+            gdl.scene2d.ui.window)
   (:import com.badlogic.gdx.graphics.g2d.TextureRegion
            (com.badlogic.gdx.utils Align Scaling)
            (com.badlogic.gdx.scenes.scene2d Actor Group Touchable)
