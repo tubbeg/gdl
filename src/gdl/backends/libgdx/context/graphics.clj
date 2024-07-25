@@ -1,6 +1,7 @@
 (ns ^:no-doc gdl.backends.libgdx.context.graphics
   (:require [clojure.string :as str]
             gdl.context
+            [gdl.disposable :refer [dispose]]
             [gdl.graphics :as g]
             [gdl.graphics.color :as color]
             [gdl.maps.tiled :as tiled]
@@ -348,5 +349,9 @@
             (->views (or world-unit-scale 1))
             {:default-font (BitmapFont.)}))))
 
-; TODO make this whole thing implement disposable ....
-; and dispose the stuff which needs .... !
+(extend-type Graphics
+  gdl.disposable/Disposable
+  (dispose [{:keys [batch shape-drawer-texture default-font]}]
+    (dispose batch)
+    (dispose shape-drawer-texture)
+    (dispose default-font)))

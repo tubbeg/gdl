@@ -34,8 +34,9 @@
 
 (defn- dispose-all [context]
   (doseq [[k value] context
-          :when (some #(extends? gdl.disposable/Disposable %)
-                      (supers (class value)))]
+          :when (or (extends? gdl.disposable/Disposable (class value))
+                    (some #(extends? gdl.disposable/Disposable %)
+                          (supers (class value))))]
     ;(println "Disposing " k)
     (dispose value)))
 
