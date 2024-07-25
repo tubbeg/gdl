@@ -1,6 +1,8 @@
 (ns gdl.graphics)
 
 (defprotocol GuiWorldViews
+  (render-gui-view   [_ render-fn] "render-fn is a function of param 'g', graphics context.")
+  (render-world-view [_ render-fn] "render-fn is a function of param 'g', graphics context.")
   (pixels->world-units [_ pixels])
   (gui-mouse-position [_])
   (world-mouse-position [_]))

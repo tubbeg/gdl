@@ -20,10 +20,6 @@
   (set-cursor! [_ cursor])
   (->color [_ r g b a]))
 
-(defprotocol RenderView
-  (render-gui-view   [_ render-fn] "render-fn is a function of param 'g', graphics context.")
-  (render-world-view [_ render-fn] "render-fn is a function of param 'g', graphics context."))
-
 (defprotocol Input
   (button-pressed?      [_ button])
   (button-just-pressed? [_ button])

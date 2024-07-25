@@ -1,7 +1,7 @@
 (ns ^:no-doc gdl.backends.libgdx.context.graphics
   (:require [clojure.string :as str]
             gdl.context
-            gdl.graphics
+            [gdl.graphics :as g]
             [gdl.graphics.color :as color]
             [gdl.maps.tiled :as tiled]
             [gdl.backends.libgdx.utils.reflect :refer [bind-roots]])
@@ -17,11 +17,8 @@
 
 (extend-type gdl.context.Context
   gdl.context/Graphics
-  (delta-time [_]
-    (.getDeltaTime Gdx/graphics))
-
-  (frames-per-second [_]
-    (.getFramesPerSecond Gdx/graphics))
+  (delta-time        [_] (.getDeltaTime       Gdx/graphics))
+  (frames-per-second [_] (.getFramesPerSecond Gdx/graphics))
 
   ; https://libgdx.com/wiki/input/cursor-visibility-and-catching
   (->cursor [_ file hotspot-x hotspot-y]
@@ -118,10 +115,10 @@
           rightx (+ (float leftx) (float w))]
       (doseq [idx (range (inc (float gridw)))
               :let [linex (+ (float leftx) (* (float idx) (float cellw)))]]
-        (gdl.graphics/draw-line this [linex topy] [linex bottomy] color))
+        (g/draw-line this [linex topy] [linex bottomy] color))
       (doseq [idx (range (inc (float gridh)))
               :let [liney (+ (float bottomy) (* (float idx) (float cellh)))]]
-        (gdl.graphics/draw-line this [leftx liney] [rightx liney] color))))
+        (g/draw-line this [leftx liney] [rightx liney] color))))
 
   (with-shape-line-width [{:keys [^ShapeDrawer shape-drawer]} width draw-fn]
     (let [old-line-width (.getDefaultLineWidth shape-drawer)]
@@ -190,13 +187,14 @@
         coords (.unproject viewport (Vector2. mouse-x mouse-y))]
     [(.x coords) (.y coords)]))
 
-(defn- render-view [{g :context/graphics :as ctx} gui-or-world draw-fn]
-  (let [{:keys [^Batch batch
-                shape-drawer
-                gui-camera
-                world-camera
-                world-unit-scale]} g
-        ^OrthographicCamera camera (case gui-or-world
+(defn- render-view [{:keys [^Batch batch
+                            shape-drawer
+                            gui-camera
+                            world-camera
+                            world-unit-scale] :as g}
+                    gui-or-world
+                    draw-fn]
+  (let [^OrthographicCamera camera (case gui-or-world
                                      :gui gui-camera
                                      :world world-camera)
         unit-scale (case gui-or-world
@@ -205,13 +203,9 @@
     (.setColor batch color/white) ; fix scene2d.ui.tooltip flickering
     (.setProjectionMatrix batch (.combined camera))
     (.begin batch)
-    (gdl.graphics/with-shape-line-width g
-                                        unit-scale
-                                        ; TODO need to pass context ... and g separately ?!
-                                        ; TODO the context/graphics in 'ctx' has wrong unit-scale
-                                        ; maybe use 'render-unit-sscale' :
-                                        #(draw-fn (assoc g :unit-scale unit-scale)
-                                                  ctx))
+    (g/with-shape-line-width g
+                             unit-scale
+                             #(draw-fn (assoc g :unit-scale unit-scale)))
     (.end batch)))
 
 (defn update-viewports [{{:keys [gui-viewport world-viewport]} :context/graphics} w h]
@@ -230,13 +224,11 @@
   (when (viewport-fix-required? context)
     (update-viewports context (screen-width) (screen-height))))
 
-(extend-type gdl.context.Context
-  gdl.context/RenderView
-  (render-gui-view   [this render-fn] (render-view this :gui   render-fn))
-  (render-world-view [this render-fn] (render-view this :world render-fn)))
-
 (extend-type Graphics
   gdl.graphics/GuiWorldViews
+  (render-gui-view   [g render-fn] (render-view g :gui   render-fn))
+  (render-world-view [g render-fn] (render-view g :world render-fn))
+
   (gui-mouse-position [{:keys [gui-viewport]}]
     ; TODO mapv int needed?
     (mapv int (unproject-mouse-posi gui-viewport)))
@@ -313,7 +305,7 @@
                     color)))
 
   (draw-centered-image [this image position]
-    (gdl.graphics/draw-rotated-centered-image this image 0 position)))
+    (g/draw-rotated-centered-image this image 0 position)))
 
 ; OrthogonalTiledMapRenderer extends BatchTiledMapRenderer
 ; and when a batch is passed to the constructor
