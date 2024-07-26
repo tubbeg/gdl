@@ -42,15 +42,17 @@
 
 (extend-type gdl.context.Context
   gdl.context/ApplicationScreens
-  (current-screen [{:keys [context/current-screen] :as context}]
-    (get context current-screen))
+  (current-screen [{{:keys [current-screen] :as screens} :context/screens}]
+    (get screens current-screen))
 
-  (change-screen [context new-screen-key]
-    (when-let [screen (current-screen context)]
+  (change-screen [{{:keys [current-screen] :as screens} :context/screens :as context}
+                  new-screen-key]
+    (when-let [screen (and current-screen
+                           (current-screen screens))]
       (screen/hide screen context))
-    (let [screen (new-screen-key context)
+    (let [screen (new-screen-key screens)
           _ (assert screen (str "Cannot find screen with key: " new-screen-key))
-          new-context (assoc context :context/current-screen new-screen-key)]
+          new-context (assoc-in context [:context/screens :current-screen] new-screen-key)]
       (screen/show screen new-context)
       new-context)))
 

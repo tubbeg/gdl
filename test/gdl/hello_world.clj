@@ -11,7 +11,7 @@
     (g/render-gui-view g #(g/draw-text % {:text "Hello World!" :x 400, :y 300}))))
 
 (defn create-context [default-context]
-  (assoc default-context ::my-screen (->MyScreen)))
+  (assoc default-context :context/screens {:my-screen (->MyScreen)}))
 
 (defn -main []
   (app/start {:app {:title "Hello World"
@@ -19,4 +19,4 @@
                     :height 600
                     :full-screen? false}
               :create-context create-context
-              :first-screen ::my-screen}))
+              :first-screen :my-screen}))

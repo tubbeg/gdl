@@ -32,10 +32,10 @@
 
 (defn create-context [ctx]
   (assoc ctx
+         :context/screens {:my-screen (->Screen)}
          :special-font (ctx/generate-ttf ctx {:file "exocet/films.EXL_____.ttf"
                                               :size 16})
-         :logo (ctx/create-image ctx "logo.png")
-         :my-screen (->Screen)))
+         :logo (ctx/create-image ctx "logo.png")))
 
 (defn app []
   (app/start {:app {:title "gdl demo"
