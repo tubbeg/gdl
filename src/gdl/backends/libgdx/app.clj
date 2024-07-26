@@ -23,9 +23,9 @@
 
 (defn- ->default-context [world-unit-scale]
   (gdl.context/map->Context
-   (merge {:context/graphics (graphics/->context world-unit-scale)}
-          (assets/->context)
-          (vis-ui/->context))))
+   {:context/graphics (graphics/->context world-unit-scale)
+    :context/assets (assets/->context)
+    :context/ui (vis-ui/->context)}))
 
 (extend-type com.badlogic.gdx.utils.Disposable
   gdl.disposable/Disposable

@@ -32,28 +32,27 @@
     (.finishLoading manager)
     manager))
 
-; TODO no args,params, not documented... ( @ app.start ?)
 (defn ->context []
   (let [folder "resources/" ; TODO should be set in classpath and not necessary here ?
         sound-files   (recursively-search-files folder #{"wav"})
         texture-files (recursively-search-files folder #{"png" "bmp"})]
-    {::manager (load-all-assets! :log-load-assets? false
-                                 :sound-files sound-files
-                                 :texture-files texture-files)
-     ::sound-files sound-files
-     ::texture-files texture-files}))
+    {:manager (load-all-assets! :log-load-assets? false
+                                :sound-files sound-files
+                                :texture-files texture-files)
+     :sound-files sound-files
+     :texture-files texture-files}))
 
 (extend-type gdl.context.Context
   gdl.context/SoundStore
-  (play-sound! [{::keys [manager]} file]
+  (play-sound! [{{:keys [manager]} :context/assets} file]
     (.play ^Sound (get manager file)))
 
   gdl.context/Assets
-  (cached-texture [{::keys [manager]} file]
+  (cached-texture [{{:keys [manager]} :context/assets} file]
     (get manager file))
 
-  (all-sound-files [{::keys [sound-files]}]
+  (all-sound-files [{{:keys [sound-files]} :context/assets}]
     sound-files)
 
-  (all-texture-files [{::keys [texture-files]}]
+  (all-texture-files [{{:keys [texture-files]} :context/assets}]
     texture-files))

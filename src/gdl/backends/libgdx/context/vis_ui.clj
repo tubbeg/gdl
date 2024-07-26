@@ -46,9 +46,9 @@
   (VisUI/load)
   (font-enable-markup!)
   (set-tooltip-config!)
-  {::disposable (reify gdl.disposable/Disposable
-                  (dispose [_]
-                    (VisUI/dispose)))})
+  (reify gdl.disposable/Disposable
+    (dispose [_]
+      (VisUI/dispose))))
 
 (defn- ->change-listener [_ on-clicked]
   (proxy [ChangeListener] []
