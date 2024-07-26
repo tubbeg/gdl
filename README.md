@@ -45,7 +45,7 @@ You can run the hello world example in this repository with:
 lein run -m gdl.hello-world
 ```
 
-https://github.com/damn/gdl/blob/f34a451e559363a1876e9d386516108333bdc5ce/test/gdl/hello_world.clj#L1-L25
+[https://github.com/damn/gdl/blob/f34a451e559363a1876e9d386516108333bdc5ce/test/gdl/hello_world.clj#L1-L25](https://github.com/damn/gdl/blob/429682e1af5196b2eee551f426eba95347171d55/test/gdl/hello_world.clj#L1-L22)
 
 # On Mac
 
