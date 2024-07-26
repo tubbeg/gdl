@@ -32,7 +32,8 @@
 
 (defn create-context [ctx]
   (assoc ctx
-         :context/screens {:my-screen (->Screen)}
+         :context/screens {:my-screen (->Screen)
+                           :first-screen :my-screen}
          :special-font (ctx/generate-ttf ctx {:file "exocet/films.EXL_____.ttf"
                                               :size 16})
          :logo (ctx/create-image ctx "logo.png")))
@@ -42,5 +43,4 @@
                     :width 800
                     :height 600
                     :full-screen? false}
-              :create-context create-context
-              :first-screen :my-screen}))
+              :create-context create-context}))

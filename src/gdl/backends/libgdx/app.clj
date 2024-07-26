@@ -57,14 +57,16 @@
       new-context)))
 
 (defn- ->application [{:keys [create-context
-                              first-screen
                               world-unit-scale]}]
   (proxy [ApplicationAdapter] []
     (create []
-      (let [context (-> (->default-context world-unit-scale)
-                        create-context
-                        (change-screen first-screen))]
-        (reset! current-context context)))
+      (let [context (create-context (->default-context world-unit-scale))]
+        (assert (:first-screen (:context/screens context)))
+        (->> context
+             :context/screens
+             :first-screen
+             (change-screen context)
+             (reset! current-context))))
 
     (dispose []
       (dispose-all @current-context))
@@ -98,12 +100,10 @@
           :width 800
           :height 600
           :full-screen? false}
-    :create-context create-context ; function with one argument creating the context, getting the default-context.
-    :first-screen :my-screen}
+    :create-context create-context} ; function with one argument creating the context, getting the default-context.
 
   Optionally you can pass :world-unit-scale for the world-view."
   [config]
   (assert (:create-context config))
-  (assert (:first-screen   config))
   (Lwjgl3Application. (->application config)
                       (lwjgl3-configuration (:app config))))

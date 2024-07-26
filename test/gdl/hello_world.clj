@@ -11,12 +11,12 @@
     (g/render-gui-view g #(g/draw-text % {:text "Hello World!" :x 400, :y 300}))))
 
 (defn create-context [default-context]
-  (assoc default-context :context/screens {:my-screen (->MyScreen)}))
+  (assoc default-context :context/screens {:my-screen (->MyScreen)
+                                           :first-screen :my-screen}))
 
 (defn -main []
   (app/start {:app {:title "Hello World"
                     :width 800
                     :height 600
                     :full-screen? false}
-              :create-context create-context
-              :first-screen :my-screen}))
+              :create-context create-context}))
