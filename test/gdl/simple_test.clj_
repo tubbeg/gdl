@@ -1,12 +1,12 @@
 (ns gdl.simple-test
   (:require [core.component :as component]
-            [gdl.backends.libgdx.app :as app]
+            [gdl.libgdx.app :as app]
             [gdl.context :as ctx]
             [gdl.graphics :as g]
             gdl.screen
             [gdl.graphics.color :as color]))
 
-(defn draw-test [g {{:keys [special-font logo]} :context/simple-test}]
+(defn draw-test [g {{:keys [special-font logo]} ::simple-test}]
   (let [[wx wy] (map #(format "%.2f" %) (g/world-mouse-position g))
         [gx gy] (g/gui-mouse-position g)
         the-str (str "World x " wx "\n"
@@ -28,7 +28,7 @@
   gdl.screen/Screen
   (show [_ _ctx])
   (hide [_ _ctx])
-  (render [_ {g :context/graphics :as ctx}]
+  (render [_ {g :gdl.libgdx.context/graphics :as ctx}]
     (g/render-gui-view g #(draw-test % ctx))))
 
 (component/def :context/screens {}
@@ -37,7 +37,7 @@
     {:first-screen :my-screen
      :my-screen (->Screen)}))
 
-(component/def :context/simple-test {}
+(component/def ::simple-test {}
   {:keys [font logo]}
   (ctx/create [_ ctx]
     {:special-font (ctx/generate-ttf ctx font)
@@ -48,10 +48,10 @@
                     :width 800
                     :height 600
                     :full-screen? false}
-              :context {:context/graphics true
-                        :context/assets true
-                        ;:context/ui true
-                        :context/simple-test {:logo "logo.png"
-                                              :font {:file "exocet/films.EXL_____.ttf"
-                                                     :size 16}}
-                        :context/screens true}}))
+              :context [[:gdl.libgdx.context/graphics true]
+                        [:gdl.libgdx.context/assets true]
+                        [:gdl.libgdx.context/ui true]
+                        [::simple-test {:logo "logo.png"
+                                        :font {:file "exocet/films.EXL_____.ttf"
+                                               :size 16}}]
+                        [:context/screens true]]}))

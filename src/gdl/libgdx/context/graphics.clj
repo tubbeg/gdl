@@ -1,4 +1,4 @@
-(ns ^:no-doc gdl.backends.libgdx.context.graphics
+(ns ^:no-doc gdl.libgdx.context.graphics
   (:require [clojure.string :as str]
             [core.component :as component]
             [gdl.context :as ctx]
@@ -6,8 +6,8 @@
             [gdl.graphics :as g]
             [gdl.graphics.color :as color]
             [gdl.maps.tiled :as tiled]
-            gdl.backends.libgdx.context.ttf-generator ; TODO
-            [gdl.backends.libgdx.utils.reflect :refer [bind-roots]])
+            gdl.libgdx.context.ttf-generator ; TODO
+            [gdl.libgdx.utils.reflect :refer [bind-roots]])
   (:import com.badlogic.gdx.Gdx
            (com.badlogic.gdx.graphics Color Texture Pixmap Pixmap$Format OrthographicCamera)
            (com.badlogic.gdx.graphics.g2d Batch SpriteBatch BitmapFont TextureRegion)
@@ -18,10 +18,21 @@
            space.earlygrey.shapedrawer.ShapeDrawer
            [gdl OrthogonalTiledMapRendererWithColorSetter ColorSetter]))
 
+(defn- this [ctx] (:gdl.libgdx.context/graphics ctx))
+
 (extend-type gdl.context.Context
   gdl.context/Graphics
   (delta-time        [_] (.getDeltaTime       Gdx/graphics))
   (frames-per-second [_] (.getFramesPerSecond Gdx/graphics))
+
+  (gui-mouse-position    [ctx] (g/gui-mouse-position    (this ctx)))
+  (world-mouse-position  [ctx] (g/world-mouse-position  (this ctx)))
+
+  (gui-viewport-width    [ctx] (:gui-viewport-width    (this ctx)))
+  (gui-viewport-height   [ctx] (:gui-viewport-height   (this ctx)) )
+  (world-camera          [ctx] (:world-camera          (this ctx)))
+  (world-viewport-width  [ctx] (:world-viewport-width  (this ctx)))
+  (world-viewport-height [ctx] (:world-viewport-height (this ctx)) )
 
   ; https://libgdx.com/wiki/input/cursor-visibility-and-catching
   (->cursor [_ file hotspot-x hotspot-y]
@@ -211,12 +222,12 @@
                              #(draw-fn (assoc g :unit-scale unit-scale)))
     (.end batch)))
 
-(defn update-viewports [{{:keys [gui-viewport world-viewport]} :context/graphics} w h]
+(defn update-viewports [{{:keys [gui-viewport world-viewport]} :gdl.libgdx.context/graphics} w h]
   (.update ^Viewport gui-viewport w h true)
   ; Do not center the camera on world-viewport. We set the position there manually.
   (.update ^Viewport world-viewport w h false))
 
-(defn- viewport-fix-required? [{{:keys [^Viewport gui-viewport]} :context/graphics}]
+(defn- viewport-fix-required? [{{:keys [^Viewport gui-viewport]} :gdl.libgdx.context/graphics}]
   (or (not= (.getScreenWidth  gui-viewport) (screen-width))
       (not= (.getScreenHeight gui-viewport) (screen-height))))
 
@@ -344,7 +355,7 @@
 ; TODO BitmapFont does not draw world-unit-scale idk how possible, maybe setfontdata something
 ; (did draw world scale @ test ...)
 ; TODO optional world-viewport make
-(component/def :context/graphics {}
+(component/def :gdl.libgdx.context/graphics {}
   {:keys [tile-size default-font]}
   (ctx/create [_ _ctx]
     (let [batch (SpriteBatch.)]

@@ -1,4 +1,4 @@
-(ns ^:no-doc gdl.backends.libgdx.context.vis-ui
+(ns ^:no-doc gdl.libgdx.context.ui
   (:require [core.component :as component]
             [gdl.app :refer [current-context]]
             [gdl.context :as ctx]
@@ -42,7 +42,7 @@
   ;(set! Tooltip/MOUSE_MOVED_FADEOUT true)
   )
 
-(component/def :context/ui {}
+(component/def :gdl.libgdx.context/ui {}
   _
   (ctx/create [_ _ctx]
     (check-cleanup-visui!)
@@ -134,7 +134,7 @@
 (defmethod ->vis-image Drawable [^Drawable drawable]
   (VisImage. drawable))
 
-(defmethod ->vis-image gdl.backends.libgdx.context.image_drawer_creator.Image
+(defmethod ->vis-image gdl.libgdx.context.image_drawer_creator.Image
   [{:keys [^TextureRegion texture]}]
   (VisImage. texture))
 

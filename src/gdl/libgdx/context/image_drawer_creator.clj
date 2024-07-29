@@ -1,4 +1,4 @@
-(ns ^:no-doc gdl.backends.libgdx.context.image-drawer-creator
+(ns ^:no-doc gdl.libgdx.context.image-drawer-creator
   (:require [gdl.context :refer [cached-texture]])
   (:import com.badlogic.gdx.graphics.Texture
            com.badlogic.gdx.graphics.g2d.TextureRegion))
@@ -43,19 +43,19 @@
 
 (extend-type gdl.context.Context
   gdl.context/ImageCreator
-  (create-image [{{:keys [world-unit-scale]} :context/graphics :as ctx} file]
+  (create-image [{{:keys [world-unit-scale]} :gdl.libgdx.context/graphics :as ctx} file]
     (assoc-dimensions (map->Image {:file file
                                    :scale 1 ; not used anymore as arg (or scale 1) because varargs protocol methods not possible, anyway refactor images
                                    ; take only texture-region, scale,color
                                    :texture (->texture-region ctx file)})
                       world-unit-scale))
 
-  (get-scaled-copy [{{:keys [world-unit-scale]} :context/graphics} image scale]
+  (get-scaled-copy [{{:keys [world-unit-scale]} :gdl.libgdx.context/graphics} image scale]
     (assoc-dimensions (assoc image :scale scale)
                       world-unit-scale))
 
 
-  (get-sub-image [{{:keys [world-unit-scale]} :context/graphics :as ctx}
+  (get-sub-image [{{:keys [world-unit-scale]} :gdl.libgdx.context/graphics :as ctx}
                   {:keys [file sub-image-bounds] :as image}]
     (assoc-dimensions (assoc image
                              :scale 1

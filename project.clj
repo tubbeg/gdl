@@ -25,7 +25,7 @@
   :global-vars {*warn-on-reflection* true
                 ;*unchecked-math* :warn-on-boxed
                 }
-  :aliases {"dev" ["run" "-m" "gdl.backends.libgdx.dev" "gdl.simple-test" "app"]})
+  :aliases {"dev" ["run" "-m" "gdl.libgdx.dev" "gdl.simple-test" "app"]})
 
 ;; TODO dev
 ; - clojure.pprint => https://github.com/AbhinavOmprakash/snitch

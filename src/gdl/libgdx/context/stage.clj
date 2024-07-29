@@ -1,4 +1,4 @@
-(ns ^:no-doc gdl.backends.libgdx.context.stage
+(ns ^:no-doc gdl.libgdx.context.stage
   (:require [gdl.context :refer [current-screen get-stage delta-time]]
             gdl.disposable
             [gdl.graphics :as g]
@@ -32,7 +32,7 @@
 
 (extend-type gdl.context.Context
   gdl.context/Stage
-  (->stage-screen [{{:keys [gui-viewport batch]} :context/graphics}
+  (->stage-screen [{{:keys [gui-viewport batch]} :gdl.libgdx.context/graphics}
                    {:keys [actors sub-screen]}]
     (let [stage (proxy [Stage clojure.lang.ILookup] [gui-viewport batch]
                   (valAt
@@ -49,7 +49,7 @@
     (:stage (current-screen context)))
 
   (mouse-on-stage-actor? [context]
-    (let [[x y] (g/gui-mouse-position (:context/graphics context))]
+    (let [[x y] (g/gui-mouse-position (:gdl.libgdx.context/graphics context))]
       (.hit ^Stage (get-stage context) x y true)))
 
   (add-to-stage! [ctx actor]

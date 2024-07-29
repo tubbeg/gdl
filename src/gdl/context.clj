@@ -19,8 +19,19 @@
 (defprotocol Graphics
   (delta-time [_] "the time span between the current frame and the last frame in seconds.")
   (frames-per-second [_] "the average number of frames per second")
+
+  (gui-mouse-position   [_])
+  (gui-viewport-width   [_])
+  (gui-viewport-height  [_])
+
+  (world-mouse-position  [_])
+  (world-camera          [_])
+  (world-viewport-width  [_])
+  (world-viewport-height [_])
+
   (->cursor [_ file hotspot-x hotspot-y] "Needs to be disposed.")
   (set-cursor! [_ cursor])
+
   (->color [_ r g b a]))
 
 (defprotocol Input

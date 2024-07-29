@@ -1,4 +1,4 @@
-(ns ^:no-doc gdl.backends.libgdx.context.tiled
+(ns ^:no-doc gdl.libgdx.context.tiled
   (:require gdl.context
             [gdl.maps.tiled :as tiled])
   (:import [com.badlogic.gdx.maps MapLayer MapLayers MapProperties]

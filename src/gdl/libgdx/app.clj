@@ -1,17 +1,17 @@
-(ns gdl.backends.libgdx.app
+(ns gdl.libgdx.app
   (:require [gdl.app :refer [current-context]]
             [gdl.context :as ctx]
             [gdl.disposable :refer [dispose]]
             [gdl.graphics.color :as color]
             [gdl.screen :as screen]
-            (gdl.backends.libgdx.context [assets :as assets]
-                                         [graphics :as graphics]
-                                         input
-                                         image-drawer-creator
-                                         stage
-                                         tiled
-                                         ttf-generator
-                                         [vis-ui :as vis-ui]))
+            (gdl.libgdx.context assets
+                                [graphics :as graphics]
+                                input
+                                image-drawer-creator
+                                stage
+                                tiled
+                                ttf-generator
+                                ui))
   (:import (com.badlogic.gdx Gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            com.badlogic.gdx.utils.ScreenUtils))
