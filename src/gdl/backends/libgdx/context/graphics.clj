@@ -1,10 +1,12 @@
 (ns ^:no-doc gdl.backends.libgdx.context.graphics
   (:require [clojure.string :as str]
-            gdl.context
+            [core.component :as component]
+            [gdl.context :as ctx]
             [gdl.disposable :refer [dispose]]
             [gdl.graphics :as g]
             [gdl.graphics.color :as color]
             [gdl.maps.tiled :as tiled]
+            gdl.backends.libgdx.context.ttf-generator ; TODO
             [gdl.backends.libgdx.utils.reflect :refer [bind-roots]])
   (:import com.badlogic.gdx.Gdx
            (com.badlogic.gdx.graphics Color Texture Pixmap Pixmap$Format OrthographicCamera)
@@ -340,14 +342,22 @@
 
 ; TODO argument default-font..... ?
 ; TODO BitmapFont does not draw world-unit-scale idk how possible, maybe setfontdata something
+; (did draw world scale @ test ...)
 ; TODO optional world-viewport make
-(defn ->context [world-unit-scale]
-  (let [batch (SpriteBatch.)]
-    (map->Graphics
-     (merge {:batch batch}
-            (->shape-drawer batch)
-            (->views (or world-unit-scale 1))
-            {:default-font (BitmapFont.)}))))
+(component/def :context/graphics {}
+  {:keys [tile-size default-font]}
+  (ctx/create [_ _ctx]
+    (let [batch (SpriteBatch.)]
+      (map->Graphics
+       (merge {:batch batch}
+              (->shape-drawer batch)
+              (->views (or (and tile-size
+                                (/ tile-size))
+                           1))
+              {:default-font (or (and default-font
+                                      (gdl.context/generate-ttf (gdl.context/map->Context {}) default-font) ; TODO we need a gdl context record !
+                                      )
+                                 (BitmapFont.))})))))
 
 (extend-type Graphics
   gdl.disposable/Disposable

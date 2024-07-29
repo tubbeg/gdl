@@ -1,11 +1,12 @@
 (ns gdl.simple-test
-  (:require [gdl.backends.libgdx.app :as app]
+  (:require [core.component :as component]
+            [gdl.backends.libgdx.app :as app]
             [gdl.context :as ctx]
             [gdl.graphics :as g]
             gdl.screen
             [gdl.graphics.color :as color]))
 
-(defn draw-test [g {:keys [special-font logo]}]
+(defn draw-test [g {{:keys [special-font logo]} :context/simple-test}]
   (let [[wx wy] (map #(format "%.2f" %) (g/world-mouse-position g))
         [gx gy] (g/gui-mouse-position g)
         the-str (str "World x " wx "\n"
@@ -30,17 +31,27 @@
   (render [_ {g :context/graphics :as ctx}]
     (g/render-gui-view g #(draw-test % ctx))))
 
-(defn create-context [ctx]
-  (assoc ctx
-         :context/screens {:my-screen (->Screen)
-                           :first-screen :my-screen}
-         :special-font (ctx/generate-ttf ctx {:file "exocet/films.EXL_____.ttf"
-                                              :size 16})
-         :logo (ctx/create-image ctx "logo.png")))
+(component/def :context/screens {}
+  _
+  (ctx/create [_ _ctx]
+    {:first-screen :my-screen
+     :my-screen (->Screen)}))
+
+(component/def :context/simple-test {}
+  {:keys [font logo]}
+  (ctx/create [_ ctx]
+    {:special-font (ctx/generate-ttf ctx font)
+     :logo (ctx/create-image ctx logo)}))
 
 (defn app []
   (app/start {:app {:title "gdl demo"
                     :width 800
                     :height 600
                     :full-screen? false}
-              :create-context create-context}))
+              :context {:context/graphics true
+                        :context/assets true
+                        ;:context/ui true
+                        :context/simple-test {:logo "logo.png"
+                                              :font {:file "exocet/films.EXL_____.ttf"
+                                                     :size 16}}
+                        :context/screens true}}))

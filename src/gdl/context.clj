@@ -1,6 +1,9 @@
-(ns gdl.context)
+(ns gdl.context
+  (:require [core.component :as component]))
 
 (defrecord Context [])
+
+(component/defn create [_ _ctx])
 
 (defprotocol Application
   (exit-app [_]))

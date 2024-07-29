@@ -1,6 +1,7 @@
 (ns ^:no-doc gdl.backends.libgdx.context.vis-ui
-  (:require [gdl.app :refer [current-context]]
-            gdl.context
+  (:require [core.component :as component]
+            [gdl.app :refer [current-context]]
+            [gdl.context :as ctx]
             gdl.disposable
             [gdl.scene2d.actor :as actor :refer [parent]]
             [gdl.scene2d.group :refer [add-actor!]]
@@ -41,14 +42,16 @@
   ;(set! Tooltip/MOUSE_MOVED_FADEOUT true)
   )
 
-(defn ->context []
-  (check-cleanup-visui!)
-  (VisUI/load)
-  (font-enable-markup!)
-  (set-tooltip-config!)
-  (reify gdl.disposable/Disposable
-    (dispose [_]
-      (VisUI/dispose))))
+(component/def :context/ui {}
+  _
+  (ctx/create [_ _ctx]
+    (check-cleanup-visui!)
+    (VisUI/load)
+    (font-enable-markup!)
+    (set-tooltip-config!)
+    (reify gdl.disposable/Disposable
+      (dispose [_]
+        (VisUI/dispose)))))
 
 (defn- ->change-listener [_ on-clicked]
   (proxy [ChangeListener] []

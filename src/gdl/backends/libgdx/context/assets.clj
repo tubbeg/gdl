@@ -1,6 +1,7 @@
 (ns ^:no-doc gdl.backends.libgdx.context.assets
   (:require [clojure.string :as str]
-            gdl.context)
+            [core.component :as component]
+            [gdl.context :as ctx])
   (:import com.badlogic.gdx.Gdx
            com.badlogic.gdx.assets.AssetManager
            com.badlogic.gdx.audio.Sound
@@ -32,15 +33,17 @@
     (.finishLoading manager)
     manager))
 
-(defn ->context []
-  (let [folder "resources/" ; TODO should be set in classpath and not necessary here ?
-        sound-files   (recursively-search-files folder #{"wav"})
-        texture-files (recursively-search-files folder #{"png" "bmp"})]
-    {:manager (load-all-assets! :log-load-assets? false
-                                :sound-files sound-files
-                                :texture-files texture-files)
-     :sound-files sound-files
-     :texture-files texture-files}))
+(component/def :context/assets {}
+  _
+  (ctx/create [_ _ctx]
+    (let [folder "resources/" ; TODO should be set in classpath and not necessary here ?
+          sound-files   (recursively-search-files folder #{"wav"})
+          texture-files (recursively-search-files folder #{"png" "bmp"})]
+      {:manager (load-all-assets! :log-load-assets? true
+                                  :sound-files sound-files
+                                  :texture-files texture-files)
+       :sound-files sound-files
+       :texture-files texture-files})))
 
 (extend-type gdl.context.Context
   gdl.context/SoundStore
@@ -48,8 +51,10 @@
     (.play ^Sound (get manager file)))
 
   gdl.context/Assets
-  (cached-texture [{{:keys [manager]} :context/assets} file]
-    (get manager file))
+  (cached-texture [{{:keys [manager]} :context/assets :as ctx} file]
+    (let [texture  (get manager file)]
+      (assert texture)
+      texture))
 
   (all-sound-files [{{:keys [sound-files]} :context/assets}]
     sound-files)

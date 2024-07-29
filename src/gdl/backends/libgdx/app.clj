@@ -1,9 +1,9 @@
 (ns gdl.backends.libgdx.app
   (:require [gdl.app :refer [current-context]]
-            [gdl.screen :as screen]
+            [gdl.context :as ctx]
             [gdl.disposable :refer [dispose]]
-            [gdl.context :refer [current-screen change-screen]]
             [gdl.graphics.color :as color]
+            [gdl.screen :as screen]
             (gdl.backends.libgdx.context [assets :as assets]
                                          [graphics :as graphics]
                                          input
@@ -21,11 +21,25 @@
   (exit-app [_]
     (.exit Gdx/app)))
 
-(defn- ->default-context [world-unit-scale]
-  (gdl.context/map->Context
-   {:context/graphics (graphics/->context world-unit-scale)
-    :context/assets (assets/->context)
-    :context/ui (vis-ui/->context)}))
+#_(defn- assert-module-loaded [k]
+  (let [ns-sym (-> k name symbol)]
+    (assert (find-ns ns-sym)
+            (str "Cannot find module namespace " ns-sym))))
+
+; TODO :context/assets false does still load
+; also [:context/assets] w/o args possible
+(defn- ->context [context]
+  (assert (apply distinct? (map first context)))
+  (when true ;log-context-component-create?
+    (println "ctx/create "))
+  (reduce (fn [ctx {k 0 :as component}]
+            (when true ;log-context-component-create?
+              (println k))
+            #_(assert-module-loaded k) ; TODO also asserts component exists ! do this maybe first w. schema or sth.
+            ; TODO safe-merge? ( distinct keys, not necessary....)
+            (merge ctx [k (ctx/create component ctx)]))
+          (ctx/->Context)
+          context))
 
 (extend-type com.badlogic.gdx.utils.Disposable
   gdl.disposable/Disposable
@@ -56,16 +70,15 @@
       (screen/show screen new-context)
       new-context)))
 
-(defn- ->application [{:keys [create-context
-                              world-unit-scale]}]
+(defn- ->application [{:keys [context]}]
   (proxy [ApplicationAdapter] []
     (create []
-      (let [context (create-context (->default-context world-unit-scale))]
+      (let [context (->context context)]
         (assert (:first-screen (:context/screens context)))
         (->> context
              :context/screens
              :first-screen
-             (change-screen context)
+             (ctx/change-screen context)
              (reset! current-context))))
 
     (dispose []
@@ -75,7 +88,7 @@
       (ScreenUtils/clear color/black)
       (let [context @current-context]
         (graphics/fix-viewport-update context)
-        (screen/render (current-screen context) context)))
+        (screen/render (ctx/current-screen context) context)))
 
     (resize [w h]
       (graphics/update-viewports @current-context w h))))
@@ -100,10 +113,9 @@
           :width 800
           :height 600
           :full-screen? false}
-    :create-context create-context} ; function with one argument creating the context, getting the default-context.
-
-  Optionally you can pass :world-unit-scale for the world-view."
+    :context ...}
+  "
   [config]
-  (assert (:create-context config))
+  (assert (:context config))
   (Lwjgl3Application. (->application config)
                       (lwjgl3-configuration (:app config))))

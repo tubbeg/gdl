@@ -3,6 +3,7 @@
 (defproject com.github.damn/gdl "main-SNAPSHOT"
   :repositories [["jitpack" "https://jitpack.io"]] ; shapedrawer / grid2d
   :dependencies [[org.clojure/clojure "1.11.1"]
+                 [com.github.damn/core.component "600ea8e"]
                  ; only @ dev profile ?
                  [nrepl "0.9.0"]
                  [org.clojure/tools.namespace "1.3.0"]
