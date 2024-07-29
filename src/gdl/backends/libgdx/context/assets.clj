@@ -39,7 +39,7 @@
     (let [folder "resources/" ; TODO should be set in classpath and not necessary here ?
           sound-files   (recursively-search-files folder #{"wav"})
           texture-files (recursively-search-files folder #{"png" "bmp"})]
-      {:manager (load-all-assets! :log-load-assets? true
+      {:manager (load-all-assets! :log-load-assets? false
                                   :sound-files sound-files
                                   :texture-files texture-files)
        :sound-files sound-files
