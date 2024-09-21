@@ -1,0 +1,10 @@
+{:paths ["src/gdl" "src-java/gdl"]
+ :deps {com.badlogicgames.gdx/gdx  {:mvn/version "1.12.0"}
+        com.github.damn/core.component {:mvn/version "600ea8e"}
+        com.badlogicgames.gdx/gdx-platform  {:mvn/version "1.12.0"}
+        com.badlogicgames.gdx/gdx-backend-lwjgl3 {:mvn/version "1.12.0"}
+        com.badlogicgames.gdx/gdx-freetype {:mvn/version "1.12.0"}
+        com.badlogicgames.gdx/gdx-freetype-platform  {:mvn/version "1.12.0"}
+        com.kotcrab.vis/vis-ui {:mvn/version "1.5.2"}
+        earlygrey/shapedrawer {:git/url "https://github.com/earlygrey/shapedrawer"
+                               :git/sha "11be31f5ce1e23ab99c55a00c7479f0c91d91527"}}
